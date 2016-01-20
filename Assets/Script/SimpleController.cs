@@ -39,6 +39,7 @@ public class SimpleController : MonoBehaviour
 		// Sets Player Velocity
 		myRigidbody.velocity = new Vector3(axisX * speed, myRigidbody.velocity.y, axisY * speed);
 
+/* NOTE: DISABLED UNTIL FURTHER NOTICE DO NOT DELETE
 		// "Destroy" Object
 		if(Input.GetButtonDown("KMDestroy") || Input.GetButtonDown("JDestroy"))
 		{
@@ -114,6 +115,7 @@ public class SimpleController : MonoBehaviour
 				MapManager.instance.isDirty = true;
 			}
 		}
+*/
 	}
 
 	private void GetKMInput()

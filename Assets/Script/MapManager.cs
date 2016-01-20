@@ -25,14 +25,6 @@ public class MapManager : MonoBehaviour
 
 		GeneratePerimeterCubes();
 		InitializeMap();
-
-		string[] joysticksConnected = Input.GetJoystickNames();
-	
-		// PS4 Controller
-		if(joysticksConnected[0] == "Wireless Controller")
-		{
-
-		}
 	}
 
 	private void Update()
@@ -96,7 +88,7 @@ public class MapManager : MonoBehaviour
 				if(Physics.Raycast(new Vector3(x + offset, 10, z + offset), Vector3.down, out hit, Mathf.Infinity, layerMask))
 				{
 					map[x,z] = hit.collider.gameObject;
-					hit.collider.gameObject.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
+					//hit.collider.gameObject.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
 
 				}
 				else
@@ -118,7 +110,7 @@ public class MapManager : MonoBehaviour
 				if(Physics.Raycast(new Vector3(x + offset, 10, z + offset), Vector3.down, out hit, Mathf.Infinity, layerMask))
 				{
 					map[x,z] = hit.collider.gameObject;
-					hit.collider.gameObject.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
+					//hit.collider.gameObject.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
 				}
 				else
 				{

@@ -16,7 +16,7 @@ public class SpawnController : MonoBehaviour {
 			spawnPoints = GameObject.FindGameObjectsWithTag ("SpawnPoint");
 
 		int playerStart = Random.Range (1, spawnPoints.Length) - 1;
-		for (int i = 0; i < spawnPoints.Length; i++) {
+		for (int i = 0; i < spawnPoints.Length-1; i++) {
 			GameObject o;
 
 			if(i == playerStart)
@@ -54,7 +54,7 @@ public class SpawnController : MonoBehaviour {
 			if(c != null && go != null){
 				c.setCamera (GameObject.Find (cameraName).GetComponent<Camera>());
 				c.getCamera ().transform.position =
-					new Vector3(o.transform.position.x, o.transform.position.y, c.getCamera ().transform.position.z);
+					new Vector3(o.transform.position.x, o.transform.position.y+10, o.transform.position.z);
 				c.getCamera ().transform.parent = c.transform;
 			}
 		}
