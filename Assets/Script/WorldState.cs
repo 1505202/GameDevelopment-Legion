@@ -28,4 +28,10 @@ public class WorldState : MonoBehaviour {
 	private void clearState(){
 		characters.Clear ();
 	}
+
+	public List<GameObject> Characters {
+		get {
+			return characters;
+		}
+	}
 }

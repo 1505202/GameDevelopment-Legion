@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class AIController : MonoBehaviour {
-
-	public GameObject[] legion;
+public class AIController : Character {
 
 	[SerializeField] private float moveTimer = 0f;
 	[SerializeField] private float nextMoveTime = 0f;
@@ -11,20 +9,21 @@ public class AIController : MonoBehaviour {
 	[SerializeField] private float minMoveTime = 5f;
 
 	public float wallRayRange = 1f;
-	public Camera cam;
-
-	[SerializeField] private float speed = 7f;
 
 	// Use this for initialization
 	void Start () {
-		if (legion == null)
-			legion = GameObject.FindGameObjectsWithTag ("Legion");
+
+		if (gameObject.tag == "Legion")
+			speed = 8f;
+		else if (gameObject.tag == "RoguePlayer" || gameObject.tag == "RogueAI")
+			speed = 7f;
+		assimilated = gameObject.tag == "Legion";
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-		if (!GameObject.Find ("GameScript").GetComponent<SpawnController>().start)
+		if (!GameObject.Find ("GameController").GetComponent<SpawnController>().start)
 			return;
 
 		moveTimer += Time.deltaTime;
@@ -35,9 +34,9 @@ public class AIController : MonoBehaviour {
 			nextMoveTime = Random.Range (minMoveTime, maxMoveTime);
 		}
 
-		if (cam != null) {
-			cam.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, cam.transform.position.z);
-		}
+		/*if (myCamera != null) {
+			myCamera.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, myCamera.transform.position.z);
+		}*/
 
 		Debug.DrawRay (transform.position, Vector3.up * wallRayRange, Color.green);
 		Debug.DrawRay (transform.position, Vector3.down * wallRayRange, Color.green);
@@ -94,9 +93,5 @@ public class AIController : MonoBehaviour {
 			return true;
 
 		return false;
-	}
-
-	public Camera getCamera(){
-		return cam;
 	}
 }

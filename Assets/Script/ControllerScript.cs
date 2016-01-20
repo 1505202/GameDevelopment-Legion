@@ -1,23 +1,28 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ControllerScript : MonoBehaviour, CameraInterface {
+/*
+Used to specify behaviour for player controlled characters like Legion and RoguePlayer
+ */
+public class ControllerScript : Character {
 
-	[SerializeField] private float speed = 1;
 	[SerializeField] private KeyCode up;
 	[SerializeField] private KeyCode down;
 	[SerializeField] private KeyCode left;
 	[SerializeField] private KeyCode right;
 
 	public ArrayList cameras = new ArrayList ();
-	public Camera startCamera;
-	bool assimilated = false;
 
 	private Rigidbody2D body;
 
 	// Use this for initialization
 	void Start () {
-		cameras.Add (startCamera);
+		cameras.Add (myCamera);
+		if (gameObject.tag == "Legion")
+			speed = 8f;
+		else if (gameObject.tag == "RoguePlayer" || gameObject.tag == "RogueAI")
+			speed = 7f;
+		assimilated = gameObject.tag == "Legion";
 	}
 	
 	// Update is called once per frame
@@ -41,31 +46,35 @@ public class ControllerScript : MonoBehaviour, CameraInterface {
 		GetComponent<Rigidbody2D> ().velocity = v;
 
 		if ((gameObject.tag == "RoguePlayer") && !(v.x == 0 && v.y == 0))
-			GameObject.Find ("GameScript").GetComponent<SpawnController> ().start = true;
+			GameObject.Find ("GameController").GetComponent<SpawnController> ().start = true;
 
-		if (startCamera != null) {
-			if(!assimilated || gameObject.tag == "Legion") startCamera.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, startCamera.transform.position.z);
+		//if (myCamera != null) {
+		//	if(!assimilated || gameObject.tag == "Legion") myCamera.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, myCamera.transform.position.z);
 //			else {
-//				startCamera.transform.position = GameObject.Find ("LegionCamera").GetComponent<Camera>().transform.position;
+//				myCamera.transform.position = GameObject.Find ("LegionCamera").GetComponent<Camera>().transform.position;
 //			}
 
-		foreach(Camera c in cameras){
+		/*foreach(Camera c in cameras){
 				if(c != null && gameObject.tag == "Legion")
 					c.transform.position = GameObject.Find ("LegionCamera").transform.position;
 		}
-		}
+		}*/
 	}
 
 	void OnCollisionEnter2D(Collision2D coll){
 		//Set color of rogue to legion
 		if ((coll.gameObject.tag == "RoguePlayer" || coll.gameObject.tag == "RogueAI") && gameObject.tag == "Legion") {
-			//coll.gameObject.GetComponent<Renderer> ().material = gameObject.GetComponent<Renderer> ().material;
+			//Increase size if this is legion
 			gameObject.transform.localScale = new Vector3 (gameObject.transform.localScale.x+0.11f, 1.0f, gameObject.transform.localScale.z+0.11f);
-			if(coll.gameObject.tag == "RogueAI"){
-				cameras.Add (coll.gameObject.GetComponent<AIController>().getCamera ());
-			} else if(coll.gameObject.tag == "RoguePlayer"){
-				cameras.Add (coll.gameObject.GetComponent<ControllerScript>().getCamera ());
+			//Add camera to list of cameras following this character
+			Camera collCamera = coll.gameObject.GetComponent<Character>().getCamera ();
+			//If collision character has a camera, add it as a child of this object
+			if(collCamera != null) {
+				collCamera.transform.parent = getCamera ().transform;
+				cameras.Add (collCamera);
 			}
+				
+
 			assimilated = true;
 
 			Destroy (coll.gameObject);
@@ -74,9 +83,5 @@ public class ControllerScript : MonoBehaviour, CameraInterface {
 
 		Debug.Log ("[" + gameObject.tag + "]" + "Collision with: " + coll.gameObject.tag);
 	}
-
-	public Camera getCamera(){
-		return startCamera;
-	}
-
+	
 }

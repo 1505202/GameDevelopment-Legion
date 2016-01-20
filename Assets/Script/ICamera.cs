@@ -2,9 +2,10 @@
 using System.Collections;
 using UnityEngine;
 
-public interface CameraInterface 
+public interface ICamera 
 {
 	Camera getCamera();
+	void setCamera(Camera c);
 }
 
 
