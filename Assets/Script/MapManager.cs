@@ -25,6 +25,14 @@ public class MapManager : MonoBehaviour
 
 		GeneratePerimeterCubes();
 		InitializeMap();
+
+		string[] joysticksConnected = Input.GetJoystickNames();
+	
+		// PS4 Controller
+		if(joysticksConnected[0] == "Wireless Controller")
+		{
+
+		}
 	}
 
 	private void Update()

@@ -120,6 +120,9 @@ public class SimpleController : MonoBehaviour
 	{
 		axisX = Input.GetAxisRaw("KMMoveHorizontal");
 		axisY = Input.GetAxisRaw("KMMoveVertical");
+
+		aimAxisX = Input.mousePosition.x - (Screen.width / 2);
+		aimAxisY = Input.mousePosition.y - (Screen.height / 2);
 	}
 
 	private void GetJSInput()
