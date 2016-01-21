@@ -25,27 +25,6 @@ public class SpawnController : MonoBehaviour {
 			else
 				o = (GameObject) Instantiate (aiPrefab, spawnPoints[i].transform.position, spawnPoints[i].transform.rotation);
 
-			//Allocate camera to the rogue
-			/*ControllerScript cs = o.GetComponent<ControllerScript>();
-			AIController aic = o.GetComponent<AIController>();
-			switch(i)
-			{
-			case 0:
-				if(cs != null) cs.startCamera = GameObject.Find ("RogueCamera1").GetComponent<Camera>();
-				if(aic != null) aic.cam = GameObject.Find ("RogueCamera1").GetComponent<Camera>();
-				break;
-			case 1:
-				if(cs != null) cs.startCamera = GameObject.Find ("RogueCamera2").GetComponent<Camera>();
-				if(aic != null) aic.cam = GameObject.Find ("RogueCamera2").GetComponent<Camera>();
-				break;
-			case 2:
-				if(cs != null) cs.startCamera = GameObject.Find ("RogueCamera3").GetComponent<Camera>();
-				if(aic != null) aic.cam = GameObject.Find ("RogueCamera3").GetComponent<Camera>();
-				break;
-			default:
-				print ("Index for allocating camera to rogue out of range.");
-				break;
-			}*/
 
 			//Setup camera for character
 			Character c = o.GetComponent<Character>();

@@ -4,6 +4,7 @@ using System.Collections;
 public abstract class Character : MonoBehaviour, ICamera {
 
 	[SerializeField] protected Camera myCamera;
+	protected GameObject model;
 	protected float speed;
 	protected bool assimilated;
 
