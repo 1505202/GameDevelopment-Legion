@@ -25,11 +25,13 @@ public class Legion : AActor
 	// ComponentCaching
 	private Rigidbody myRigidbody = null;
 	private Transform myTransform = null;
+	private Transform myChildTransform = null;
 
 	private void Start()
 	{
 		myRigidbody = GetComponent<Rigidbody>();
 		myTransform = GetComponent<Transform>();
+		myChildTransform = myTransform.GetChild(0);
 
 		// Add Legion Camera
 		inputController = ControllerManager.Instance.NewController(new JInput( 1 ));
@@ -41,12 +43,13 @@ public class Legion : AActor
 	{
 		if( legionState == ELegionState.Controllable )
 		{
+			myRigidbody.velocity = inputController.MoveDirection() * movementSpeed;
+
 			if(inputController.MoveDirection() != Vector3.zero)
 			{
-				myRigidbody.velocity = inputController.MoveDirection();
-
 				Quaternion lookRotation = Quaternion.LookRotation (inputController.MoveDirection());
 				myTransform.rotation = Quaternion.Slerp (myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
+				myChildTransform.rotation = Quaternion.Euler( 90, 0, 0 );
 			}
 			return;
 		}
