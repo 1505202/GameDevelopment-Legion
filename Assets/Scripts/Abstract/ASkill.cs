@@ -4,8 +4,12 @@ using UnityEngine;
 /// </summary>
 public abstract class ASkill : MonoBehaviour, ISkill
 {
-	[SerializeField] protected float skillCooldown = 0;
-	[SerializeField] protected bool skillAvailable = true;
+	[SerializeField] protected bool isReady = true;
 
-	public abstract void UseSkill();	
+	public abstract void UseSkill();
+
+	public bool IsReady
+	{
+		get{ return isReady; }
+	}
 }

@@ -26,6 +26,7 @@ public class Rogue : AActor
 	// Cached Components
 	private Rigidbody myRigidBody = null;
 	private Transform myTransform = null;
+	private Transform myChildTransform = null;
 
 	private Transform targetParent = null;
 
@@ -39,22 +40,29 @@ public class Rogue : AActor
 	{
 		GameManager.Instance.RegisterRogueElement(this);
 
+		myRigidBody = GetComponent<Rigidbody>();		
 		myTransform = GetComponent<Transform>();
-		myRigidBody = GetComponent<Rigidbody>();
+		myChildTransform = myTransform.GetChild(0);
 
-		inputController = ControllerManager.Instance.NewController( new KMInput(  ) );
+		inputController = ControllerManager.Instance.NewController( new JInput( 1 ) );
+
+		RogueStealth stealth = gameObject.AddComponent<RogueStealth>();
+		stealth.Initialize(GetComponent<MeshRenderer>(), 3, 8);
+		rogueSkills[0] = stealth;
 	}
 
 	private void Update()
 	{
 		if( rogueState == ERogueState.RogueState )
 		{
+
+			myRigidBody.velocity = inputController.MoveDirection() * movementSpeed;
+
 			if(inputController.MoveDirection() != Vector3.zero)
 			{
-				myRigidBody.velocity = inputController.MoveDirection() * movementSpeed;
-
 				Quaternion lookRotation = Quaternion.LookRotation (inputController.MoveDirection());
 				myTransform.rotation = Quaternion.Slerp (myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
+				myChildTransform.rotation = Quaternion.Euler( 90, 0, 0 );
 			}
 
 			if( rogueSkillsUnlocked > 0 )
@@ -69,7 +77,10 @@ public class Rogue : AActor
 				{
 					if(rogueSkillsUnlocked > 0)
 					{
-						rogueSkills[0].UseSkill();
+						if( rogueSkills[0].IsReady )
+						{
+							rogueSkills[0].UseSkill();
+						}
 					}
 				}
 			}
