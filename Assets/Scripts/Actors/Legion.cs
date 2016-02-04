@@ -7,6 +7,14 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody))]
 public class Legion : AActor
 {
+//	[Header("Assimilatee Skills")]
+//	[Header("Slow Beam")]
+//
+//	[Header("Tethered Probe")]
+//
+//	[Header("Satellite Probe")]
+//	[SerializeField] private float 
+
 	public enum ELegionState 
 	{ 
 		Controllable,   // Controllable
@@ -27,6 +35,9 @@ public class Legion : AActor
 	private Transform myTransform = null;
 	private Transform myChildTransform = null;
 
+	[SerializeField] private Vector3 cameraRotation = Vector3.zero;
+	private Vector3 cameraOffset = Vector3.zero;
+
 	private void Start()
 	{
 		myRigidbody = GetComponent<Rigidbody>();
@@ -37,6 +48,8 @@ public class Legion : AActor
 		inputController = ControllerManager.Instance.NewController(new JInput( 1 ));
 
 		// Setup new the assimilatedLegionSkillsArray
+		cameraOffset = myChildTransform.localPosition;
+		myChildTransform.position = myTransform.position + cameraOffset;
 	}
 
 	private void Update()
@@ -49,7 +62,8 @@ public class Legion : AActor
 			{
 				Quaternion lookRotation = Quaternion.LookRotation (inputController.MoveDirection());
 				myTransform.rotation = Quaternion.Slerp (myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
-				myChildTransform.rotation = Quaternion.Euler( 90, 0, 0 );
+				myChildTransform.rotation = Quaternion.Euler( cameraRotation );
+				myChildTransform.position = myTransform.position + cameraOffset;
 			}
 			return;
 		}
@@ -70,11 +84,11 @@ public class Legion : AActor
 
 			if( skillIndex < assimilatedLegionSkills.Length - 1 )
 			{
-				rogue.LegionSkill = assimilatedLegionSkills[skillIndex++];
+				//rogue.LegionSkill = assimilatedLegionSkills[skillIndex++];
 			}
 			else
 			{
-				rogue.LegionSkill = assimilatedLegionSkills[skillIndex];
+				//rogue.LegionSkill = assimilatedLegionSkills[skillIndex];
 			}
 			// TODO: Add local rogue camera to list.
 		}
