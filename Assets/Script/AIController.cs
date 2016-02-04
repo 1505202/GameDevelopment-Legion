@@ -3,7 +3,7 @@ using System.Collections;
 
 public class AIController : MonoBehaviour {
 
-	public GameObject[] legion;
+	public GameObject legion;
 
 	[SerializeField] private float moveTimer = 0f;
 	[SerializeField] private float nextMoveTime = 0f;
@@ -18,7 +18,7 @@ public class AIController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		if (legion == null)
-			legion = GameObject.FindGameObjectsWithTag ("Legion");
+			legion = GameObject.Find ("Legion");
 	}
 	
 	// Update is called once per frame

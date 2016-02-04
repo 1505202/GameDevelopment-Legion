@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 68987bd50b3fe4b37b32414ed876d6f3
+timeCreated: 1454370938
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - m_PlayerPrefab: {instanceID: 0}
+  - matchMaker: {instanceID: 0}
+  - roguePrefab: {fileID: 158064, guid: 95f306844a0b16246b1bb4ebd9667836, type: 2}
+  - legionPrefab: {fileID: 118736, guid: 7f0af403deeec034cbcb5d8918e926d6, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

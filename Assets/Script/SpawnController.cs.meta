@@ -1,10 +1,13 @@
 fileFormatVersion: 2
 guid: af980cc95b291a9448012c1557d4f930
-timeCreated: 1452182935
+timeCreated: 1454371237
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - roguePlayerPrefab: {fileID: 158064, guid: 95f306844a0b16246b1bb4ebd9667836, type: 2}
+  - legendPlayerPrefab: {fileID: 118736, guid: 7f0af403deeec034cbcb5d8918e926d6, type: 2}
+  - aiPrefab: {fileID: 139510, guid: 575b2a5741c3bb74fa77e7ef6f3e32ba, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
