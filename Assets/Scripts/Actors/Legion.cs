@@ -7,6 +7,14 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody))]
 public class Legion : AActor
 {
+//	[Header("Assimilatee Skills")]
+//	[Header("Slow Beam")]
+//
+//	[Header("Tethered Probe")]
+//
+//	[Header("Satellite Probe")]
+//	[SerializeField] private float 
+
 	public enum ELegionState 
 	{ 
 		Controllable,   // Controllable
@@ -70,11 +78,11 @@ public class Legion : AActor
 
 			if( skillIndex < assimilatedLegionSkills.Length - 1 )
 			{
-				rogue.LegionSkill = assimilatedLegionSkills[skillIndex++];
+				//rogue.LegionSkill = assimilatedLegionSkills[skillIndex++];
 			}
 			else
 			{
-				rogue.LegionSkill = assimilatedLegionSkills[skillIndex];
+				//rogue.LegionSkill = assimilatedLegionSkills[skillIndex];
 			}
 			// TODO: Add local rogue camera to list.
 		}

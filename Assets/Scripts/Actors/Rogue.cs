@@ -7,6 +7,20 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody))]
 public class Rogue : AActor
 {
+	[Header("Skill Variables")]
+	[Header("Rogue Speed Buff")]
+	[SerializeField] private float speedMultiplier = 1;
+	[SerializeField] private float speedDuration = 1;
+	[SerializeField] private float speedCooldown = 1;
+	
+	[Header("Rogue Blink")]
+	[SerializeField] private float blinkDistance = 1;
+	[SerializeField] private float blinkCooldown = 1;
+	
+	[Header("Rogue Invisibility")]
+	[SerializeField] private float invisibilityDuration = 1;
+	[SerializeField] private float invisibilityCooldown = 1;
+
 	public enum ERogueState 
 	{ 
 		RogueState,			// Acts As A Rogue 
@@ -16,12 +30,9 @@ public class Rogue : AActor
 	private ERogueState rogueState = ERogueState.RogueState;
 
 	// Rogue Skills
+	private int skillIndex = 0;
     private int rogueSkillsUnlocked = 3;
     private ASkill[] rogueSkills = new ASkill[3];
-	private int skillIndex = 0;
-
-	// Assimilated Skill
-    private ASkill legionSkill = null;
 
 	// Cached Components
 	private Rigidbody myRigidBody = null;
@@ -33,8 +44,11 @@ public class Rogue : AActor
 	// Players Input Controller
     private AController inputController;
 
+	private float movementOffset = 1;
 
 	private bool canSwitchSkills = true;
+
+	private Vector3 cameraOffset = Vector3.zero;
 
 	private void Start()
 	{
@@ -46,23 +60,33 @@ public class Rogue : AActor
 
 		inputController = ControllerManager.Instance.NewController( new JInput( 1 ) );
 
+		RogueSpeedUp speedBoost = gameObject.AddComponent<RogueSpeedUp>();
+		speedBoost.Initialize(this, speedMultiplier, speedDuration, speedCooldown);
+		rogueSkills[0] = speedBoost;
+
+		RogueBlink dash = gameObject.AddComponent<RogueBlink>();
+		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance);
+		rogueSkills[1] = dash;
+
 		RogueStealth stealth = gameObject.AddComponent<RogueStealth>();
-		stealth.Initialize(GetComponent<MeshRenderer>(), 3, 8);
-		rogueSkills[0] = stealth;
+		stealth.Initialize(GetComponent<MeshRenderer>(), invisibilityDuration, invisibilityCooldown);
+		rogueSkills[2] = stealth;
+
+		cameraOffset = myChildTransform.localPosition;
 	}
 
 	private void Update()
 	{
 		if( rogueState == ERogueState.RogueState )
 		{
-
-			myRigidBody.velocity = inputController.MoveDirection() * movementSpeed;
+			myRigidBody.velocity = inputController.MoveDirection() * movementSpeed * movementOffset;
 
 			if(inputController.MoveDirection() != Vector3.zero)
 			{
 				Quaternion lookRotation = Quaternion.LookRotation (inputController.MoveDirection());
 				myTransform.rotation = Quaternion.Slerp (myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
-				myChildTransform.rotation = Quaternion.Euler( 90, 0, 0 );
+				myChildTransform.rotation = Quaternion.Euler( 55, 0, 0 );
+				myChildTransform.position = myTransform.position + cameraOffset;
 			}
 
 			if( rogueSkillsUnlocked > 0 )
@@ -77,9 +101,9 @@ public class Rogue : AActor
 				{
 					if(rogueSkillsUnlocked > 0)
 					{
-						if( rogueSkills[0].IsReady )
+						if( rogueSkills[skillIndex].IsReady )
 						{
-							rogueSkills[0].UseSkill();
+							rogueSkills[skillIndex].UseSkill();
 						}
 					}
 				}
@@ -90,14 +114,6 @@ public class Rogue : AActor
 		{
 			myTransform.position = Vector3.Lerp(myTransform.position, targetParent.position, Time.time * 2);
 			myTransform.localScale = Vector3.Lerp(myTransform.localScale, Vector3.zero, Time.time * 2);
-		}
-
-		if( rogueState == ERogueState.AssimilatedState )
-		{
-			if(inputController.FiringPower())
-			{
-				legionSkill.UseSkill();
-			}
 		}
 	}
 
@@ -150,16 +166,16 @@ public class Rogue : AActor
 		set { rogueState = value; }
 	}
 
-	public ASkill LegionSkill
-	{
-		get{ return legionSkill; }
-		set{ legionSkill = value; }
-	}
-
 	public AController Controller
 	{
 		get { return inputController; }
 		set { inputController = value; }
+	}
+
+	public float MovementOffset
+	{
+		get { return movementOffset; }
+		set { movementOffset = value; }
 	}
 
 	#endregion 
