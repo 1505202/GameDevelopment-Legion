@@ -7,6 +7,8 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody))]
 public class Rogue : AActor
 {
+	[SerializeField] private Vector3 cameraRotation = Vector3.zero;
+
 	[Header("Skill Variables")]
 	[Header("Rogue Speed Buff")]
 	[SerializeField] private float speedMultiplier = 1;
@@ -20,7 +22,7 @@ public class Rogue : AActor
 	[Header("Rogue Invisibility")]
 	[SerializeField] private float invisibilityDuration = 1;
 	[SerializeField] private float invisibilityCooldown = 1;
-
+	
 	public enum ERogueState 
 	{ 
 		RogueState,			// Acts As A Rogue 
@@ -72,7 +74,7 @@ public class Rogue : AActor
 		stealth.Initialize(GetComponent<MeshRenderer>(), invisibilityDuration, invisibilityCooldown);
 		rogueSkills[2] = stealth;
 
-		cameraOffset = myChildTransform.localPosition;
+		cameraOffset = myChildTransform.localPosition / 1.5f; // Magic Numbers Are Real
 	}
 
 	private void Update()
@@ -85,7 +87,7 @@ public class Rogue : AActor
 			{
 				Quaternion lookRotation = Quaternion.LookRotation (inputController.MoveDirection());
 				myTransform.rotation = Quaternion.Slerp (myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
-				myChildTransform.rotation = Quaternion.Euler( 55, 0, 0 );
+				myChildTransform.rotation = Quaternion.Euler( cameraRotation );
 				myChildTransform.position = myTransform.position + cameraOffset;
 			}
 
@@ -155,7 +157,7 @@ public class Rogue : AActor
 	private IEnumerator AssimilationControl(float time)
 	{
 		yield return new WaitForSeconds(time);
-		rogueState = ERogueState.AssimilatedState;
+		Destroy(this);
 	}
 
 	#region Properties
