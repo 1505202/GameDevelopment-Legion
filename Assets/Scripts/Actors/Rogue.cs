@@ -58,7 +58,6 @@ public class Rogue : AActor
 
 		myRigidBody = GetComponent<Rigidbody>();		
 		myTransform = GetComponent<Transform>();
-		myChildTransform = myTransform.GetChild(0);
 
 		inputController = ControllerManager.Instance.NewController( new JInput( 1 ) );
 
@@ -74,49 +73,65 @@ public class Rogue : AActor
 		stealth.Initialize(GetComponent<MeshRenderer>(), invisibilityDuration, invisibilityCooldown);
 		rogueSkills[2] = stealth;
 
-		cameraOffset = myChildTransform.localPosition / 1.5f; // Magic Numbers Are Real
+		if (isLocalPlayer) 
+		{
+			myChildTransform = myTransform.GetChild (0);
+			cameraOffset = myChildTransform.localPosition / 1.5f; // Magic Numbers Are Real
+			myChildTransform.gameObject.SetActive(true);
+		}
 	}
 
 	private void Update()
 	{
-		if( rogueState == ERogueState.RogueState )
-		{
-			myRigidBody.velocity = inputController.MoveDirection() * movementSpeed * movementOffset;
+	    if (!isLocalPlayer)
+	    {
+			return;
+	    }
 
-			if(inputController.MoveDirection() != Vector3.zero)
-			{
-				Quaternion lookRotation = Quaternion.LookRotation (inputController.MoveDirection());
-				myTransform.rotation = Quaternion.Slerp (myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
-				myChildTransform.rotation = Quaternion.Euler( cameraRotation );
-				myChildTransform.position = myTransform.position + cameraOffset;
-			}
+	    if (rogueState == ERogueState.RogueState)
+	    {
+	        myRigidBody.velocity = inputController.MoveDirection() * movementSpeed * movementOffset;
 
-			if( rogueSkillsUnlocked > 0 )
-			{
-				if( inputController.SwitchingPower() && canSwitchSkills )
+	        if (inputController.MoveDirection() != Vector3.zero)
+	        {
+	            Quaternion lookRotation = Quaternion.LookRotation(inputController.MoveDirection());
+	            myTransform.rotation = Quaternion.Slerp(
+	                myTransform.rotation,
+	                lookRotation,
+	                Time.deltaTime * rotateSpeed);
+				if (isLocalPlayer) 
 				{
-					SwitchSkill();
-					StartCoroutine(SwitchPowerCD(0.5f));
+	            	myChildTransform.rotation = Quaternion.Euler(cameraRotation);
+	            	myChildTransform.position = myTransform.position + cameraOffset;
 				}
+	        }
 
-				if( inputController.FiringPower() )
-				{
-					if(rogueSkillsUnlocked > 0)
-					{
-						if( rogueSkills[skillIndex].IsReady )
-						{
-							rogueSkills[skillIndex].UseSkill();
-						}
-					}
-				}
-			}
-		}
-		
-		if( rogueState == ERogueState.AssimilatingState )
-		{
-			myTransform.position = Vector3.Lerp(myTransform.position, targetParent.position, Time.time * 2);
-			myTransform.localScale = Vector3.Lerp(myTransform.localScale, Vector3.zero, Time.time * 2);
-		}
+	        if (rogueSkillsUnlocked > 0)
+	        {
+	            if (inputController.SwitchingPower() && canSwitchSkills)
+	            {
+	                SwitchSkill();
+	                StartCoroutine(SwitchPowerCD(0.5f));
+	            }
+
+	            if (inputController.FiringPower())
+	            {
+	                if (rogueSkillsUnlocked > 0)
+	                {
+	                    if (rogueSkills[skillIndex].IsReady)
+	                    {
+	                        rogueSkills[skillIndex].UseSkill();
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    if (rogueState == ERogueState.AssimilatingState)
+	    {
+	        myTransform.position = Vector3.Lerp(myTransform.position, targetParent.position, Time.time * 2);
+	        myTransform.localScale = Vector3.Lerp(myTransform.localScale, Vector3.zero, Time.time * 2);
+	    }
 	}
 
     /// <summary>

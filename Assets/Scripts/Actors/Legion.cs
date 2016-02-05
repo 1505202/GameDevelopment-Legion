@@ -41,38 +41,55 @@ public class Legion : AActor
 	private void Start()
 	{
 		myRigidbody = GetComponent<Rigidbody>();
+		// Setup new the assimilatedLegionSkillsArray
 		myTransform = GetComponent<Transform>();
-		myChildTransform = myTransform.GetChild(0);
 
 		// Add Legion Camera
 		inputController = ControllerManager.Instance.NewController(new JInput( 1 ));
 
-		// Setup new the assimilatedLegionSkillsArray
-		cameraOffset = myChildTransform.localPosition;
-		myChildTransform.position = myTransform.position + cameraOffset;
+		if (isLocalPlayer) 
+		{
+			myChildTransform = myTransform.GetChild (0);
+			cameraOffset = myChildTransform.localPosition;
+			myChildTransform.position = myTransform.position + cameraOffset;
+			myChildTransform.gameObject.SetActive(true);
+			
+		}
 	}
 
 	private void Update()
 	{
-		if( legionState == ELegionState.Controllable )
-		{
+	    if (!isLocalPlayer)
+	    {
+	        return;
+	    }
+
+	    if (legionState == ELegionState.Controllable)
+	    {
 			myRigidbody.velocity = inputController.MoveDirection() * movementSpeed;
 
-			if(inputController.MoveDirection() != Vector3.zero)
-			{
-				Quaternion lookRotation = Quaternion.LookRotation (inputController.MoveDirection());
-				myTransform.rotation = Quaternion.Slerp (myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
-				myChildTransform.rotation = Quaternion.Euler( cameraRotation );
-				myChildTransform.position = myTransform.position + cameraOffset;
-			}
-			return;
-		}
+	        if (inputController.MoveDirection() != Vector3.zero)
+	        {
+	            Quaternion lookRotation = Quaternion.LookRotation(inputController.MoveDirection());
+	            myTransform.rotation = Quaternion.Slerp(
+	                myTransform.rotation,
+	                lookRotation,
+	                Time.deltaTime * rotateSpeed);
 
-		if( legionState == ELegionState.Traversing )
-		{
+				if (isLocalPlayer) 
+				{
+	            	myChildTransform.rotation = Quaternion.Euler(cameraRotation);
+	            	myChildTransform.position = myTransform.position + cameraOffset;
+				}
+	        }
+	        return;
+	    }
 
-			return;
-		}
+	    if (legionState == ELegionState.Traversing)
+	    {
+
+	        return;
+	    }
 	}
 
 	private void OnCollisionEnter(Collision obj)
