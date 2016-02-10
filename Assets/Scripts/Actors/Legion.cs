@@ -23,19 +23,14 @@ public class Legion : AActor
 	private ELegionState legionState = ELegionState.Controllable;
 	
     [SerializeField] private AController inputController;
-	
-	private ASkill[] assimilatedLegionSkills = new ASkill[3];
-	private int skillIndex = 0;
-
-	// Implement when local players exist
-	// private List<Transform> cameras = new List<Transform>();
 
 	// ComponentCaching
 	private Rigidbody myRigidbody = null;
 	private Transform myTransform = null;
 	private Transform myChildTransform = null;
 
-	[SerializeField] private Vector3 cameraRotation = Vector3.zero;
+	// ForceCameraControls
+	private Vector3 cameraRotation = Vector3.zero;
 	private Vector3 cameraOffset = Vector3.zero;
 
 	private void Start()
@@ -50,10 +45,10 @@ public class Legion : AActor
 		if (isLocalPlayer) 
 		{
 			myChildTransform = myTransform.GetChild (0);
+			cameraRotation = myChildTransform.rotation.eulerAngles;
 			cameraOffset = myChildTransform.localPosition;
 			myChildTransform.position = myTransform.position + cameraOffset;
 			myChildTransform.gameObject.SetActive(true);
-			
 		}
 	}
 
@@ -90,25 +85,6 @@ public class Legion : AActor
 
 	        return;
 	    }
-	}
-
-	private void OnCollisionEnter(Collision obj)
-	{
-		if(obj.gameObject.CompareTag("Rogue"))
-		{
-			Rogue rogue = obj.gameObject.GetComponent<Rogue>();
-			rogue.AssimilateRogue(GetComponent<Transform>());
-
-			if( skillIndex < assimilatedLegionSkills.Length - 1 )
-			{
-				//rogue.LegionSkill = assimilatedLegionSkills[skillIndex++];
-			}
-			else
-			{
-				//rogue.LegionSkill = assimilatedLegionSkills[skillIndex];
-			}
-			// TODO: Add local rogue camera to list.
-		}
 	}
 
 	/// <summary>
