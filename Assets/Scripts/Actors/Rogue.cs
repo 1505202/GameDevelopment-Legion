@@ -6,6 +6,7 @@ using System.Collections;
 /// <summary>
 /// 
 /// </summary>
+[NetworkSettings(channel=1, sendInterval=0)]
 public class Rogue : AActor, IAssimilatable
 {
 
@@ -30,6 +31,8 @@ public class Rogue : AActor, IAssimilatable
 	[SerializeField] private float probeMaxDistance = 0;
 
 	[SyncVar] private int assimilatedBehaviour = 0;
+	[SyncVar] private Vector3 lineStartPoint = Vector3.zero;
+	[SyncVar] private Vector3 lineEndPoint = Vector3.zero;
 
 	public enum ERogueState 
 	{ 
@@ -61,8 +64,7 @@ public class Rogue : AActor, IAssimilatable
 	private Vector3 cameraOffset = Vector3.zero;
 	private Vector3 cameraRotation = Vector3.zero;
 
-	[SyncVar] private Vector3 lineStartPoint = Vector3.zero;
-	[SyncVar] private Vector3 lineEndPoint = Vector3.zero;
+	private bool hasCollidedWithLegion = false;
 
 	private void Start()
 	{
@@ -92,6 +94,7 @@ public class Rogue : AActor, IAssimilatable
 			cameraRotation = myChildTransform.rotation.eulerAngles;
 			myChildTransform.gameObject.SetActive(true);
 		}
+
 	}
 	private void Update()
 	{
@@ -194,9 +197,8 @@ public class Rogue : AActor, IAssimilatable
 		}
 		else
 		{
-			lineStartPoint = Vector3.zero;
-			lineEndPoint = Vector3.zero;
-			
+			CmdUpdateLineRenderer( Vector3.zero, Vector3.zero );
+
 			line.enabled = false;
 		}
 	}
@@ -215,8 +217,9 @@ public class Rogue : AActor, IAssimilatable
 
 	private void OnCollisionEnter(Collision obj)
 	{
-		if(obj.gameObject.CompareTag("Legion"))
+		if(obj.gameObject.CompareTag("Legion") && !hasCollidedWithLegion)
 		{
+			hasCollidedWithLegion = true;
 			CmdAssimilate();
 		}
 	}
@@ -272,18 +275,28 @@ public class Rogue : AActor, IAssimilatable
 			Destroy(GetComponent<MeshFilter>());
 			Destroy(GetComponent<MeshRenderer>());
 			Destroy(GetComponent<Collider>());
-			GetComponent<Rigidbody>().isKinematic = true; // Networking Requires It
+
+			//GetComponent<Rigidbody>().isKinematic = true; // Networking Requires It
 			line = gameObject.AddComponent<LineRenderer>();
+			line.SetWidth(0.1f, 0.1f);
+			target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
+			transform.position = target.position + new Vector3(0, 0.1f, 0);
+			transform.parent = target;
 		}
 		else if( assimilatedBehaviour == 2 )
 		{
 			CmdUpdateMesh(tetherMesh);
+			target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
+			myRigidBody = gameObject.AddComponent<Rigidbody>();
+
 		}
 		else if( assimilatedBehaviour == 3 )
 		{
 			CmdUpdateMesh(probeMesh);
+			target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
+			myRigidBody = gameObject.AddComponent<Rigidbody>();
+
 		}
-		target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
 
 		for(int i = 0; i < rogueSkills.Length; i++)
 		{
