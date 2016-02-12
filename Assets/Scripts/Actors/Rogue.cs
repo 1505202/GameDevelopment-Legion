@@ -1,8 +1,8 @@
 using UnityEngine;
+using UnityEngine.Networking;
 
 using System.Collections;
 
-using UnityEngine.Networking;
 /// <summary>
 /// 
 /// </summary>
@@ -23,6 +23,12 @@ public class Rogue : AActor, IAssimilatable
 	[SerializeField] private float invisibilityDuration = 1;
 	[SerializeField] private float invisibilityCooldown = 1;
 
+	[SerializeField] private Mesh tetherMesh = null;
+	[SerializeField] private Mesh probeMesh = null;
+
+	[Header("Assimilated Skills")]
+	[SerializeField] private float probeMaxDistance = 0;
+
 	[SyncVar] private int assimilatedBehaviour = 0;
 
 	public enum ERogueState 
@@ -34,7 +40,7 @@ public class Rogue : AActor, IAssimilatable
 
 	// Rogue Skills
 	private int skillIndex = 0;
-    private int rogueSkillsUnlocked = 3;
+    private int rogueSkillsUnlocked = 0;
     private ASkill[] rogueSkills = new ASkill[3];
 
 	// Cached Components
@@ -55,14 +61,12 @@ public class Rogue : AActor, IAssimilatable
 	private Vector3 cameraOffset = Vector3.zero;
 	private Vector3 cameraRotation = Vector3.zero;
 
-
-
 	[SyncVar] private Vector3 lineStartPoint = Vector3.zero;
 	[SyncVar] private Vector3 lineEndPoint = Vector3.zero;
 
 	private void Start()
 	{
-		GameManager.Instance.RegisterRogueElement(this);
+		CmdRegisterRogue();
 
 		myRigidBody = GetComponent<Rigidbody>();		
 		myTransform = GetComponent<Transform>();
@@ -129,23 +133,8 @@ public class Rogue : AActor, IAssimilatable
 
 	private void RogueBehaviour()
 	{
-		/// Rogue Behaviour
-		/// Translation and Rotation Handling
-		myRigidBody.velocity = inputController.MoveDirection() * movementSpeed * movementOffset;
-		
-		if (inputController.MoveDirection() != Vector3.zero)
-		{
-			Quaternion lookRotation = Quaternion.LookRotation(inputController.MoveDirection());
-			myTransform.rotation = Quaternion.Slerp(
-				myTransform.rotation,
-				lookRotation,
-				Time.deltaTime * rotateSpeed);
-			if (isLocalPlayer) 
-			{
-				myChildTransform.rotation = Quaternion.Euler(cameraRotation);
-				myChildTransform.position = myTransform.position + cameraOffset;
-			}
-		}
+		HandleMoveInput();
+
 		// Skill handling
 		if (rogueSkillsUnlocked > 0)
 		{
@@ -211,21 +200,17 @@ public class Rogue : AActor, IAssimilatable
 			line.enabled = false;
 		}
 	}
-	private void TetherBehaviour(){}
-	private void ProbeBehaviour(){}
-
-
-	[Command]
-	private void CmdUpdateLineRenderer(Vector3 positionA, Vector3 positionB)
+	private void TetherBehaviour()
 	{
-		lineStartPoint = positionA;
-		lineEndPoint = positionB;
+
 	}
-
-	[Command]
-	public void CmdAssimilate()
+	private void ProbeBehaviour()
 	{
-		assimilatedBehaviour = GameManager.Instance.AssimilatedRogueCount();
+		HandleMoveInput();
+		if(Vector3.Distance(transform.position, target.position) > probeMaxDistance)
+		{
+			transform.position = target.position;
+		}
 	}
 
 	private void OnCollisionEnter(Collision obj)
@@ -236,12 +221,35 @@ public class Rogue : AActor, IAssimilatable
 		}
 	}
 
+	[Command]
+	private void CmdRegisterRogue()
+	{
+		GameManager.Instance.RegisterRogueElement(this);
+	}
+	[Command]
+	private void CmdUpdateMesh(Mesh mesh)
+	{
+		GetComponent<MeshFilter>().mesh = mesh;
+	}
+	[Command]
+	private void CmdUpdateLineRenderer(Vector3 positionA, Vector3 positionB)
+	{
+		lineStartPoint = positionA;
+		lineEndPoint = positionB;
+	}
+	[Command]
+	public void CmdAssimilate()
+	{
+		assimilatedBehaviour = GameManager.Instance.AssimilatedRogueCount(this);
+	}
 
 	/// Skill Controlling Functions
-	public void UpdateRogueSkillCount()
+	[ClientRpc]
+	public void RpcUpdateRogueSkillCount()
     {
         rogueSkillsUnlocked++;
     }
+
 	private void SwitchSkill()
 	{
 		if(++skillIndex >= rogueSkillsUnlocked)
@@ -266,18 +274,41 @@ public class Rogue : AActor, IAssimilatable
 			Destroy(GetComponent<Collider>());
 			GetComponent<Rigidbody>().isKinematic = true; // Networking Requires It
 			line = gameObject.AddComponent<LineRenderer>();
-			target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
 		}
 		else if( assimilatedBehaviour == 2 )
 		{
+			CmdUpdateMesh(tetherMesh);
 		}
 		else if( assimilatedBehaviour == 3 )
 		{
+			CmdUpdateMesh(probeMesh);
 		}
+		target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
 
 		for(int i = 0; i < rogueSkills.Length; i++)
 		{
 			Destroy(rogueSkills[i]);
+		}
+	}
+
+	private void HandleMoveInput()
+	{
+		/// Rogue Behaviour
+		/// Translation and Rotation Handling
+		myRigidBody.velocity = inputController.MoveDirection() * movementSpeed * movementOffset;
+		
+		if (inputController.MoveDirection() != Vector3.zero)
+		{
+			Quaternion lookRotation = Quaternion.LookRotation(inputController.MoveDirection());
+			myTransform.rotation = Quaternion.Slerp(
+				myTransform.rotation,
+				lookRotation,
+				Time.deltaTime * rotateSpeed);
+			if (isLocalPlayer) 
+			{
+				myChildTransform.rotation = Quaternion.Euler(cameraRotation);
+				myChildTransform.position = myTransform.position + cameraOffset;
+			}
 		}
 	}
 

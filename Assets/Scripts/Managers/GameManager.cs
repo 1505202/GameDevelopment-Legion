@@ -13,8 +13,13 @@ public class GameManager : NetworkBehaviour
 	private List<Rogue> rogues = new List<Rogue>();
 
 	[SyncVar] private int assimilatedRogueCount = 0;
-	public int AssimilatedRogueCount()
+	public int AssimilatedRogueCount(Rogue rogue)
 	{
+		RemoveRogueElement(rogue);
+		for(int i = 0; i < rogues.Count; i++)
+		{
+			rogues[i].RpcUpdateRogueSkillCount();
+		}
 		return ++assimilatedRogueCount;
 	}
 
