@@ -49,7 +49,6 @@ public class Rogue : AActor, IAssimilatable
 	// Cached Components
 	private Rigidbody myRigidBody = null;
 	private Transform myTransform = null;
-	private Transform myChildTransform = null;
 
 	private Transform target = null;
 	private LineRenderer line = null;
@@ -58,12 +57,7 @@ public class Rogue : AActor, IAssimilatable
     private AController inputController = null;
 
 	private float movementOffset = 1;
-
 	private bool canSwitchSkills = true;
-
-	private Vector3 cameraOffset = Vector3.zero;
-	private Vector3 cameraRotation = Vector3.zero;
-
 	private bool hasCollidedWithLegion = false;
 
 	private void Start()
@@ -86,15 +80,6 @@ public class Rogue : AActor, IAssimilatable
 		RogueStealth stealth = gameObject.AddComponent<RogueStealth>();
 		stealth.Initialize(GetComponent<MeshRenderer>(), invisibilityDuration, invisibilityCooldown);
 		rogueSkills[2] = stealth;
-
-		if (isLocalPlayer) 
-		{
-			myChildTransform = myTransform.GetChild (0);
-			cameraOffset = myChildTransform.localPosition / 1.5f; // Magic Numbers Are Real
-			cameraRotation = myChildTransform.rotation.eulerAngles;
-			myChildTransform.gameObject.SetActive(true);
-		}
-
 	}
 	private void Update()
 	{
@@ -270,6 +255,7 @@ public class Rogue : AActor, IAssimilatable
 	/// Actor Switching Function
 	public void SwitchActorBehaviour()
 	{
+        // Assimilate To Beamer Legion
 		if( assimilatedBehaviour == 1 )
 		{
 			Destroy(GetComponent<MeshFilter>());
@@ -283,6 +269,7 @@ public class Rogue : AActor, IAssimilatable
 			transform.position = target.position + new Vector3(0, 0.1f, 0);
 			transform.parent = target;
 		}
+        // Assimilate To Tether Legion
 		else if( assimilatedBehaviour == 2 )
 		{
 			CmdUpdateMesh(tetherMesh);
@@ -290,6 +277,7 @@ public class Rogue : AActor, IAssimilatable
 			myRigidBody = gameObject.AddComponent<Rigidbody>();
 
 		}
+        // Assimilate To Probe legion
 		else if( assimilatedBehaviour == 3 )
 		{
 			CmdUpdateMesh(probeMesh);
@@ -313,15 +301,7 @@ public class Rogue : AActor, IAssimilatable
 		if (inputController.MoveDirection() != Vector3.zero)
 		{
 			Quaternion lookRotation = Quaternion.LookRotation(inputController.MoveDirection());
-			myTransform.rotation = Quaternion.Slerp(
-				myTransform.rotation,
-				lookRotation,
-				Time.deltaTime * rotateSpeed);
-			if (isLocalPlayer) 
-			{
-				myChildTransform.rotation = Quaternion.Euler(cameraRotation);
-				myChildTransform.position = myTransform.position + cameraOffset;
-			}
+			myTransform.rotation = Quaternion.Slerp( myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
 		}
 	}
 
