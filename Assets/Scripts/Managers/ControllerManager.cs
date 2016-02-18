@@ -9,7 +9,7 @@ public class ControllerManager : MonoBehaviour
 		{
 			if(instance == null)
 			{
-				instance = new GameObject("ControllerManager", typeof(ControllerManager)).GetComponent<ControllerManager>();
+                Debug.LogError("Please Place A ControllerManager Into The Scene.");
 			}
 
 			return instance;
@@ -17,9 +17,14 @@ public class ControllerManager : MonoBehaviour
 	}
 	private AController[] controllers = new AController[5];
 
+    private int playerCount = 0;
+
 	private void Start()
 	{
-		GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
+        if (instance == null)
+        {
+            instance = this;
+        }
 	}
 
 	private void Update () 
