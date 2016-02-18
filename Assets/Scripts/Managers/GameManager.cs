@@ -7,9 +7,14 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private float maxTime;
+
+    [SerializeField] private GameObject legion;
+    [SerializeField] private List<GameObject> rogueElements = new List<GameObject>(4); 
+
     private float currentTime;
-	private bool hasGameStarted = false; // TODO: Network Manager Will turn this to true when game is ready to Start
 	private List<Rogue> rogues = new List<Rogue>();
+
+
 
 	private int assimilatedRogueCount = 0;
 	public int AssimilatedRogueCount(Rogue rogue)
@@ -40,45 +45,6 @@ public class GameManager : MonoBehaviour
 		{
 			Destroy (this);
 		}
-    }
-
-    private void Update()
-    {
-		if(hasGameStarted)
-		{
-			ClockTick();
-			if( IsGameOver() == 1 ) // Legion Won
-			{
-				Debug.Log("Legion Won");
-			}
-			else if( IsGameOver() == 2 ) // Rogues Won
-			{
-				Debug.Log("Rogues Win");
-			}
-		}
-    }
-
-	public void StartGame()
-	{
-		hasGameStarted = true;
-	}
-
-    /// <summary>
-    /// Tests For A Game Over Everyframe
-    /// </summary>
-    private int IsGameOver()
-    {
-		if( rogues.Count == 0 )
-		{
-			return 1;
-		}
-
-		if( currentTime <= 0 )
-		{
-			return 2;
-		}
-
-		return 0;
     }
 
     /// <summary>

@@ -1,5 +1,5 @@
 ﻿
 public interface IAssimilatable
 {
-	void CmdAssimilate();
+	void Assimilate();
 }

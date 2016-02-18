@@ -200,7 +200,7 @@ public class Rogue : AActor, IAssimilatable
 		if(obj.gameObject.CompareTag("Legion") && !hasCollidedWithLegion)
 		{
 			hasCollidedWithLegion = true;
-			CmdAssimilate();
+			Assimilate();
 		}
 	}
 
@@ -217,7 +217,8 @@ public class Rogue : AActor, IAssimilatable
 		lineStartPoint = positionA;
 		lineEndPoint = positionB;
 	}
-	public void CmdAssimilate()
+
+	public void Assimilate()
 	{
 		assimilatedBehaviour = GameManager.Instance.AssimilatedRogueCount(this);
 	}
