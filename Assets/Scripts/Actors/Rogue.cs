@@ -60,7 +60,7 @@ public class Rogue : AActor, IAssimilatable
 
 	private void Start()
 	{
-		CmdRegisterRogue();
+        //GameManager.Instance.RegisterRogueElement(this);
 
 		myRigidBody = GetComponent<Rigidbody>();		
 		myTransform = GetComponent<Transform>();
@@ -81,19 +81,11 @@ public class Rogue : AActor, IAssimilatable
 	}
 	private void Update()
 	{
-		// Controls The Sync Var To Switch To An Assimilated Behaviour Change
-		if( rogueState != ERogueState.AssimilatedState && assimilatedBehaviour != 0 )
+		if(line != null)
 		{
-			SwitchActorBehaviour();
-			rogueState = ERogueState.AssimilatedState;
+			line.SetPosition(0, lineStartPoint);
+			line.SetPosition(1, lineEndPoint);
 		}
-
-
-			if(line != null)
-			{
-				line.SetPosition(0, lineStartPoint);
-				line.SetPosition(1, lineEndPoint);
-			}
 
 
 		switch(assimilatedBehaviour)
@@ -108,7 +100,6 @@ public class Rogue : AActor, IAssimilatable
 			TetherBehaviour();
 			return;
 		case 3:
-			ProbeBehaviour();
 			return;
 		}
 
@@ -156,7 +147,7 @@ public class Rogue : AActor, IAssimilatable
 			RaycastHit hit;
 			if( Physics.Raycast(ray, out hit, 10) )
 			{
-				CmdUpdateLineRenderer(transform.position, hit.point);
+				UpdateLineRendererPoints(transform.position, hit.point);
 
 				line.SetPosition(0, lineStartPoint);
 				line.SetPosition(1, lineEndPoint);
@@ -169,7 +160,7 @@ public class Rogue : AActor, IAssimilatable
 			}
 			else
 			{
-				CmdUpdateLineRenderer(transform.position, ray.GetPoint(10));
+				UpdateLineRendererPoints(transform.position, ray.GetPoint(10));
 				
 				line.SetPosition(0, lineStartPoint);
 				line.SetPosition(1, lineEndPoint);
@@ -177,7 +168,7 @@ public class Rogue : AActor, IAssimilatable
 		}
 		else
 		{
-			CmdUpdateLineRenderer( Vector3.zero, Vector3.zero );
+			UpdateLineRendererPoints( Vector3.zero, Vector3.zero );
 
 			line.enabled = false;
 		}
@@ -185,14 +176,6 @@ public class Rogue : AActor, IAssimilatable
 	private void TetherBehaviour()
 	{
 
-	}
-	private void ProbeBehaviour()
-	{
-		HandleMoveInput();
-		if(Vector3.Distance(transform.position, target.position) > probeMaxDistance)
-		{
-			transform.position = target.position;
-		}
 	}
 
 	private void OnCollisionEnter(Collision obj)
@@ -204,15 +187,7 @@ public class Rogue : AActor, IAssimilatable
 		}
 	}
 
-	private void CmdRegisterRogue()
-	{
-		GameManager.Instance.RegisterRogueElement(this);
-	}
-	private void CmdUpdateMesh(Mesh mesh)
-	{
-		GetComponent<MeshFilter>().mesh = mesh;
-	}
-	private void CmdUpdateLineRenderer(Vector3 positionA, Vector3 positionB)
+	private void UpdateLineRendererPoints(Vector3 positionA, Vector3 positionB)
 	{
 		lineStartPoint = positionA;
 		lineEndPoint = positionB;
@@ -220,13 +195,51 @@ public class Rogue : AActor, IAssimilatable
 
 	public void Assimilate()
 	{
-		assimilatedBehaviour = GameManager.Instance.AssimilatedRogueCount(this);
+		GameManager.Instance.Assimilate(this);
+        assimilatedBehaviour = GameManager.Instance.GetBehaviourIndex();
+        
+        SwitchActorBehaviour();
 	}
-
-	/// Skill Controlling Functions
-	public void RpcUpdateRogueSkillCount()
+	public void UpdateRogueSkillCount()
     {
         rogueSkillsUnlocked++;
+    }
+    public void SwitchActorBehaviour()
+    {
+        // Assimilate To Beamer Legion
+        if (assimilatedBehaviour == 1)
+        {
+            Destroy(GetComponent<MeshFilter>());
+            Destroy(GetComponent<MeshRenderer>());
+            Destroy(GetComponent<Collider>());
+
+            line = gameObject.AddComponent<LineRenderer>();
+            line.SetWidth(0.1f, 0.1f);
+            target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
+            transform.position = target.position + new Vector3(0, 0.1f, 0);
+            transform.parent = target;
+        }
+        // Assimilate To Tether Legion
+        else if (assimilatedBehaviour == 2)
+        {
+            //CmdUpdateMesh(tetherMesh);
+            target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
+            myRigidBody = gameObject.AddComponent<Rigidbody>();
+
+        }
+        // Assimilate To Probe legion
+        else if (assimilatedBehaviour == 3)
+        {
+            //CmdUpdateMesh(probeMesh);
+            target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
+            myRigidBody = gameObject.AddComponent<Rigidbody>();
+
+        }
+
+        for (int i = 0; i < rogueSkills.Length; i++)
+        {
+            Destroy(rogueSkills[i]);
+        }
     }
 
 	private void SwitchSkill()
@@ -241,45 +254,6 @@ public class Rogue : AActor, IAssimilatable
 		canSwitchSkills = false;
 		yield return new WaitForSeconds(time);
 		canSwitchSkills = true;
-	}
-
-	/// Actor Switching Function
-	public void SwitchActorBehaviour()
-	{
-        // Assimilate To Beamer Legion
-		if( assimilatedBehaviour == 1 )
-		{
-			Destroy(GetComponent<MeshFilter>());
-			Destroy(GetComponent<MeshRenderer>());
-			Destroy(GetComponent<Collider>());
-
-			line = gameObject.AddComponent<LineRenderer>();
-			line.SetWidth(0.1f, 0.1f);
-			target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
-			transform.position = target.position + new Vector3(0, 0.1f, 0);
-			transform.parent = target;
-		}
-        // Assimilate To Tether Legion
-		else if( assimilatedBehaviour == 2 )
-		{
-			CmdUpdateMesh(tetherMesh);
-			target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
-			myRigidBody = gameObject.AddComponent<Rigidbody>();
-
-		}
-        // Assimilate To Probe legion
-		else if( assimilatedBehaviour == 3 )
-		{
-			CmdUpdateMesh(probeMesh);
-			target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
-			myRigidBody = gameObject.AddComponent<Rigidbody>();
-
-		}
-
-		for(int i = 0; i < rogueSkills.Length; i++)
-		{
-			Destroy(rogueSkills[i]);
-		}
 	}
 
 	private void HandleMoveInput()
