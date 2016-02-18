@@ -21,15 +21,11 @@ public class Legion : AActor
 		myTransform = GetComponent<Transform>();
 
 		// Add Legion Camera
-		inputController = ControllerManager.Instance.NewController(new JInput( 1 ));
+		inputController = ControllerManager.Instance.NewController();
 	}
 
 	private void Update()
 	{
-	    if (!isLocalPlayer)
-	    {
-	        return;
-	    }
 
 		myRigidbody.velocity = inputController.MoveDirection() * movementSpeed;
 

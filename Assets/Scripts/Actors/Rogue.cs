@@ -1,12 +1,10 @@
 using UnityEngine;
-using UnityEngine.Networking;
 
 using System.Collections;
 
 /// <summary>
 /// 
 /// </summary>
-[NetworkSettings(channel=1, sendInterval=0)]
 public class Rogue : AActor, IAssimilatable
 {
 
@@ -30,9 +28,9 @@ public class Rogue : AActor, IAssimilatable
 	[Header("Assimilated Skills")]
 	[SerializeField] private float probeMaxDistance = 0;
 
-	[SyncVar] private int assimilatedBehaviour = 0;
-	[SyncVar] private Vector3 lineStartPoint = Vector3.zero;
-	[SyncVar] private Vector3 lineEndPoint = Vector3.zero;
+	private int assimilatedBehaviour = 0;
+	private Vector3 lineStartPoint = Vector3.zero;
+	private Vector3 lineEndPoint = Vector3.zero;
 
 	public enum ERogueState 
 	{ 
@@ -43,7 +41,7 @@ public class Rogue : AActor, IAssimilatable
 
 	// Rogue Skills
 	private int skillIndex = 0;
-    private int rogueSkillsUnlocked = 0;
+    private int rogueSkillsUnlocked = 3;
     private ASkill[] rogueSkills = new ASkill[3];
 
 	// Cached Components
@@ -67,7 +65,7 @@ public class Rogue : AActor, IAssimilatable
 		myRigidBody = GetComponent<Rigidbody>();		
 		myTransform = GetComponent<Transform>();
 
-		inputController = ControllerManager.Instance.NewController( new JInput( 1 ) );
+		inputController = ControllerManager.Instance.NewController(  );
 
 		RogueSpeedUp speedBoost = gameObject.AddComponent<RogueSpeedUp>();
 		speedBoost.Initialize(this, speedMultiplier, speedDuration, speedCooldown);
@@ -90,16 +88,13 @@ public class Rogue : AActor, IAssimilatable
 			rogueState = ERogueState.AssimilatedState;
 		}
 
-		// Returns If It Isnt A Local Player
-		if (!isLocalPlayer)
-		{
+
 			if(line != null)
 			{
 				line.SetPosition(0, lineStartPoint);
 				line.SetPosition(1, lineEndPoint);
 			}
-			return;
-		}
+
 
 		switch(assimilatedBehaviour)
 		{
@@ -209,30 +204,25 @@ public class Rogue : AActor, IAssimilatable
 		}
 	}
 
-	[Command]
 	private void CmdRegisterRogue()
 	{
 		GameManager.Instance.RegisterRogueElement(this);
 	}
-	[Command]
 	private void CmdUpdateMesh(Mesh mesh)
 	{
 		GetComponent<MeshFilter>().mesh = mesh;
 	}
-	[Command]
 	private void CmdUpdateLineRenderer(Vector3 positionA, Vector3 positionB)
 	{
 		lineStartPoint = positionA;
 		lineEndPoint = positionB;
 	}
-	[Command]
 	public void CmdAssimilate()
 	{
 		assimilatedBehaviour = GameManager.Instance.AssimilatedRogueCount(this);
 	}
 
 	/// Skill Controlling Functions
-	[ClientRpc]
 	public void RpcUpdateRogueSkillCount()
     {
         rogueSkillsUnlocked++;
