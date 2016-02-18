@@ -26,7 +26,6 @@ public class ControllerManager : MonoBehaviour
             instance = this;
         }
 	}
-
 	private void Update () 
 	{
 		for(int i  = 0; i < controllers.Length; i++)
@@ -38,13 +37,13 @@ public class ControllerManager : MonoBehaviour
 		}
 	}
 
-	public AController NewController( AController controllerInput )
+	public AController NewController( )
 	{
 		for(int i = 0; i < controllers.Length; i++)
 		{
 			if( controllers[i] == null )
 			{
-				controllers[i] = controllerInput;
+				controllers[i] = new JInput(++playerCount);
 				return controllers[i];
 			}
 		}
@@ -62,4 +61,6 @@ public class ControllerManager : MonoBehaviour
 		}
 		return null;
 	}
+
+    //public AController RegisterExistingController(AController controllerInput);
 }
