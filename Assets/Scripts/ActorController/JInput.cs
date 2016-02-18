@@ -37,8 +37,8 @@ public class JInput : AController
 			moveDirection.x = Input.GetAxis(moveHorizontal);
 			moveDirection.z = Input.GetAxis(moveVertical);
 
-			//aimDirection.x = Input.GetAxis(aimHorizontal);
-			//aimDirection.z = Input.GetAxis(aimVertical);
+			aimDirection.x = Input.GetAxis(aimHorizontal);
+			aimDirection.z = Input.GetAxis(aimVertical);
 
 			isSwitchingPower = Input.GetButton(switchPower);
 			isFiringPower = Input.GetButton(firePower);

@@ -21,10 +21,8 @@ public class Legion : AActor
 		// Add Legion Camera
 		inputController = ControllerManager.Instance.NewController();
 	}
-
 	private void Update()
-	{
-
+    {
 		myRigidbody.velocity = inputController.MoveDirection() * movementSpeed;
 
 	    if (inputController.MoveDirection() != Vector3.zero)
@@ -32,15 +30,6 @@ public class Legion : AActor
 	        Quaternion lookRotation = Quaternion.LookRotation(inputController.MoveDirection());
 	        myTransform.rotation = Quaternion.Slerp( myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
 	    }
-	}
-
-	/// <summary>
-	/// Updates the camera layers.
-	/// TODO: When Local Split Sceen Gets Implemented make sure to incorporate the update of all local players
-	/// </summary>
-	private void UpdateCameraLayers()
-	{
-
 	}
 
 	#region Properties
