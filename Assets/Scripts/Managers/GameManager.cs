@@ -1,18 +1,17 @@
 using UnityEngine;
-using UnityEngine.Networking;
 
 using System.Collections.Generic;
 /// <summary>
 /// 
 /// </summary>
-public class GameManager : NetworkBehaviour
+public class GameManager : MonoBehaviour
 {
     [SerializeField] private float maxTime;
     private float currentTime;
 	private bool hasGameStarted = false; // TODO: Network Manager Will turn this to true when game is ready to Start
 	private List<Rogue> rogues = new List<Rogue>();
 
-	[SyncVar] private int assimilatedRogueCount = 0;
+	private int assimilatedRogueCount = 0;
 	public int AssimilatedRogueCount(Rogue rogue)
 	{
 		RemoveRogueElement(rogue);

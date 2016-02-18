@@ -252,7 +252,6 @@ public class Rogue : AActor, IAssimilatable
 			Destroy(GetComponent<MeshRenderer>());
 			Destroy(GetComponent<Collider>());
 
-			//GetComponent<Rigidbody>().isKinematic = true; // Networking Requires It
 			line = gameObject.AddComponent<LineRenderer>();
 			line.SetWidth(0.1f, 0.1f);
 			target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();

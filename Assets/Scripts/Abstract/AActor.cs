@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Networking;
 
 /// <summary>
 /// Abstract Actor, Both Legion And Rogues Extend This Class.

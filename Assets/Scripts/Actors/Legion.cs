@@ -1,11 +1,9 @@
 using UnityEngine;
-using UnityEngine.Networking;
-
 using System.Collections.Generic;
+
 /// <summary>
 /// Legion Actor
 /// </summary>
-[NetworkSettings(channel=1, sendInterval=0)]
 public class Legion : AActor
 {	
     [SerializeField] private AController inputController;
