@@ -7,7 +7,6 @@ using System.Collections;
 /// </summary>
 public class Rogue : AActor, IAssimilatable
 {
-
 	[Header("Skill Variables")]
 	[Header("Rogue Speed Buff")]
 	[SerializeField] private float speedMultiplier = 1;
@@ -22,11 +21,12 @@ public class Rogue : AActor, IAssimilatable
 	[SerializeField] private float invisibilityDuration = 1;
 	[SerializeField] private float invisibilityCooldown = 1;
 
-	[SerializeField] private Mesh tetherMesh = null;
-	[SerializeField] private Mesh probeMesh = null;
 
 	[Header("Assimilated Skills")]
-	[SerializeField] private float probeMaxDistance = 0;
+	[SerializeField] private float tetherMaxDistance = 0;
+
+    [Header("Assimilated Meshes")]
+    [SerializeField] private Mesh tetherMesh = null;
 
 	private int assimilatedBehaviour = 0;
 	private Vector3 lineStartPoint = Vector3.zero;
@@ -62,10 +62,10 @@ public class Rogue : AActor, IAssimilatable
 	{
         //GameManager.Instance.RegisterRogueElement(this);
 
-		myRigidBody = GetComponent<Rigidbody>();		
-		myTransform = GetComponent<Transform>();
+		myRigidBody = GetComponent<Rigidbody>();
+        myTransform = GetComponent<Transform>();
 
-		inputController = ControllerManager.Instance.NewController(  );
+		inputController = ControllerManager.Instance.NewController();
 
 		RogueSpeedUp speedBoost = gameObject.AddComponent<RogueSpeedUp>();
 		speedBoost.Initialize(this, speedMultiplier, speedDuration, speedCooldown);
@@ -222,7 +222,8 @@ public class Rogue : AActor, IAssimilatable
         // Assimilate To Tether Legion
         else if (assimilatedBehaviour == 2)
         {
-            //CmdUpdateMesh(tetherMesh);
+            
+
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
             myRigidBody = gameObject.AddComponent<Rigidbody>();
 

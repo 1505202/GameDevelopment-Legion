@@ -44,6 +44,22 @@ public class GameManager : MonoBehaviour
 			Destroy (this);
 		}
     }
+    private void Update()
+    {
+        ClockTick() ;
+
+        if (currentTime < 0)
+        {
+            RogueVictory();
+        }
+        else
+        {
+            if (assimilatedRogueCount >= 4)
+            {
+                LegionVictory();
+            }
+        }
+    }
 
 
     /// <summary>
@@ -62,4 +78,7 @@ public class GameManager : MonoBehaviour
     {
         rogueElements.Remove(rogue.gameObject);
     }
+
+    private void RogueVictory() { }
+    private void LegionVictory() { }
 }
