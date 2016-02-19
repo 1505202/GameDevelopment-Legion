@@ -4,15 +4,57 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private float maxTime;
-
+    [SerializeField] private int maxSeconds = 180;
     [SerializeField] private GameObject legion;
     [SerializeField] private List<GameObject> rogueElements = new List<GameObject>(4); 
 
-    private float currentTime;
-
+    private float secondsRemaining;
 	private int assimilatedRogueCount = 0;
-	public void Assimilate(Rogue rogue)
+    private static GameManager instance;
+
+    public static GameManager Instance
+    {
+        get { return instance; }
+    }
+
+    public int SecondsRemaining
+    {
+        get { return (int)secondsRemaining; }
+    }
+
+    private void Start()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
+            secondsRemaining = maxSeconds;
+        }
+        else
+        {
+            Destroy(this);
+        }
+    }
+
+    private void Update()
+    {
+        ClockTick();
+
+        if (secondsRemaining < 0)
+        {
+            if (assimilatedRogueCount >= 4)
+            {
+                LegionVictory();
+            }
+            else
+            {
+                RogueVictory();
+            }
+        }
+    }
+
+
+    public void Assimilate(Rogue rogue)
 	{
 		RemoveRogueElement(rogue);
         for (int i = 0; i < rogueElements.Count; i++)
@@ -25,49 +67,12 @@ public class GameManager : MonoBehaviour
         return ++assimilatedRogueCount;
     }
 
-	private static GameManager instance;
-	public static GameManager Instance
-	{
-		get { return instance; }
-	}
-
-    private void Start()
-    {
-		if(instance == null)
-		{
-			instance = this;
-			GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
-			currentTime = maxTime;
-		}
-		else
-		{
-			Destroy (this);
-		}
-    }
-    private void Update()
-    {
-        ClockTick() ;
-
-        if (currentTime < 0)
-        {
-            RogueVictory();
-        }
-        else
-        {
-            if (assimilatedRogueCount >= 4)
-            {
-                LegionVictory();
-            }
-        }
-    }
-
-
     /// <summary>
     /// Processes The Countdown Tick
     /// </summary>
     private void ClockTick()
     {
-        currentTime -= Time.deltaTime;
+        secondsRemaining -= Time.deltaTime;
     }
 
     /// <summary>
@@ -79,6 +84,6 @@ public class GameManager : MonoBehaviour
         rogueElements.Remove(rogue.gameObject);
     }
 
-    private void RogueVictory() { }
-    private void LegionVictory() { }
+    private void RogueVictory()  { Debug.Log("Rogues Win!!!");}
+    private void LegionVictory() { Debug.Log("Legion Wins!!!"); }
 }
