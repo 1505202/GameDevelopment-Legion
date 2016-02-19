@@ -34,14 +34,14 @@ public class JInput : AController
 	{
 		if(controllerID != 0)
 		{
-			moveDirection.x = Input.GetAxis(moveHorizontal);
-			moveDirection.z = Input.GetAxis(moveVertical);
+			this.moveDirection.x = Input.GetAxis(moveHorizontal);
+            this.moveDirection.z = Input.GetAxis(moveVertical);
 
-			aimDirection.x = Input.GetAxis(aimHorizontal);
-			aimDirection.z = Input.GetAxis(aimVertical);
+            this.aimDirection.x = Input.GetAxis(aimHorizontal);
+            this.aimDirection.z = Input.GetAxis(aimVertical);
 
-			isSwitchingPower = Input.GetButton(switchPower);
-			isFiringPower = Input.GetButton(firePower);
+            this.isSwitchingPower = Input.GetButton(switchPower);
+            this.isFiringPower = Input.GetButton(firePower);
 		}
     }
 
@@ -50,4 +50,9 @@ public class JInput : AController
 		get{ return controllerID; }
 		set{ controllerID = value; }
 	}
+
+    public override string ToString()
+    {
+        return base.ToString() + " - " + controllerID;
+    }
 }

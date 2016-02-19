@@ -41,7 +41,7 @@ public class Rogue : AActor, IAssimilatable
 
 	// Rogue Skills
 	private int skillIndex = 0;
-    private int rogueSkillsUnlocked = 3;
+    private int rogueSkillsUnlocked = 0;
     private ASkill[] rogueSkills = new ASkill[3];
 
 	// Cached Components
@@ -57,6 +57,9 @@ public class Rogue : AActor, IAssimilatable
 	private float movementOffset = 1;
 	private bool canSwitchSkills = true;
 	private bool hasCollidedWithLegion = false;
+
+    public GameObject myMeshHolder;
+    public GameObject myLegionMeshholder;
 
 	private void Start()
 	{
@@ -87,17 +90,18 @@ public class Rogue : AActor, IAssimilatable
 			line.SetPosition(1, lineEndPoint);
 		}
 
+        HandleMoveInput();
 
 		switch(assimilatedBehaviour)
 		{
 		case 0:
-			RogueBehaviour();
+			//RogueBehaviour();
 			return;
 		case 1:
-			BeamBehaviour();
+			//BeamBehaviour();
 			return;
 		case 2:
-			TetherBehaviour();
+			//TetherBehaviour();
 			return;
 		case 3:
 			return;
@@ -209,31 +213,45 @@ public class Rogue : AActor, IAssimilatable
         // Assimilate To Beamer Legion
         if (assimilatedBehaviour == 1)
         {
-            Destroy(GetComponent<MeshFilter>());
-            Destroy(GetComponent<MeshRenderer>());
-            Destroy(GetComponent<Collider>());
+            myMeshHolder.SetActive(false);
+            myLegionMeshholder.SetActive(true);
 
-            line = gameObject.AddComponent<LineRenderer>();
-            line.SetWidth(0.1f, 0.1f);
-            target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
-            transform.position = target.position + new Vector3(0, 0.1f, 0);
-            transform.parent = target;
+            gameObject.tag = "Untagged";
+
+
+            //Destroy(GetComponent<MeshFilter>());
+            //Destroy(GetComponent<MeshRenderer>());
+            //Destroy(GetComponent<Collider>());
+
+            //line = gameObject.AddComponent<LineRenderer>();
+            //line.SetWidth(0.1f, 0.1f);
+            //target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
+            //transform.position = target.position + new Vector3(0, 0.1f, 0);
+            //transform.parent = target;
         }
         // Assimilate To Tether Legion
         else if (assimilatedBehaviour == 2)
         {
-            
+            myMeshHolder.SetActive(false);
+            myLegionMeshholder.SetActive(true);
 
-            target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
-            myRigidBody = gameObject.AddComponent<Rigidbody>();
+            gameObject.tag = "Untagged";
+
+            //target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
+            //myRigidBody = gameObject.AddComponent<Rigidbody>();
 
         }
         // Assimilate To Probe legion
         else if (assimilatedBehaviour == 3)
         {
-            //CmdUpdateMesh(probeMesh);
-            target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
-            myRigidBody = gameObject.AddComponent<Rigidbody>();
+            myMeshHolder.SetActive(false);
+            myLegionMeshholder.SetActive(true);
+
+            gameObject.tag = "Untagged";
+
+            ////CmdUpdateMesh(probeMesh);
+            //target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
+            //myRigidBody = gameObject.AddComponent<Rigidbody>();
 
         }
 
