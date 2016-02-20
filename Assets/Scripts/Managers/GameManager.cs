@@ -1,34 +1,37 @@
 using UnityEngine;
 
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private int maxSeconds = 180;
+    [SerializeField] private float maxSeconds = 180;
     [SerializeField] private GameObject legion;
-    [SerializeField] private List<GameObject> rogueElements = new List<GameObject>(4); 
+    [SerializeField] private List<GameObject> rogueElements = new List<GameObject>(4);
+    [SerializeField] private Text gameOverText;
+    [SerializeField] private Text timerText;
 
-    private float secondsRemaining;
 	private int assimilatedRogueCount = 0;
     private static GameManager instance;
+
 
     public static GameManager Instance
     {
         get { return instance; }
     }
 
-    public int SecondsRemaining
-    {
-        get { return (int)secondsRemaining; }
-    }
+    public float SecondsRemaining { get; private set; }
+
+    public bool IsGameOver { get; set; }
 
     private void Start()
     {
+        IsGameOver = false;
         if (instance == null)
         {
             instance = this;
             GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
-            secondsRemaining = maxSeconds;
+            SecondsRemaining = maxSeconds;
         }
         else
         {
@@ -38,9 +41,15 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        ClockTick();
+        if (IsGameOver)
+            return;
 
-        if (secondsRemaining < 0)
+        ClockTick();
+        gameOverText.enabled = IsGameOver;
+        timerText.text = SecondsRemaining.ToString("F1"); // display one decimal place
+
+
+        if (IsGameOver)
         {
             if (assimilatedRogueCount >= 4)
             {
@@ -72,7 +81,11 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void ClockTick()
     {
-        secondsRemaining -= Time.deltaTime;
+        SecondsRemaining -= Time.deltaTime;
+        if (SecondsRemaining <= 0)
+        {
+            IsGameOver = true;
+        }
     }
 
     /// <summary>

@@ -84,6 +84,9 @@ public class Rogue : AActor, IAssimilatable
 	}
 	private void Update()
 	{
+	    if (GameManager.Instance.IsGameOver)
+	        return;
+
 		if(line != null)
 		{
 			line.SetPosition(0, lineStartPoint);
