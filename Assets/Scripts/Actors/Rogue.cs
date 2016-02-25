@@ -70,17 +70,20 @@ public class Rogue : AActor, IAssimilatable
 
 		inputController = ControllerManager.Instance.NewController();
 
-		RogueSpeedUp speedBoost = gameObject.AddComponent<RogueSpeedUp>();
-		speedBoost.Initialize(this, speedMultiplier, speedDuration, speedCooldown);
-		rogueSkills[0] = speedBoost;
+		//RogueSpeedUp speedBoost = gameObject.AddComponent<RogueSpeedUp>();
+		//speedBoost.Initialize(this, speedMultiplier, speedDuration, speedCooldown);
+		//rogueSkills[0] = speedBoost;
 
+        // Temporary Change Until New Skills Are Added
 		RogueBlink dash = gameObject.AddComponent<RogueBlink>();
 		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance);
+		rogueSkills[0] = dash;
 		rogueSkills[1] = dash;
+		rogueSkills[2] = dash;
 
-		RogueStealth stealth = gameObject.AddComponent<RogueStealth>();
-		stealth.Initialize(GetComponent<MeshRenderer>(), invisibilityDuration, invisibilityCooldown);
-		rogueSkills[2] = stealth;
+		//RogueStealth stealth = gameObject.AddComponent<RogueStealth>();
+		//stealth.Initialize(GetComponent<MeshRenderer>(), invisibilityDuration, invisibilityCooldown);
+		//rogueSkills[2] = stealth;
 	}
 	private void Update()
 	{
