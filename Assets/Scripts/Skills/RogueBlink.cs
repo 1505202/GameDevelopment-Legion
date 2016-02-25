@@ -16,12 +16,24 @@ public class RogueBlink : ASkill
 
 	public override void UseSkill()
 	{
-		SkillLogic();
-		StartCoroutine( SkillCooldown(cooldown) );
+        if (SkillLogic())
+        {
+            StartCoroutine(SkillCooldown(cooldown));
+        }
 	}
 	
-	private void SkillLogic()
+	private bool SkillLogic()
 	{
-		targetTransform.position += targetTransform.forward * blinkMultiplier;
+        Ray ray = new Ray(targetTransform.forward * blinkMultiplier + new Vector3(0, 10, 0), Vector3.down);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 12))
+        {
+            if (hit.collider.gameObject.CompareTag("Floor"))
+            {
+                targetTransform.position += targetTransform.forward * blinkMultiplier;
+                return true;
+            }
+        }
+        return false;
 	}
 }
