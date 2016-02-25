@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public class AActor : MonoBehaviour
 {
-    [SerializeField] protected float rotateSpeed = 0;
+    //[SerializeField] protected float rotateSpeed = 0;
     [SerializeField] protected float movementSpeed = 0;
 
     /// <summary>

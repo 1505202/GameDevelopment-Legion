@@ -30,8 +30,8 @@ public class Legion : AActor
 
 	    if (inputController.MoveDirection() != Vector3.zero)
 	    {
-	        Quaternion lookRotation = Quaternion.LookRotation(inputController.MoveDirection());
-	        myTransform.rotation = Quaternion.Slerp( myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
+	        myTransform.rotation = Quaternion.LookRotation(inputController.MoveDirection());
+	        // myTransform.rotation = Quaternion.Slerp( myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
 	    }
 	}
 

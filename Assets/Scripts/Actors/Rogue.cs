@@ -283,13 +283,13 @@ public class Rogue : AActor, IAssimilatable
 		/// Rogue Behaviour
 		/// Translation and Rotation Handling
 		myRigidBody.velocity = inputController.MoveDirection() * movementSpeed * movementOffset;
-		
-		if (inputController.MoveDirection() != Vector3.zero)
-		{
-			Quaternion lookRotation = Quaternion.LookRotation(inputController.MoveDirection());
-			myTransform.rotation = Quaternion.Slerp( myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
-		}
-	}
+
+        if (inputController.MoveDirection() != Vector3.zero)
+        {
+            myTransform.rotation = Quaternion.LookRotation(inputController.MoveDirection());
+            //myTransform.rotation = Quaternion.Slerp(myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
+        }
+    }
 
 	#region Properties
 
