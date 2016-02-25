@@ -10,19 +10,17 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<GameObject> rogueElements = new List<GameObject>(4);
     [SerializeField] private Text gameOverText;
     [SerializeField] private Text timerText;
+    private bool isGameOver;
 
 	private int assimilatedRogueCount = 0;
     private static GameManager instance;
-
 
     public static GameManager Instance
     {
         get { return instance; }
     }
-
     public float SecondsRemaining { get; private set; }
-
-    public bool IsGameOver { get; set; }
+    public bool IsGameOver { get { return isGameOver; } set { isGameOver = value; } }
 
     private void Start()
     {
@@ -38,26 +36,30 @@ public class GameManager : MonoBehaviour
             Destroy(this);
         }
     }
-
     private void Update()
     {
         if (IsGameOver)
+        {
+            gameOverText.enabled = IsGameOver;
             return;
+        }
 
-        ClockTick();
+        ClockTick();    
         gameOverText.enabled = IsGameOver;
         timerText.text = SecondsRemaining.ToString("F1"); // display one decimal place
 
 
-        if (IsGameOver)
+        if (!IsGameOver)
         {
             if (assimilatedRogueCount >= 4)
             {
                 LegionVictory();
+                IsGameOver = true;
             }
-            else
+            else if(SecondsRemaining <= 0)
             {
                 RogueVictory();
+                IsGameOver = true;
             }
         }
     }
@@ -76,16 +78,13 @@ public class GameManager : MonoBehaviour
         return ++assimilatedRogueCount;
     }
 
+
     /// <summary>
     /// Processes The Countdown Tick
     /// </summary>
     private void ClockTick()
     {
         SecondsRemaining -= Time.deltaTime;
-        if (SecondsRemaining <= 0)
-        {
-            IsGameOver = true;
-        }
     }
 
     /// <summary>
@@ -97,6 +96,14 @@ public class GameManager : MonoBehaviour
         rogueElements.Remove(rogue.gameObject);
     }
 
-    private void RogueVictory()  { Debug.Log("Rogues Win!!!");}
-    private void LegionVictory() { Debug.Log("Legion Wins!!!"); }
+    private void RogueVictory()
+    {
+        Debug.Log("Rogues Win!!!");
+        gameOverText.text = "Rogue Victory!";
+    }
+    private void LegionVictory()
+    {
+        Debug.Log("Legion Wins!!!");
+        gameOverText.text = "Legion Victory!";
+    }
 }
