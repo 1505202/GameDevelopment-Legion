@@ -9,17 +9,17 @@ public abstract class ASkill : MonoBehaviour, ISkill
 	protected float cooldown = 0;
 	protected float duration = 0;
 
-	public abstract void UseSkill();
+	public abstract bool UseSkill();
 
 	public bool IsReady
 	{
 		get{ return isReady; }
 	}
 
-	protected IEnumerator SkillCooldown(float time)
+	protected IEnumerator SkillCooldown()
 	{
 		isReady = false;
-		yield return new WaitForSeconds(time);
+		yield return new WaitForSeconds(cooldown);
 		isReady = true;
 	}
 }

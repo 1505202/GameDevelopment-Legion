@@ -12,10 +12,11 @@ public class RogueStealth : ASkill
 		this.cooldown = cooldown;
 	}
 
-	public override void UseSkill()
+	public override bool UseSkill()
 	{
 		StartCoroutine( SkillLogic(duration) );
-		StartCoroutine( SkillCooldown(cooldown) );
+		StartCoroutine( SkillCooldown() );
+        return true;
 	}
 	
 	public IEnumerator SkillLogic(float time)

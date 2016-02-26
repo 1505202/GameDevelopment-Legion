@@ -3,5 +3,5 @@
 /// </summary>
 public interface ISkill
 {
-     void UseSkill();
+     bool UseSkill();
 }

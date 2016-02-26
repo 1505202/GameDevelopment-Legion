@@ -61,6 +61,8 @@ public class Rogue : AActor, IAssimilatable
     public GameObject myMeshHolder;
     public GameObject myLegionMeshholder;
 
+    private Light lightSource;
+
 	private void Start()
 	{
         //GameManager.Instance.RegisterRogueElement(this);
@@ -84,6 +86,8 @@ public class Rogue : AActor, IAssimilatable
 		//RogueStealth stealth = gameObject.AddComponent<RogueStealth>();
 		//stealth.Initialize(GetComponent<MeshRenderer>(), invisibilityDuration, invisibilityCooldown);
 		//rogueSkills[2] = stealth;
+
+        lightSource = GetComponentInChildren<Light>();
 	}
 	private void Update()
 	{
@@ -98,10 +102,12 @@ public class Rogue : AActor, IAssimilatable
 
         HandleMoveInput();
 
+        HandleGlobalCooldownLight();
+
 		switch(assimilatedBehaviour)
 		{
 		case 0:
-			//RogueBehaviour();
+			RogueBehaviour();
 			return;
 		case 1:
 			//BeamBehaviour();
@@ -130,13 +136,10 @@ public class Rogue : AActor, IAssimilatable
 			
 			if (inputController.FiringPower())
 			{
-				if (rogueSkillsUnlocked > 0)
-				{
-					if (rogueSkills[skillIndex].IsReady)
-					{
-						rogueSkills[skillIndex].UseSkill();
-					}
-				}
+                if (rogueSkills[skillIndex].UseSkill())
+                {
+                    lightSource.intensity = 0;
+                }
 			}
 		}
 	}
@@ -293,6 +296,12 @@ public class Rogue : AActor, IAssimilatable
             //myTransform.rotation = Quaternion.Slerp(myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
         }
     }
+
+    private void HandleGlobalCooldownLight()
+    {
+        lightSource.intensity = Mathf.Lerp(lightSource.intensity, 1, Time.deltaTime / blinkCooldown);
+    }
+
 
 	#region Properties
 

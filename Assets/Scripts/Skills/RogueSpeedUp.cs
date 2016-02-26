@@ -16,10 +16,11 @@ public class RogueSpeedUp : ASkill
 		this.cooldown = cooldown;
 	}
 
-	public override void UseSkill()
+	public override bool UseSkill()
 	{
 		StartCoroutine( SkillLogic(duration) );
-		StartCoroutine( SkillCooldown(cooldown) );
+		StartCoroutine( SkillCooldown() );
+        return true;
 	}
 
 	private IEnumerator SkillLogic(float time)

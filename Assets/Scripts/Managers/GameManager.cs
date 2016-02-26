@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
 
         if (!IsGameOver)
         {
-            if (assimilatedRogueCount >= 4)
+            if (assimilatedRogueCount >= rogueElements.Count+1)
             {
                 LegionVictory();
                 IsGameOver = true;
