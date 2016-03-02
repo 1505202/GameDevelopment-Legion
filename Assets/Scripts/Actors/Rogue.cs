@@ -1,6 +1,7 @@
 using UnityEngine;
 
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// 
@@ -63,6 +64,29 @@ public class Rogue : AActor, IAssimilatable
 
     private Light lightSource;
 
+
+
+
+
+    /// <summary>
+    /// /////////////////////////////////////
+    /// </summary>
+    [SerializeField]
+    private LayerMask layerMask;
+
+    private ConfigurableJoint joint;
+
+    private List<Vector3> contactPoints = new List<Vector3>();
+    private List<GameObject> intermediatePoints = new List<GameObject>();
+
+    private SoftJointLimit limit = new SoftJointLimit();
+
+
+
+
+
+
+
 	private void Start()
 	{
         //GameManager.Instance.RegisterRogueElement(this);
@@ -110,12 +134,13 @@ public class Rogue : AActor, IAssimilatable
 			RogueBehaviour();
 			return;
 		case 1:
-			//BeamBehaviour();
+			TetherBehaviour();
 			return;
 		case 2:
-			//TetherBehaviour();
+			CannonballBehaviour();
 			return;
 		case 3:
+            TrailblazerBehaviour();
 			return;
 		}
 
@@ -143,53 +168,35 @@ public class Rogue : AActor, IAssimilatable
 			}
 		}
 	}
-	private void BeamBehaviour()
-	{
-		myTransform.position = target.position;
-		
-		if( inputController.FiringPower() )
-		{
-			Vector3 dir = inputController.AimDirection();
-			if( dir == Vector3.zero )
-			{
-				dir = target.forward;
-			}
-			
-			line.enabled = true;
-			Ray ray = new Ray(transform.position, dir);
-			RaycastHit hit;
-			if( Physics.Raycast(ray, out hit, 10) )
-			{
-				UpdateLineRendererPoints(transform.position, hit.point);
-
-				line.SetPosition(0, lineStartPoint);
-				line.SetPosition(1, lineEndPoint);
-				
-				Rogue rogue = hit.collider.gameObject.GetComponent<Rogue>();
-				if(rogue != null)
-				{
-					rogue.MovementOffset = 0.2f;
-				}
-			}
-			else
-			{
-				UpdateLineRendererPoints(transform.position, ray.GetPoint(10));
-				
-				line.SetPosition(0, lineStartPoint);
-				line.SetPosition(1, lineEndPoint);
-			}
-		}
-		else
-		{
-			UpdateLineRendererPoints( Vector3.zero, Vector3.zero );
-
-			line.enabled = false;
-		}
-	}
 	private void TetherBehaviour()
 	{
+        // updating LineRenderer Points
+        UpdateEndPoints();
+        UpdateLineRenderer();
 
+        // Updating Joint
+        UpdateJointLimits();
+
+        CheckRogueCollision();
+
+        if (UnWrap())
+        {
+            return;
+        }
+
+        if (Wrap())
+        {
+            return;
+        }
 	}
+    private void CannonballBehaviour()
+    {
+
+    }
+    private void TrailblazerBehaviour()
+    {
+
+    }
 
 	private void OnCollisionEnter(Collision obj)
 	{
@@ -219,13 +226,44 @@ public class Rogue : AActor, IAssimilatable
     }
     public void SwitchActorBehaviour()
     {
-        // Assimilate To Beamer Legion
+        // Tether Probe
         if (assimilatedBehaviour == 1)
         {
+            target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
+
+            myTransform = GetComponent<Transform>();
+            joint = gameObject.AddComponent<ConfigurableJoint>();
+
+            contactPoints.Add(myTransform.position);
+            contactPoints.Add(target.position);
+
+            line = GetComponent<LineRenderer>();
+
+            joint = gameObject.AddComponent<ConfigurableJoint>();
+
+            joint.connectedBody = target.GetComponent<Rigidbody>();
+
+            joint.autoConfigureConnectedAnchor = false;
+            joint.connectedAnchor = Vector3.zero;
+
+            joint.xMotion = ConfigurableJointMotion.Limited;
+            joint.yMotion = ConfigurableJointMotion.Limited;
+            joint.zMotion = ConfigurableJointMotion.Limited;
+
+
+            limit.limit = tetherMaxDistance;
+            joint.linearLimit = limit;
+
+
+
+
+
+
             myMeshHolder.SetActive(false);
             myLegionMeshholder.SetActive(true);
 
             gameObject.tag = "Untagged";
+            gameObject.layer = LayerMask.NameToLayer("Default");
 
 
             //Destroy(GetComponent<MeshFilter>());
@@ -303,9 +341,165 @@ public class Rogue : AActor, IAssimilatable
     }
 
 
-	#region Properties
 
-	public ERogueState RogueState
+
+    #region Tether and wrapping
+
+    private void UpdateEndPoints()
+    {
+        contactPoints[0] = myTransform.position;
+        contactPoints[contactPoints.Count - 1] = target.position;
+    }
+    private void UpdateLineRenderer()
+    {
+        line.SetVertexCount(contactPoints.Count);
+        for (int i = 0; i < contactPoints.Count; i++)
+        {
+            line.SetPosition(i, contactPoints[i]);
+        }
+    }
+
+    private void UpdateJointLimits()
+    {
+        if (contactPoints.Count > 2)
+        {
+            // Get Total Rope Distance
+            float totalDistanceFromParent = 0;
+            for (int i = 0; i < contactPoints.Count - 1; i++)
+            {
+                totalDistanceFromParent += Vector3.Distance(contactPoints[i], contactPoints[i + 1]);
+            }
+            //Debug.Log(totalDistanceFromParent);
+
+            if (totalDistanceFromParent > tetherMaxDistance)
+            {
+                float delta = totalDistanceFromParent - tetherMaxDistance;
+                float epsilon = 0.000001f; // floating point values cannot be guarenteed to be exactly 0
+                while (delta > epsilon)
+                {
+                    float closestPointDistance = Vector3.Distance(contactPoints[0], contactPoints[1]);
+
+                    float limitDistance = delta > closestPointDistance ? 0 : (closestPointDistance - delta);
+
+                    limit.limit = limitDistance;
+                    joint.linearLimit = limit;
+
+                    if (limitDistance == 0)
+                    {
+                        contactPoints.RemoveAt(1);
+                        if (intermediatePoints.Count > 0)
+                            intermediatePoints.RemoveAt(0);
+
+                        if (intermediatePoints.Count > 0)
+                        {
+                            joint.connectedBody = intermediatePoints[0].GetComponent<Rigidbody>();
+                        }
+                        else
+                        {
+                            joint.connectedBody = target.GetComponent<Rigidbody>();
+                        }
+                    }
+                    delta -= closestPointDistance - limitDistance;
+                }
+            }
+
+            // Reset Connected Body To Closest Point [Can Be Optimised by placing an event sorta system]
+            if (intermediatePoints.Count > 0)
+            {
+                joint.connectedBody = intermediatePoints[0].GetComponent<Rigidbody>();
+            }
+            else
+            {
+                joint.connectedBody = target.GetComponent<Rigidbody>();
+                limit.limit = 10;
+                joint.linearLimit = limit;
+            }
+        }
+    }
+
+    private bool UnWrap()
+    {
+        if (contactPoints.Count > 2)
+        {
+            RaycastHit hit;
+            //// UnWrap From Target Side
+            if (!Physics.Linecast(contactPoints[contactPoints.Count - 1], contactPoints[contactPoints.Count - 2], out hit, layerMask))
+            {
+                if (!Physics.Linecast(contactPoints[contactPoints.Count - 1], contactPoints[contactPoints.Count - 3], out hit, layerMask))
+                {
+                    contactPoints.RemoveAt(contactPoints.Count - 2);
+
+                    GameObject obj = intermediatePoints[intermediatePoints.Count - 1];
+                    intermediatePoints.Remove(obj);
+                    Destroy(obj);
+
+                    return true;
+                }
+            }
+
+            // UnWrap From MySide
+            if (!Physics.Linecast(contactPoints[0], contactPoints[1], out hit, layerMask))
+            {
+                if (!Physics.Linecast(contactPoints[0], contactPoints[2], out hit, layerMask)) // Have to see both to be a valid unwrappoint
+                {
+                    contactPoints.RemoveAt(1);
+
+                    GameObject obj = intermediatePoints[intermediatePoints.Count - 1];
+                    intermediatePoints.Remove(obj);
+                    Destroy(obj);
+
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private bool Wrap()
+    {
+        RaycastHit hit;
+        // Wrap From Target Side
+        if (Physics.Linecast(contactPoints[contactPoints.Count - 1], contactPoints[contactPoints.Count - 2], out hit, layerMask))
+        {
+            GameObject obj = new GameObject("ContactPoint" + (contactPoints.Count - 1), typeof(Rigidbody));
+            Vector3 dirDiff = (hit.point - hit.collider.transform.position).normalized / 10; // So the normalized vector is substantially smaller
+            obj.GetComponent<Transform>().position = hit.point + dirDiff;
+            obj.GetComponent<Rigidbody>().isKinematic = true;
+            contactPoints.Insert(contactPoints.Count - 1, hit.point + dirDiff);
+            intermediatePoints.Add(obj);
+            return true;
+        }
+
+        // Wrap From MySide
+        if (Physics.Linecast(contactPoints[0], contactPoints[1], out hit, layerMask))
+        {
+            GameObject obj = new GameObject("ContactPoint" + (contactPoints.Count - 1), typeof(Rigidbody));
+            Vector3 dirDiff = (hit.point - hit.collider.transform.position).normalized / 10;
+            obj.GetComponent<Transform>().position = hit.point + dirDiff;
+            obj.GetComponent<Rigidbody>().isKinematic = true;
+            contactPoints.Insert(1, hit.point + dirDiff);
+            intermediatePoints.Add(obj);
+            return true;
+        }
+        return false;
+    }
+
+    private void CheckRogueCollision()
+    {
+        RaycastHit hit;
+        for (int i = 0; i < contactPoints.Count - 1; i++)
+        {
+            if (Physics.Linecast(contactPoints[i], contactPoints[i + 1], out hit, (1 << LayerMask.NameToLayer("Rogue")) ))
+            {
+                hit.collider.gameObject.GetComponent<Rogue>().Assimilate();
+            }
+        }
+    }
+
+    #endregion
+
+    #region Properties
+
+    public ERogueState RogueState
 	{
 		get { return rogueState; }
 		set { rogueState = value; }

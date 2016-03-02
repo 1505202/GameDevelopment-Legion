@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private float maxSeconds = 180;
     [SerializeField] private GameObject legion;
+    [SerializeField] private List<GameObject> legionElements = new List<GameObject>(4);
     [SerializeField] private List<GameObject> rogueElements = new List<GameObject>(4);
     [SerializeField] private Text gameOverText;
     [SerializeField] private Text timerText;
@@ -54,11 +55,13 @@ public class GameManager : MonoBehaviour
             if (assimilatedRogueCount >= rogueElements.Count+1)
             {
                 LegionVictory();
+                DisablePhysics();
                 IsGameOver = true;
             }
             else if(SecondsRemaining <= 0)
             {
                 RogueVictory();
+                DisablePhysics();
                 IsGameOver = true;
             }
         }
@@ -67,7 +70,9 @@ public class GameManager : MonoBehaviour
 
     public void Assimilate(Rogue rogue)
 	{
-		RemoveRogueElement(rogue);
+        rogueElements.Remove(rogue.gameObject);
+        legionElements.Add(rogue.gameObject);
+
         for (int i = 0; i < rogueElements.Count; i++)
 		{
             rogueElements[i].GetComponent<Rogue>().UpdateRogueSkillCount();
@@ -87,15 +92,6 @@ public class GameManager : MonoBehaviour
         SecondsRemaining -= Time.deltaTime;
     }
 
-    /// <summary>
-    /// Removes A Rogue Element From The List
-    /// </summary>
-    /// <param name="rogue"> Rogue Element To Remove </param>
-    public void RemoveRogueElement(Rogue rogue)
-    {
-        rogueElements.Remove(rogue.gameObject);
-    }
-
     private void RogueVictory()
     {
         Debug.Log("Rogues Win!!!");
@@ -105,5 +101,18 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Legion Wins!!!");
         gameOverText.text = "Legion Victory!";
+    }
+
+    private void DisablePhysics()
+    {
+        legion.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        for (int i = 0; i < rogueElements.Count; i++ )
+        {
+            rogueElements[i].GetComponent<Rigidbody>().velocity = Vector3.zero;
+        }
+        for (int i = 0; i < legionElements.Count; i++)
+        {
+            legionElements[i].GetComponent<Rigidbody>().velocity = Vector3.zero;
+        }
     }
 }
