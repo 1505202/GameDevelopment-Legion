@@ -232,7 +232,6 @@ public class Rogue : AActor, IAssimilatable
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
 
             myTransform = GetComponent<Transform>();
-            joint = gameObject.AddComponent<ConfigurableJoint>();
 
             contactPoints.Add(myTransform.position);
             contactPoints.Add(target.position);
@@ -255,26 +254,13 @@ public class Rogue : AActor, IAssimilatable
             joint.linearLimit = limit;
 
 
-
-
-
+            movementSpeed *= 3.5f;
 
             myMeshHolder.SetActive(false);
             myLegionMeshholder.SetActive(true);
 
             gameObject.tag = "Untagged";
             gameObject.layer = LayerMask.NameToLayer("Default");
-
-
-            //Destroy(GetComponent<MeshFilter>());
-            //Destroy(GetComponent<MeshRenderer>());
-            //Destroy(GetComponent<Collider>());
-
-            //line = gameObject.AddComponent<LineRenderer>();
-            //line.SetWidth(0.1f, 0.1f);
-            //target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
-            //transform.position = target.position + new Vector3(0, 0.1f, 0);
-            //transform.parent = target;
         }
         // Assimilate To Tether Legion
         else if (assimilatedBehaviour == 2)
@@ -284,8 +270,6 @@ public class Rogue : AActor, IAssimilatable
 
             gameObject.tag = "Untagged";
 
-            //target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
-            //myRigidBody = gameObject.AddComponent<Rigidbody>();
 
         }
         // Assimilate To Probe legion
@@ -295,10 +279,6 @@ public class Rogue : AActor, IAssimilatable
             myLegionMeshholder.SetActive(true);
 
             gameObject.tag = "Untagged";
-
-            ////CmdUpdateMesh(probeMesh);
-            //target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
-            //myRigidBody = gameObject.AddComponent<Rigidbody>();
 
         }
 
@@ -339,9 +319,6 @@ public class Rogue : AActor, IAssimilatable
     {
         lightSource.intensity = Mathf.Lerp(lightSource.intensity, 1, Time.deltaTime / blinkCooldown);
     }
-
-
-
 
     #region Tether and wrapping
 
@@ -403,17 +380,18 @@ public class Rogue : AActor, IAssimilatable
                 }
             }
 
-            // Reset Connected Body To Closest Point [Can Be Optimised by placing an event sorta system]
-            if (intermediatePoints.Count > 0)
-            {
-                joint.connectedBody = intermediatePoints[0].GetComponent<Rigidbody>();
-            }
-            else
-            {
-                joint.connectedBody = target.GetComponent<Rigidbody>();
-                limit.limit = 10;
-                joint.linearLimit = limit;
-            }
+
+        }
+        // Reset Connected Body To Closest Point [Can Be Optimised by placing an event sorta system]
+        if (intermediatePoints.Count > 0)
+        {
+            joint.connectedBody = intermediatePoints[0].GetComponent<Rigidbody>();
+        }
+        else
+        {
+            joint.connectedBody = target.GetComponent<Rigidbody>();
+            limit.limit = tetherMaxDistance;
+            joint.linearLimit = limit;
         }
     }
 
