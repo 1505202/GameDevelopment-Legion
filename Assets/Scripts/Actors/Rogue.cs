@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -38,6 +38,15 @@ public class Rogue : AActor, IAssimilatable
 		RogueState,			// Acts As A Rogue 
 		AssimilatedState    // Plays As Legion
 	}
+
+	private enum BehaviourType
+	{
+		Rogue = 0,
+		Tether,
+		Cannonball,
+		TrailBlazer
+	};
+
 	private ERogueState rogueState = ERogueState.RogueState;
 
 	// Rogue Skills
@@ -64,9 +73,11 @@ public class Rogue : AActor, IAssimilatable
 
     private Light lightSource;
 
-
-
-
+	// cannonball 
+	private bool isPropelled = false;
+	private Vector3 propelledDirection = Vector3.zero;
+	[SerializeField] float propelledVelocity = 14;
+	bool canMove = true;
 
     /// <summary>
     /// /////////////////////////////////////
@@ -128,18 +139,18 @@ public class Rogue : AActor, IAssimilatable
 
         HandleGlobalCooldownLight();
 
-		switch(assimilatedBehaviour)
+		switch((BehaviourType)assimilatedBehaviour)
 		{
-		case 0:
+		case BehaviourType.Rogue:
 			RogueBehaviour();
 			return;
-		case 1:
+		case BehaviourType.Tether:
 			TetherBehaviour();
 			return;
-		case 2:
+		case BehaviourType.Cannonball:
 			CannonballBehaviour();
 			return;
-		case 3:
+		case BehaviourType.TrailBlazer:
             TrailblazerBehaviour();
 			return;
 		}
@@ -148,6 +159,11 @@ public class Rogue : AActor, IAssimilatable
 
 	private void RogueBehaviour()
 	{
+		if (!canMove) 
+		{
+			return; 
+		}
+
 		HandleMoveInput();
 
 		// Skill handling
@@ -192,7 +208,21 @@ public class Rogue : AActor, IAssimilatable
     private void CannonballBehaviour()
     {
 
+		// If FIRE button is pressed, propel forward.
+		if (!isPropelled && inputController.FiringPower ()) 
+		{
+			isPropelled = true;
+			propelledDirection = inputController.MoveDirection();
+		}
+
+		if (isPropelled) 
+		{
+			myRigidBody.velocity = propelledDirection * propelledVelocity;
+		}
+
+
     }
+
     private void TrailblazerBehaviour()
     {
 
@@ -205,6 +235,21 @@ public class Rogue : AActor, IAssimilatable
 			hasCollidedWithLegion = true;
 			Assimilate();
 		}
+
+		if (assimilatedBehaviour == (int)BehaviourType.Cannonball) 
+		{
+			if(obj.gameObject.CompareTag("Rogue") && isPropelled == true)
+			{
+				StunRogue(obj.gameObject);
+			}
+			isPropelled = false;
+		}
+	}
+
+	void StunRogue (GameObject rogueObject)
+	{
+		var rogue = GetComponent<Rogue> ();
+
 	}
 
 	private void UpdateLineRendererPoints(Vector3 positionA, Vector3 positionB)
@@ -227,7 +272,7 @@ public class Rogue : AActor, IAssimilatable
     public void SwitchActorBehaviour()
     {
         // Tether Probe
-        if (assimilatedBehaviour == 1)
+		if (assimilatedBehaviour == (int)BehaviourType.Tether)
         {
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
 
@@ -263,7 +308,7 @@ public class Rogue : AActor, IAssimilatable
             gameObject.layer = LayerMask.NameToLayer("Default");
         }
         // Assimilate To Tether Legion
-        else if (assimilatedBehaviour == 2)
+		else if (assimilatedBehaviour == (int)BehaviourType.Cannonball)
         {
             myMeshHolder.SetActive(false);
             myLegionMeshholder.SetActive(true);
@@ -273,7 +318,7 @@ public class Rogue : AActor, IAssimilatable
 
         }
         // Assimilate To Probe legion
-        else if (assimilatedBehaviour == 3)
+		else if (assimilatedBehaviour == (int)BehaviourType.TrailBlazer)
         {
             myMeshHolder.SetActive(false);
             myLegionMeshholder.SetActive(true);
@@ -297,10 +342,21 @@ public class Rogue : AActor, IAssimilatable
 	}
 	private IEnumerator SwitchPowerCD(float time) // Use Lambda Expresion/Action
 	{
-		canSwitchSkills = false;
-		yield return new WaitForSeconds(time);
-		canSwitchSkills = true;
+		return HoldRogue (time, (b) => canSwitchSkills = b);
 	}
+
+	private IEnumerator StunRogue(float time)
+	{
+		return HoldRogue (time, (b) => canMove = b);
+	}
+
+	private IEnumerator HoldRogue(float time, Action<bool> setConstraint)
+	{
+		setConstraint(false);
+		yield return new WaitForSeconds(time);
+		setConstraint(true);
+	}
+
 
 	private void HandleMoveInput()
 	{
