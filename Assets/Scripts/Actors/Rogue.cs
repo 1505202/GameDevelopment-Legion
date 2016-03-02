@@ -9,25 +9,23 @@ using System.Collections.Generic;
 public class Rogue : AActor, IAssimilatable
 {
 	[Header("Skill Variables")]
-	[Header("Rogue Speed Buff")]
-	[SerializeField] private float speedMultiplier = 1;
-	[SerializeField] private float speedDuration = 1;
-	[SerializeField] private float speedCooldown = 1;
-	
 	[Header("Rogue Blink")]
-	[SerializeField] private float blinkDistance = 1;
-	[SerializeField] private float blinkCooldown = 1;
-	
-	[Header("Rogue Invisibility")]
-	[SerializeField] private float invisibilityDuration = 1;
-	[SerializeField] private float invisibilityCooldown = 1;
+    [SerializeField] private float blinkDistance = 1;
+    [SerializeField] private float blinkCooldown = 1;
 
+    [Header("Rogue Blink")]
+    [SerializeField] private float cloneCooldown = 1;
+	
+	[Header("Rogue Glitch")]
+	[SerializeField] private float glitchCooldown = 1;
 
 	[Header("Assimilated Skills")]
 	[SerializeField] private float tetherMaxDistance = 0;
 
     [Header("Assimilated Meshes")]
     [SerializeField] private Mesh tetherMesh = null;
+    [SerializeField] private Mesh cannonMesh = null;
+    [SerializeField] private Mesh trailBlazerMesh = null;
 
 	private int assimilatedBehaviour = 0;
 	private Vector3 lineStartPoint = Vector3.zero;
@@ -64,15 +62,15 @@ public class Rogue : AActor, IAssimilatable
 
     private Light lightSource;
 
-
+    public GameObject trailBlazerPrefab;
+    public Vector3 trailBlazerDropOffset;
 
 
 
     /// <summary>
     /// /////////////////////////////////////
     /// </summary>
-    [SerializeField]
-    private LayerMask layerMask;
+    [SerializeField] private LayerMask layerMask;
 
     private ConfigurableJoint joint;
 
@@ -124,17 +122,18 @@ public class Rogue : AActor, IAssimilatable
 			line.SetPosition(1, lineEndPoint);
 		}
 
-        HandleMoveInput();
 
         HandleGlobalCooldownLight();
 
 		switch(assimilatedBehaviour)
 		{
 		case 0:
+            HandleMoveInput();
 			RogueBehaviour();
 			return;
 		case 1:
-			TetherBehaviour();
+            HandleMoveInput();
+            TetherBehaviour();
 			return;
 		case 2:
 			CannonballBehaviour();
@@ -195,7 +194,25 @@ public class Rogue : AActor, IAssimilatable
     }
     private void TrailblazerBehaviour()
     {
+        if (inputController.MoveDirection() != Vector3.zero)
+        {
+            float x = Mathf.Abs(inputController.MoveDirection().x);
+            float z = Mathf.Abs(inputController.MoveDirection().z);
 
+            if (x > z)
+            {
+                myRigidBody.velocity = new Vector3(inputController.MoveDirection().x, 0, 0) * movementSpeed;
+            }
+            if (z > x)
+            {
+                myRigidBody.velocity = new Vector3(0, 0, inputController.MoveDirection().z) * movementSpeed;
+            }
+            Instantiate(trailBlazerPrefab, myTransform.position, Quaternion.identity);
+        }
+        else
+        {
+            myRigidBody.velocity = Vector3.zero;
+        }
     }
 
 	private void OnCollisionEnter(Collision obj)
@@ -253,7 +270,6 @@ public class Rogue : AActor, IAssimilatable
             limit.limit = tetherMaxDistance;
             joint.linearLimit = limit;
 
-
             movementSpeed *= 3.5f;
 
             myMeshHolder.SetActive(false);
@@ -262,7 +278,7 @@ public class Rogue : AActor, IAssimilatable
             gameObject.tag = "Untagged";
             gameObject.layer = LayerMask.NameToLayer("Default");
         }
-        // Assimilate To Tether Legion
+        // Cannon Probe
         else if (assimilatedBehaviour == 2)
         {
             myMeshHolder.SetActive(false);
@@ -272,14 +288,17 @@ public class Rogue : AActor, IAssimilatable
 
 
         }
-        // Assimilate To Probe legion
-        else if (assimilatedBehaviour == 3)
+        // TrailBlazer Probe
+        else if (assimilatedBehaviour == 3
+            )
         {
             myMeshHolder.SetActive(false);
             myLegionMeshholder.SetActive(true);
 
             gameObject.tag = "Untagged";
+            gameObject.layer = LayerMask.NameToLayer("Default");
 
+            movementSpeed *= 2;
         }
 
         for (int i = 0; i < rogueSkills.Length; i++)
