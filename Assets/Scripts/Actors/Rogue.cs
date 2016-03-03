@@ -246,6 +246,9 @@ public class Rogue : AActor, IAssimilatable
 
 	private void OnCollisionEnter(Collision obj)
 	{
+        if (obj.gameObject.CompareTag("Legion") && hasCollidedWithLegion)
+            return;
+
 		if(obj.gameObject.CompareTag("Legion") && !hasCollidedWithLegion)
 		{
 			hasCollidedWithLegion = true;
@@ -267,6 +270,9 @@ public class Rogue : AActor, IAssimilatable
     // Controls Consistant Wall Collisions For CannonBall
     private void OnCollisionStay(Collision obj)
     {
+        if (obj.gameObject.CompareTag("Legion") && hasCollidedWithLegion)
+            return;
+
         if (obj.gameObject.CompareTag("Floor"))
         {
             return;
@@ -305,7 +311,7 @@ public class Rogue : AActor, IAssimilatable
     public void SwitchActorBehaviour()
     {
         // Debug Code To Force Assimilation, Delete After Testing Phase
-        assimilatedBehaviour = (int)BehaviourType.Cannonball;
+        //assimilatedBehaviour = (int)BehaviourType.Cannonball;
 
 		if (assimilatedBehaviour == (int)BehaviourType.Tether)
         {
@@ -347,6 +353,7 @@ public class Rogue : AActor, IAssimilatable
             myLegionMeshholder.SetActive(true);
 
             gameObject.tag = "Untagged";
+            gameObject.layer = LayerMask.NameToLayer("Default");
 
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
         }
@@ -387,7 +394,6 @@ public class Rogue : AActor, IAssimilatable
         yield return new WaitForSeconds(stunDuration);
         rogue.canMove = true;
 	}
-
 
 	private void HandleMoveInput()
 	{

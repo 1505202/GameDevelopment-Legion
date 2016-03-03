@@ -52,13 +52,13 @@ public class GameManager : MonoBehaviour
 
         if (!IsGameOver)
         {
-            if (assimilatedRogueCount >= rogueElements.Count+1)
+            if ( rogueElements.Count <= 0 )
             {
                 LegionVictory();
                 DisablePhysics();
                 IsGameOver = true;
             }
-            else if(SecondsRemaining <= 0)
+            else if(SecondsRemaining <= 0 )
             {
                 RogueVictory();
                 DisablePhysics();
