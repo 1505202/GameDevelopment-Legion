@@ -74,8 +74,10 @@ public class Rogue : AActor, IAssimilatable
 	// cannonball 
 	private bool isPropelled = false;
 	private Vector3 propelledDirection = Vector3.zero;
-	[SerializeField] float propelledVelocity = 14;
-	bool canMove = true;
+	[SerializeField] private float propelledVelocity = 14;
+    [SerializeField] private float stunDuration; 
+    bool canMove = true;
+
     
 	public GameObject trailBlazerPrefab;
     public Vector3 trailBlazerDropOffset;
@@ -136,11 +138,9 @@ public class Rogue : AActor, IAssimilatable
 		switch((BehaviourType)assimilatedBehaviour)
 		{
 		case BehaviourType.Rogue:
-			HandleMoveInput();
 			RogueBehaviour();
 			return;
 		case BehaviourType.Tether:
-			HandleMoveInput();
 			TetherBehaviour();
 			return;
 		case BehaviourType.Cannonball:
@@ -157,7 +157,8 @@ public class Rogue : AActor, IAssimilatable
 	{
 		if (!canMove) 
 		{
-			return; 
+            myRigidBody.velocity = Vector2.zero;
+            return; 
 		}
 
 		HandleMoveInput();
@@ -182,6 +183,8 @@ public class Rogue : AActor, IAssimilatable
 	}
 	private void TetherBehaviour()
 	{
+        HandleMoveInput();
+
         // updating LineRenderer Points
         UpdateEndPoints();
         UpdateLineRenderer();
@@ -218,7 +221,6 @@ public class Rogue : AActor, IAssimilatable
 
 
     }
-
     private void TrailblazerBehaviour()
     {
         if (inputController.MoveDirection() != Vector3.zero)
@@ -252,19 +254,36 @@ public class Rogue : AActor, IAssimilatable
 
 		if (assimilatedBehaviour == (int)BehaviourType.Cannonball) 
 		{
+            myRigidBody.velocity = Vector3.zero;
+
 			if(obj.gameObject.CompareTag("Rogue") && isPropelled == true)
 			{
-				StunRogue(obj.gameObject);
-			}
+                StartCoroutine(StunRogue(obj.gameObject.GetComponent<Rogue>()));
+                myTransform.position = target.position - target.forward;
+            }
 			isPropelled = false;
 		}
 	}
+    // Controls Consistant Wall Collisions For CannonBall
+    private void OnCollisionStay(Collision obj)
+    {
+        if (obj.gameObject.CompareTag("Floor"))
+        {
+            return;
+        }
 
-	void StunRogue (GameObject rogueObject)
-	{
-		var rogue = GetComponent<Rogue> ();
+        if (assimilatedBehaviour == (int)BehaviourType.Cannonball)
+        {
+            myRigidBody.velocity = Vector3.zero;
 
-	}
+            if (obj.gameObject.CompareTag("Rogue") && isPropelled == true)
+            {
+                StartCoroutine ( StunRogue(obj.gameObject.GetComponent<Rogue>()) ) ;
+                myTransform.position = target.position - target.forward;
+            }
+            isPropelled = false;
+        }
+    }
 
 	private void UpdateLineRendererPoints(Vector3 positionA, Vector3 positionB)
 	{
@@ -285,6 +304,9 @@ public class Rogue : AActor, IAssimilatable
     }
     public void SwitchActorBehaviour()
     {
+        // Debug Code To Force Assimilation, Delete After Testing Phase
+        assimilatedBehaviour = (int)BehaviourType.Cannonball;
+
 		if (assimilatedBehaviour == (int)BehaviourType.Tether)
         {
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
@@ -326,7 +348,7 @@ public class Rogue : AActor, IAssimilatable
 
             gameObject.tag = "Untagged";
 
-
+            target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
         }
 		else if (assimilatedBehaviour == (int)BehaviourType.TrailBlazer)
         {
@@ -354,19 +376,16 @@ public class Rogue : AActor, IAssimilatable
 	}
 	private IEnumerator SwitchPowerCD(float time) // Use Lambda Expresion/Action
 	{
-		return HoldRogue (time, (b) => canSwitchSkills = b);
+        canSwitchSkills = false;
+        yield return new WaitForSeconds(time);
+        canSwitchSkills = true;
 	}
 
-	private IEnumerator StunRogue(float time)
+	private IEnumerator StunRogue(Rogue rogue)
 	{
-		return HoldRogue (time, (b) => canMove = b);
-	}
-
-	private IEnumerator HoldRogue(float time, Action<bool> setConstraint)
-	{
-		setConstraint(false);
-		yield return new WaitForSeconds(time);
-		setConstraint(true);
+        rogue.canMove = false;
+        yield return new WaitForSeconds(stunDuration);
+        rogue.canMove = true;
 	}
 
 
