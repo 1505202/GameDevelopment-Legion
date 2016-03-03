@@ -27,6 +27,12 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private Mesh cannonMesh = null;
     [SerializeField] private Mesh trailBlazerMesh = null;
 
+	[Header("Audio")]
+	[SerializeField] public AudioClip soundBlink = null;
+	[SerializeField] public AudioClip soundAssimilation = null;
+	[SerializeField] public AudioClip soundCannonFire = null;
+	[SerializeField] public AudioClip soundCannonHit = null;
+
 	private int assimilatedBehaviour = 0;
 	private Vector3 lineStartPoint = Vector3.zero;
 	private Vector3 lineEndPoint = Vector3.zero;
@@ -212,6 +218,7 @@ public class Rogue : AActor, IAssimilatable
 		{
 			isPropelled = true;
 			propelledDirection = inputController.MoveDirection();
+			GetComponent<AudioSource>().PlayOneShot (soundCannonFire);
 		}
 
 		if (isPropelled) 
@@ -303,6 +310,8 @@ public class Rogue : AActor, IAssimilatable
         assimilatedBehaviour = GameManager.Instance.GetBehaviourIndex();
         
         SwitchActorBehaviour();
+
+		GetComponent<AudioSource> ().PlayOneShot (soundAssimilation);
 	}
 	public void UpdateRogueSkillCount()
     {
@@ -391,6 +400,7 @@ public class Rogue : AActor, IAssimilatable
 	private IEnumerator StunRogue(Rogue rogue)
 	{
         rogue.canMove = false;
+		GetComponent<AudioSource> ().PlayOneShot (soundCannonHit);
         yield return new WaitForSeconds(stunDuration);
         rogue.canMove = true;
 	}
