@@ -26,7 +26,7 @@ public class Legion : AActor
         if (GameManager.Instance.IsGameOver)    
             return;
 
-        myRigidbody.velocity = inputController.MoveDirection() * movementSpeed;
+        myRigidbody.velocity = (inputController.MoveDirection() * movementSpeed) + new Vector3(0, myRigidbody.velocity.y, 0);
 
 	    if (inputController.MoveDirection() != Vector3.zero)
 	    {

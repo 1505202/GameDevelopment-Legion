@@ -409,7 +409,7 @@ public class Rogue : AActor, IAssimilatable
 	{
 		/// Rogue Behaviour
 		/// Translation and Rotation Handling
-		myRigidBody.velocity = inputController.MoveDirection() * movementSpeed * movementOffset;
+        myRigidBody.velocity = (inputController.MoveDirection() * movementSpeed * movementOffset) + new Vector3(0, myRigidBody.velocity.y, 0);
 
         if (inputController.MoveDirection() != Vector3.zero)
         {
