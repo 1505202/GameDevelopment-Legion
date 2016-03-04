@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 208659e10c3b726469da0fdefce270e6
-timeCreated: 1455641089
+guid: c58b2bd0e80f19a4b8512de2baeba1ff
+timeCreated: 1457102698
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: 006_Hidingspot_Low
+    4300000: pPlane1
     6400000: //RootNode
     9500000: //RootNode
   materials:
@@ -54,7 +54,7 @@ ModelImporter:
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
-    tangentImportMode: 4
+    tangentImportMode: 3
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
