@@ -26,13 +26,7 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private Mesh tetherMesh = null;
     [SerializeField] private Mesh cannonMesh = null;
     [SerializeField] private Mesh trailBlazerMesh = null;
-
-	[Header("Audio")]
-	[SerializeField] public AudioClip soundBlink = null;
-	[SerializeField] public AudioClip soundAssimilation = null;
-	[SerializeField] public AudioClip soundCannonFire = null;
-	[SerializeField] public AudioClip soundCannonHit = null;
-
+	
 	private int assimilatedBehaviour = 0;
 	private Vector3 lineStartPoint = Vector3.zero;
 	private Vector3 lineEndPoint = Vector3.zero;
@@ -103,16 +97,10 @@ public class Rogue : AActor, IAssimilatable
 
 	private void Start()
 	{
-        //GameManager.Instance.RegisterRogueElement(this);
-
 		myRigidBody = GetComponent<Rigidbody>();
         myTransform = GetComponent<Transform>();
 
 		inputController = ControllerManager.Instance.NewController();
-
-		//RogueSpeedUp speedBoost = gameObject.AddComponent<RogueSpeedUp>();
-		//speedBoost.Initialize(this, speedMultiplier, speedDuration, speedCooldown);
-		//rogueSkills[0] = speedBoost;
 
         // Temporary Change Until New Skills Are Added
 		RogueBlink dash = gameObject.AddComponent<RogueBlink>();
@@ -120,10 +108,6 @@ public class Rogue : AActor, IAssimilatable
 		rogueSkills[0] = dash;
 		rogueSkills[1] = dash;
 		rogueSkills[2] = dash;
-
-		//RogueStealth stealth = gameObject.AddComponent<RogueStealth>();
-		//stealth.Initialize(GetComponent<MeshRenderer>(), invisibilityDuration, invisibilityCooldown);
-		//rogueSkills[2] = stealth;
 
         lightSource = GetComponentInChildren<Light>();
 	}
@@ -195,7 +179,6 @@ public class Rogue : AActor, IAssimilatable
         UpdateEndPoints();
         UpdateLineRenderer();
 
-        // Updating Joint
         UpdateJointLimits();
 
         CheckRogueCollision();
@@ -210,15 +193,15 @@ public class Rogue : AActor, IAssimilatable
             return;
         }
 	}
+
     private void CannonballBehaviour()
     {
-
 		// If FIRE button is pressed, propel forward.
 		if (!isPropelled && inputController.FiringPower ()) 
 		{
 			isPropelled = true;
 			propelledDirection = inputController.MoveDirection();
-			GetComponent<AudioSource>().PlayOneShot (soundCannonFire);
+			AudioManager.PlayCannonballFireSound();
 		}
 
 		if (isPropelled) 
@@ -311,7 +294,7 @@ public class Rogue : AActor, IAssimilatable
         
         SwitchActorBehaviour();
 
-		GetComponent<AudioSource> ().PlayOneShot (soundAssimilation);
+		AudioManager.PlayAssimilationSound ();
 	}
 	public void UpdateRogueSkillCount()
     {
@@ -319,7 +302,7 @@ public class Rogue : AActor, IAssimilatable
     }
     public void SwitchActorBehaviour()
     {
-        // Debug Code To Force Assimilation, Delete After Testing Phase
+        // HACK: Debug Code To Force Assimilation, Delete After Testing Phase
         //assimilatedBehaviour = (int)BehaviourType.Cannonball;
 
 		if (assimilatedBehaviour == (int)BehaviourType.Tether)
@@ -334,16 +317,12 @@ public class Rogue : AActor, IAssimilatable
             line = GetComponent<LineRenderer>();
 
             joint = gameObject.AddComponent<ConfigurableJoint>();
-
             joint.connectedBody = target.GetComponent<Rigidbody>();
-
             joint.autoConfigureConnectedAnchor = false;
             joint.connectedAnchor = Vector3.zero;
-
             joint.xMotion = ConfigurableJointMotion.Limited;
             joint.yMotion = ConfigurableJointMotion.Limited;
             joint.zMotion = ConfigurableJointMotion.Limited;
-
 
             limit.limit = tetherMaxDistance;
             joint.linearLimit = limit;
@@ -400,7 +379,7 @@ public class Rogue : AActor, IAssimilatable
 	private IEnumerator StunRogue(Rogue rogue)
 	{
         rogue.canMove = false;
-		GetComponent<AudioSource> ().PlayOneShot (soundCannonHit);
+		AudioManager.PlayCannonballStunSound ();
         yield return new WaitForSeconds(stunDuration);
         rogue.canMove = true;
 	}

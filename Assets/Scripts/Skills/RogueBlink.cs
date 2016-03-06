@@ -6,16 +6,12 @@ public class RogueBlink : ASkill
 	private Transform targetTransform;
 	private float blinkMultiplier;
 
-	private AudioClip sfx;
-
 	public void Initialize(Transform targetTransform, float cooldown, float blinkMultiplier)
 	{
 		this.targetTransform = targetTransform;
 
 		this.cooldown = cooldown;
 		this.blinkMultiplier = blinkMultiplier;
-
-		sfx = GetComponent<Rogue> ().soundBlink;
 	}
 
 	public override bool UseSkill()
@@ -25,7 +21,7 @@ public class RogueBlink : ASkill
             if (SkillLogic())
             {
 				//Play sound effect
-				GetComponent<AudioSource>().PlayOneShot (sfx);
+				AudioManager.PlayBlinkSound();
 
                 StartCoroutine(SkillCooldown());
                 return true;
