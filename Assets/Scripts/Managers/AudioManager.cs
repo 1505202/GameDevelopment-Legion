@@ -7,8 +7,7 @@ public class AudioManager : MonoBehaviour
 
     private static Dictionary<string, AudioSource> AudioSources;
 
-	// Use this for initialization
-	void Start () 
+	void Awake () 
 	{
 		Initialise ();
     }
@@ -66,7 +65,10 @@ public class AudioManager : MonoBehaviour
 
 	public static void StopGameAlmostOverSound()
 	{
-		AudioSources ["Timer"].Stop ();
+		if (AudioSources ["Timer"].isPlaying) 
+		{
+			AudioSources ["Timer"].Stop ();
+		}
 	}
 
 	public static void PlayGameOverSound()

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class DestroyAfter : MonoBehaviour 
 {
-    [SerializeField] private float timeToDie;
+    [SerializeField] private float timeToDie = 0.0f;
     private float startTime;
 
     private void Start()

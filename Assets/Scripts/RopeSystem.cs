@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 public class RopeSystem : MonoBehaviour 
 {
-    [SerializeField] private Transform target;
+    [SerializeField] private Transform target = null;
     [SerializeField] private LayerMask layerMask;
 
-    [SerializeField] private float maxRopeDistance;
+    [SerializeField] private float maxRopeDistance = 0;
 
     private ConfigurableJoint joint;
 

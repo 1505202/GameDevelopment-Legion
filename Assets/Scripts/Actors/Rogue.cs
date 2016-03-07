@@ -14,18 +14,19 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private float blinkCooldown = 1;
 
     [Header("Rogue Blink")]
-    [SerializeField] private float cloneCooldown = 1;
+    // [SerializeField] private float cloneCooldown = 1;
 	
 	[Header("Rogue Glitch")]
-	[SerializeField] private float glitchCooldown = 1;
+	// [SerializeField] private float glitchCooldown = 1;
 
 	[Header("Assimilated Skills")]
 	[SerializeField] private float tetherMaxDistance = 0;
 
     [Header("Assimilated Meshes")]
+	// TODO: Ensure these are used or removed
     [SerializeField] private Mesh tetherMesh = null;
-    [SerializeField] private Mesh cannonMesh = null;
-    [SerializeField] private Mesh trailBlazerMesh = null;
+    // [SerializeField] private Mesh cannonMesh = null;
+    // [SerializeField] private Mesh trailBlazerMesh = null;
 	
 	private int assimilatedBehaviour = 0;
 	private Vector3 lineStartPoint = Vector3.zero;
@@ -75,7 +76,7 @@ public class Rogue : AActor, IAssimilatable
 	private bool isPropelled = false;
 	private Vector3 propelledDirection = Vector3.zero;
 	[SerializeField] private float propelledVelocity = 14;
-    [SerializeField] private float stunDuration; 
+    [SerializeField] private float stunDuration = 0; 
     bool canMove = true;
 
     

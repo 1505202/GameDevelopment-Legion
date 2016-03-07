@@ -6,11 +6,11 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
 	[SerializeField] private float maxSeconds = 180;
-    [SerializeField] private GameObject legion;
+    [SerializeField] private GameObject legion = null;
     [SerializeField] private List<GameObject> legionElements = new List<GameObject>(4);
     [SerializeField] private List<GameObject> rogueElements = new List<GameObject>(4);
-    [SerializeField] private Text gameOverText;
-    [SerializeField] private Text timerText;
+    [SerializeField] private Text gameOverText = null;
+	[SerializeField] private Text timerText = null;
 	[SerializeField] private int timeRemainingWarningThreshold = 10;
 	private bool isGameOver;
 
@@ -32,12 +32,15 @@ public class GameManager : MonoBehaviour
             instance = this;
             GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
             SecondsRemaining = maxSeconds;
+			AudioManager.StartLevelMusic();
         }
         else
         {
             Destroy(this);
         }
     }
+
+
     private void Update()
     {
         ClockTick();    
@@ -69,6 +72,7 @@ public class GameManager : MonoBehaviour
 		if (IsGameOver) 
 		{
 			StopEndGameWarning();
+			AudioManager.StartMenuMusic();
 			AudioManager.PlayGameOverSound();
 			DisablePhysics ();
 		}
@@ -98,7 +102,7 @@ public class GameManager : MonoBehaviour
     {
         SecondsRemaining -= Time.deltaTime;
 
-		if (SecondsRemaining <= 10 && !isEndGameWarningPlaying && !IsGameOver) 
+		if (SecondsRemaining <= timeRemainingWarningThreshold && !isEndGameWarningPlaying && !IsGameOver) 
 		{
 			PlayEndGameWarning();
 		}

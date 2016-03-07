@@ -4,7 +4,7 @@ using System;
 
 public class JumpOver : MonoBehaviour 
 {
-	[SerializeField] private Transform[] bezierControlPoints;
+	[SerializeField] private Transform[] bezierControlPoints = null;
 	[SerializeField] private float duration;
 
 	private float startTime;
