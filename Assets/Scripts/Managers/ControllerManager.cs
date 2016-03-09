@@ -47,6 +47,7 @@ public class ControllerManager : MonoBehaviour
 				return controllers[i];
 			}
 		}
+        Debug.LogError("Error Assigning Controller No More Space");
 		return null;
 	}
 	public AController ReplaceController( AController currentController, AController newController )
@@ -61,6 +62,4 @@ public class ControllerManager : MonoBehaviour
 		}
 		return null;
 	}
-
-    //public AController RegisterExistingController(AController controllerInput);
 }
