@@ -9,22 +9,29 @@ using System.Collections.Generic;
 public class Rogue : AActor, IAssimilatable
 {
 	[Header("Skill Variables")]
+    [Space(10)]
 	[Header("Rogue Blink")]
     [SerializeField] private float blinkDistance = 1;
     [SerializeField] private float blinkCooldown = 1;
 
     [Header("Rogue Blink")]
-    // [SerializeField] private float cloneCooldown = 1;
-	
-	[Header("Rogue Glitch")]
-	// [SerializeField] private float glitchCooldown = 1;
+    [SerializeField] private GameObject cloneObject = null;
+    [SerializeField] private float cloneDuration = 1;
+    [SerializeField] private float cloneCooldown = 1;
+
+    [Header("Rogue Glitch")]
+    [SerializeField] private float glitchDuration;
+    [SerializeField] private float glitchCooldown;
+    [SerializeField] private Vector3 higherLimits = Vector3.zero;
+    [SerializeField] private Vector3 lowerLimits = Vector3.zero;
 
 	[Header("Assimilated Skills")]
 	[SerializeField] private float tetherMaxDistance = 0;
 
-    [Header("Assimilated Meshes")]
-	// TODO: Ensure these are used or removed
-    [SerializeField] private Mesh tetherMesh = null;
+    // TODO: Ensure these are used or removed
+
+    // [Header("Assimilated Meshes")]
+    // [SerializeField] private Mesh tetherMesh = null;
     // [SerializeField] private Mesh cannonMesh = null;
     // [SerializeField] private Mesh trailBlazerMesh = null;
 	
@@ -50,7 +57,7 @@ public class Rogue : AActor, IAssimilatable
 
 	// Rogue Skills
 	private int skillIndex = 0;
-    private int rogueSkillsUnlocked = 0;
+    private int rogueSkillsUnlocked = 3;
     private ASkill[] rogueSkills = new ASkill[3];
 
 	// Cached Components
@@ -103,14 +110,24 @@ public class Rogue : AActor, IAssimilatable
 
 		inputController = ControllerManager.Instance.NewController();
 
+        cloneObject = Instantiate(cloneObject, Vector3.zero, Quaternion.identity) as GameObject;
+
         // Temporary Change Until New Skills Are Added
 		RogueBlink dash = gameObject.AddComponent<RogueBlink>();
 		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance);
-		rogueSkills[0] = dash;
-		rogueSkills[1] = dash;
-		rogueSkills[2] = dash;
+
+        RogueClone clone = gameObject.AddComponent<RogueClone>();
+        clone.Initialize(myTransform, cloneObject, inputController, base.movementSpeed, cloneDuration, cloneCooldown);
+
+        RogueGlitch glitch = gameObject.AddComponent<RogueGlitch>();
+        glitch.Initialize(Camera.main.transform, Camera.main.transform.position, lowerLimits, higherLimits, glitchDuration, glitchCooldown);
+
+        rogueSkills[0] = dash;
+        rogueSkills[1] = clone;
+        rogueSkills[2] = glitch;
 
         lightSource = GetComponentInChildren<Light>();
+
 	}
 	private void Update()
 	{
@@ -163,7 +180,7 @@ public class Rogue : AActor, IAssimilatable
 				StartCoroutine(SwitchPowerCD(0.5f));
 			}
 			
-			if (inputController.FiringPower())
+			if (inputController.FiringPower() && rogueSkills[skillIndex].IsReady)
 			{
                 if (rogueSkills[skillIndex].UseSkill())
                 {
@@ -194,7 +211,6 @@ public class Rogue : AActor, IAssimilatable
             return;
         }
 	}
-
     private void CannonballBehaviour()
     {
 		// If FIRE button is pressed, propel forward.
@@ -299,7 +315,8 @@ public class Rogue : AActor, IAssimilatable
 	}
 	public void UpdateRogueSkillCount()
     {
-        rogueSkillsUnlocked++;
+        if(rogueSkillsUnlocked < rogueSkills.Length)
+            rogueSkillsUnlocked++;
     }
     public void SwitchActorBehaviour()
     {

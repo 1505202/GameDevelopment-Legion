@@ -18,11 +18,6 @@ public class AudioManager : MonoBehaviour
 		AudioSources = null;
 	}
 
-//	void Update()
-//	{
-//		Initialise ();
-//	}
-
 	void Initialise()
 	{
 		if (AudioSources == null)
@@ -33,7 +28,7 @@ public class AudioManager : MonoBehaviour
 			for (int i = 0; i < sources.Length; i++)
 			{
 				AudioSources[sources[i].gameObject.name] = sources[i];
-				DontDestroyOnLoad(sources[i]);
+				DontDestroyOnLoad(transform.parent);
 			}
 		}	
 	}
