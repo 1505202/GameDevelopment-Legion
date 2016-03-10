@@ -112,6 +112,8 @@ public class Rogue : AActor, IAssimilatable
 
         cloneObject = Instantiate(cloneObject, Vector3.zero, Quaternion.identity) as GameObject;
 
+        cloneObject.SetActive(false);
+
         // Temporary Change Until New Skills Are Added
 		RogueBlink dash = gameObject.AddComponent<RogueBlink>();
 		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance);

@@ -42,7 +42,17 @@ public class RogueClone : ASkill
     {
         if (isCloneActive)
         {
+            //targetRigidbody.velocity = inputController.AimDirection() * movementSpeed;
+
+            /// Rogue Behaviour
+            /// Translation and Rotation Handling
             targetRigidbody.velocity = inputController.AimDirection() * movementSpeed;
+
+            if (inputController.AimDirection() != Vector3.zero)
+            {
+                targetRigidbody.rotation = Quaternion.LookRotation(inputController.AimDirection());
+                //myTransform.rotation = Quaternion.Slerp(myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
+            }
         }
     }
 
