@@ -1,7 +1,7 @@
 using UnityEngine;
-
-using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Linq;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,17 +13,31 @@ public class GameManager : MonoBehaviour
 	[SerializeField] private Text timerText = null;
 	[SerializeField] private int timeRemainingWarningThreshold = 10;
 	[SerializeField] private GameObject pausePanel = null;
-	private bool isGameOver;
+	[SerializeField] private GameObject LobbyPanel = null;
 
+    private static GameManager instance;
+	private static bool isResetting = false;
+	private bool isGameOver;
 	private bool isEndGameWarningPlaying;
 	private int assimilatedRogueCount = 0;
-    private static GameManager instance;
 	private bool isPaused = false;
+	private bool isStarting = true;
+	private bool[] readyPlayers = new bool[5];
+
 
     public static GameManager Instance { get { return instance; } }
     public float SecondsRemaining { get; private set; }
     public bool IsGameOver { get { return isGameOver; } set { isGameOver = value; } }
 
+	enum States 
+	{
+		InLobby,
+		InGame,
+		PauseChanging,
+		Paused,
+		GameOver,
+		ExitingApplication,
+	};
 
     private void Start()
     {
@@ -31,13 +45,21 @@ public class GameManager : MonoBehaviour
 		isEndGameWarningPlaying = false;
 		isPaused = false;
 		pausePanel.SetActive (false);
-
+		isStarting = true;
+		
         if (instance == null)
         {
             instance = this;
             GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
             SecondsRemaining = maxSeconds;
 			AudioManager.StartLevelMusic();
+			EnteringLobby();
+
+			if(isResetting)
+			{
+				isResetting = false;
+				StartGame();
+			}
         }
         else
         {
@@ -45,44 +67,126 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     private void Update()
     {
-		if (Input.GetKeyDown (KeyCode.Escape)) 
+		States currentState = GetCurrentState();
+
+		switch (currentState) 
 		{
-			Debug.Log ("Getting out of here!");
-			Application.Quit ();
+		case States.ExitingApplication:
+			ExitGame();
+			break;
+		case States.GameOver:
+			return;
+		case States.InLobby:
+			InLobby();
+			break;
+		case States.PauseChanging:
+			OnPauseChanging();
+			break;
+		case States.Paused:
+			if (Input.GetKeyDown (KeyCode.R)) 
+			{
+				ResetGame();
+			}
+			break;
+		default:
+			ClockTick();    
+			timerText.text = SecondsRemaining.ToString("F1"); // display one decimal place
+			CheckForVictory ();
+			gameOverText.enabled = IsGameOver;
+			break;
 		}
-		
-		ClockTick();    
-        gameOverText.enabled = IsGameOver;
+    }
+
+	private States GetCurrentState()
+	{
+		if (Input.GetKeyDown (KeyCode.Escape)) 
+			return States.ExitingApplication;
 
 		if (IsGameOver)
+			return States.GameOver;
+
+		if (Input.GetKeyDown (KeyCode.Space))
+			return States.PauseChanging;
+
+		if (isPaused)
+			return States.Paused;
+
+		if (isStarting)
+			return States.InLobby;
+
+		return States.InGame;
+	}
+
+	private void OnPauseChanging()
+	{
+		if(isPaused)
 		{
-			return;
+			UnPause();
+		}
+		else
+		{
+			Pause();
+		}
+	}
+
+	private void EnteringLobby()
+	{
+		FillInPlayerTable ();
+	}
+
+	private void InLobby ()
+	{
+		if (Input.GetKeyDown (KeyCode.S)) 
+		{
+			StartGame();
 		}
 
-		if(Input.GetKeyDown(KeyCode.Space))
+		for(int i=1; i<=5; i++)
 		{
-			if(isPaused)
+			if(Input.GetButtonDown("JReadyButton" + i))
 			{
-				UnPause();
+				readyPlayers[i-1] = true;
+				GameObject infoPanel = LobbyPanel.transform.FindChild ("PlayerInfo" + i).gameObject;
+				infoPanel.transform.FindChild ("IsReadyImage").gameObject.SetActive(true);
 			}
-			else
+
+			if(readyPlayers.All( x => x ))	// check that all readyPlayers are true
 			{
-				Pause();
+				StartGame();
 			}
 		}
 
-		if (isPaused && Input.GetKeyDown (KeyCode.R)) 
-		{
-			ResetGame();
+	}
+
+	private void FillInPlayerTable()
+	{
+		Color32[] colors = new Color32[5] {Color.green, Color.blue, Color.red, Color.yellow, Color.magenta };
+		int colorBaseIndex = Random.Range (0, 4);
+		
+		for (int i=1; i<=5; i++) {
+			GameObject infoPanel = LobbyPanel.transform.FindChild ("PlayerInfo" + i).gameObject;
+			Text playerName = infoPanel.transform.FindChild ("PlayerName").GetComponent<Text> ();
+			Text playerTeam = infoPanel.transform.FindChild ("PlayerTeam").GetComponent<Text> ();
+			Text points = infoPanel.transform.FindChild ("Points").GetComponent<Text> ();
+			GameObject playerReadyImage = infoPanel.transform.FindChild ("IsReadyImage").gameObject;
+			
+			playerName.color = colors [(colorBaseIndex + i) % 5];
+			playerTeam.text = string.Empty;
+			points.text = string.Empty;
+			playerReadyImage.SetActive(false);
+			
+			readyPlayers[i-1] = false;
 		}
+	}
 
-		timerText.text = SecondsRemaining.ToString("F1"); // display one decimal place
-
-		CheckForVictory ();
-    }
+	private void StartGame()
+	{
+		isStarting = false;
+		LobbyPanel.SetActive (false);
+		Time.timeScale = 1;
+	}
 
 	public void CheckForVictory()
 	{
@@ -189,7 +293,13 @@ public class GameManager : MonoBehaviour
 
 	private void ResetGame()
 	{
+		isResetting = true;
 		Application.LoadLevel(Application.loadedLevel);
-		UnPause ();
+	}
+
+	public void ExitGame()
+	{
+		Debug.Log ("Getting out of here!");
+		Application.Quit ();
 	}
 }

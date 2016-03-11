@@ -20,8 +20,8 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private float cloneCooldown = 1;
 
     [Header("Rogue Glitch")]
-    [SerializeField] private float glitchDuration;
-    [SerializeField] private float glitchCooldown;
+    [SerializeField] private float glitchDuration = 0;
+    [SerializeField] private float glitchCooldown = 0;
     [SerializeField] private Vector3 higherLimits = Vector3.zero;
     [SerializeField] private Vector3 lowerLimits = Vector3.zero;
 
