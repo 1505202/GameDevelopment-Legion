@@ -97,7 +97,7 @@ public class GameManager : MonoBehaviour
 			break;
 		default:
 			ClockTick();    
-			timerText.text = SecondsRemaining.ToString("F1"); // display one decimal place
+			timerText.text = SecondsRemaining.ToString("F0"); // display No decimal place
 			CheckForVictory ();
 			gameOverText.enabled = IsGameOver;
 			break;
@@ -307,4 +307,9 @@ public class GameManager : MonoBehaviour
 		Debug.Log ("Getting out of here!");
 		Application.Quit ();
 	}
+
+    public float NormalizedTime()
+    {
+        return SecondsRemaining / maxSeconds;
+    }
 }
