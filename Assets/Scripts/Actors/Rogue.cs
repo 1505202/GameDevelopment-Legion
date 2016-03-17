@@ -74,9 +74,6 @@ public class Rogue : AActor, IAssimilatable
 	private bool canSwitchSkills = true;
 	private bool hasCollidedWithLegion = false;
 
-    public GameObject myMeshHolder;
-    public GameObject myLegionMeshholder;
-
     private Light lightSource;
 
 	// cannonball 
@@ -89,6 +86,20 @@ public class Rogue : AActor, IAssimilatable
     
 	public GameObject trailBlazerPrefab;
     public Vector3 trailBlazerDropOffset;
+
+    /// <summary>
+    /// To Force The Animator To Transition To A Shape On Caught, use The Following
+    /// Parameter Name : SwitchToModel
+    /// Tiangle = 1
+    /// Circle  = 2
+    /// Cross   = 3
+    /// Square  = 4
+    /// 
+    /// Note: 0 Reserved So That The Animations Swap Before Being Caught
+    /// </summary>
+    private Animator animator;
+    
+
 
     /// <summary>
     /// /////////////////////////////////////
@@ -105,6 +116,8 @@ public class Rogue : AActor, IAssimilatable
 
 	private void Start()
 	{
+        animator = GetComponent<Animator>();
+
 		myRigidBody = GetComponent<Rigidbody>();
         myTransform = GetComponent<Transform>();
 
@@ -129,6 +142,8 @@ public class Rogue : AActor, IAssimilatable
         rogueSkills[2] = glitch;
 
         lightSource = GetComponentInChildren<Light>();
+
+        animator.SetBool("Start", true);
 
 	}
 	private void Update()
@@ -348,32 +363,32 @@ public class Rogue : AActor, IAssimilatable
             joint.linearLimit = limit;
 
             movementSpeed *= 3.5f;
-
-            myMeshHolder.SetActive(false);
-            myLegionMeshholder.SetActive(true);
+            animator.SetInteger("SwitchToModel", 3); // Transition Model To Cross
 
             gameObject.tag = "Untagged";
             gameObject.layer = LayerMask.NameToLayer("Default");
         }
 		else if (assimilatedBehaviour == (int)BehaviourType.Cannonball)
         {
-            myMeshHolder.SetActive(false);
-            myLegionMeshholder.SetActive(true);
+            animator.SetInteger("SwitchToModel", 2); // Transition Model To Circle
 
             gameObject.tag = "Untagged";
             gameObject.layer = LayerMask.NameToLayer("Default");
 
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
         }
-		else if (assimilatedBehaviour == (int)BehaviourType.TrailBlazer)
+        else if (assimilatedBehaviour == (int)BehaviourType.TrailBlazer)
         {
-            myMeshHolder.SetActive(false);
-            myLegionMeshholder.SetActive(true);
+            animator.SetInteger("SwitchToModel", 4); // Transition Model To Square
 
             gameObject.tag = "Untagged";
             gameObject.layer = LayerMask.NameToLayer("Default");
 
             movementSpeed *= 2;
+        }
+        else
+        {
+            animator.SetInteger("SwitchToModel", 1); // Transition Model To Square
         }
 
         for (int i = 0; i < rogueSkills.Length; i++)
