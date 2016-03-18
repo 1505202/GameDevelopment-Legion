@@ -86,7 +86,11 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private float stunDuration = 0; 
     bool canMove = true;
 
-    
+
+    [Header("Particle Prefabs")]
+    [SerializeField] private GameObject blinkParticlePrefab;
+    [SerializeField] private GameObject cannonParticlePrefab;
+
 	public GameObject trailBlazerPrefab;
     public Vector3 trailBlazerDropOffset;
 
@@ -132,7 +136,7 @@ public class Rogue : AActor, IAssimilatable
 
         // Temporary Change Until New Skills Are Added
 		RogueBlink dash = gameObject.AddComponent<RogueBlink>();
-		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance);
+		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance, blinkParticlePrefab);
 
         RogueClone clone = gameObject.AddComponent<RogueClone>();
         clone.Initialize(myTransform, cloneObject, inputController, base.movementSpeed, cloneDuration, cloneCooldown);
@@ -271,6 +275,11 @@ public class Rogue : AActor, IAssimilatable
 
 	private void OnCollisionEnter(Collision obj)
 	{
+        if (gameObject.CompareTag("CannonBall"))
+        {
+            Instantiate(cannonParticlePrefab, transform.position, Quaternion.Euler(90, 0, 0));
+        }
+
         if (obj.gameObject.CompareTag("Legion") && hasCollidedWithLegion)
             return;
 
@@ -295,9 +304,6 @@ public class Rogue : AActor, IAssimilatable
     // Controls Consistant Wall Collisions For CannonBall
     private void OnCollisionStay(Collision obj)
     {
-        if (obj.gameObject.CompareTag("Legion") && hasCollidedWithLegion)
-            return;
-
         if (obj.gameObject.CompareTag("Floor"))
         {
             return;
@@ -373,7 +379,7 @@ public class Rogue : AActor, IAssimilatable
         {
             animator.SetInteger("SwitchToModel", 2); // Transition Model To Circle
 
-            gameObject.tag = "Untagged";
+            gameObject.tag = "CannonBall";
             gameObject.layer = LayerMask.NameToLayer("Default");
 
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
@@ -391,6 +397,10 @@ public class Rogue : AActor, IAssimilatable
         {
             animator.SetInteger("SwitchToModel", 1); // Transition Model To Square
         }
+
+
+        SetRogueColors( GameManager.Instance.LegionColor );
+
 
         for (int i = 0; i < rogueSkills.Length; i++)
         {

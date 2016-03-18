@@ -102,7 +102,7 @@ public class GameManager : MonoBehaviour
 			break;
 		default:
 			ClockTick();    
-			timerText.text = SecondsRemaining.ToString("F0"); // display No decimal place
+			timerText.text = ConvertTimeToString(SecondsRemaining+1);//SecondsRemaining.ToString("F0"); // display No decimal place NOTE: TURN THIS INTO A REGEX
 			CheckForVictory ();
 			gameOverText.enabled = IsGameOver;
 			break;
@@ -172,6 +172,7 @@ public class GameManager : MonoBehaviour
 
 	private void FillInPlayerTable()
 	{
+        // Left This In Case Mike Wants To Copy It;
 		//Color32[] colors = new Color32[5] {Color.green, Color.blue, Color.red, Color.yellow, Color.magenta };
 		//int colorBaseIndex = Random.Range (0, 4);
 		
@@ -335,5 +336,25 @@ public class GameManager : MonoBehaviour
     public float NormalizedTime()
     {
         return SecondsRemaining / maxSeconds;
+    }
+
+    public Color LegionColor
+    {
+        get { return playerColors[0]; }
+    }
+
+    private string ConvertTimeToString(float time)
+    {
+        int minutes = (int)(time / 60);
+        int seconds = (int)time % 60;
+
+        if (time < 10)
+        {
+            return "0:0" + (int)time;
+        }// I was going to use a terinary Operator Here But To Keep It Clean I Added Ifs (Mike Is This Better?)
+        else if( seconds < 10 )
+        {
+            return minutes + ":0" + seconds;
+        } else return minutes + ":" + seconds;
     }
 }
