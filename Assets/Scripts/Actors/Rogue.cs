@@ -28,6 +28,9 @@ public class Rogue : AActor, IAssimilatable
 	[Header("Assimilated Skills")]
 	[SerializeField] private float tetherMaxDistance = 0;
 
+    [Header("Rogue Sub Mesh MeshRenderer")]
+    [SerializeField] private MeshRenderer[] subMeshes;
+
     // TODO: Ensure these are used or removed
 
     // [Header("Assimilated Meshes")]
@@ -74,7 +77,7 @@ public class Rogue : AActor, IAssimilatable
 	private bool canSwitchSkills = true;
 	private bool hasCollidedWithLegion = false;
 
-    private Light lightSource;
+    [SerializeField] private Light lightSource;
 
 	// cannonball 
 	private bool isPropelled = false;
@@ -140,8 +143,6 @@ public class Rogue : AActor, IAssimilatable
         rogueSkills[0] = dash;
         rogueSkills[1] = clone;
         rogueSkills[2] = glitch;
-
-        lightSource = GetComponentInChildren<Light>();
 
         animator.SetBool("Start", true);
 
@@ -613,4 +614,14 @@ public class Rogue : AActor, IAssimilatable
 	}
 
 	#endregion 
+
+    public void SetRogueColors(Color color)
+    {
+        for (int i = 0; i < subMeshes.Length; i++)
+        {
+            subMeshes[i].material.color = color;
+        }
+
+        lightSource.color = color;
+    }
 }

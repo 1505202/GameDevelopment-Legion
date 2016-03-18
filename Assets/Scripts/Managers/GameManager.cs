@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
@@ -14,6 +16,8 @@ public class GameManager : MonoBehaviour
 	[SerializeField] private int timeRemainingWarningThreshold = 10;
 	[SerializeField] private GameObject pausePanel = null;
 	[SerializeField] private GameObject LobbyPanel = null;
+    [SerializeField] private float timeToReturnToLobby = 3;
+    [SerializeField] private Color[] playerColors;
 
     private static GameManager instance;
 	private static bool isResetting = false;
@@ -24,6 +28,7 @@ public class GameManager : MonoBehaviour
 	private bool isStarting = true;
 	private bool[] readyPlayers = new bool[5];
 
+    private bool startedEndOfRoundTransition = false;
 
     public static GameManager Instance { get { return instance; } }
     public float SecondsRemaining { get; private set; }
@@ -167,8 +172,8 @@ public class GameManager : MonoBehaviour
 
 	private void FillInPlayerTable()
 	{
-		Color32[] colors = new Color32[5] {Color.green, Color.blue, Color.red, Color.yellow, Color.magenta };
-		int colorBaseIndex = Random.Range (0, 4);
+		//Color32[] colors = new Color32[5] {Color.green, Color.blue, Color.red, Color.yellow, Color.magenta };
+		//int colorBaseIndex = Random.Range (0, 4);
 		
 		for (int i=1; i<=5; i++) {
 			GameObject infoPanel = LobbyPanel.transform.FindChild ("PlayerInfo" + i).gameObject;
@@ -177,12 +182,19 @@ public class GameManager : MonoBehaviour
 			Text points = infoPanel.transform.FindChild ("Points").GetComponent<Text> ();
 			GameObject playerReadyImage = infoPanel.transform.FindChild ("IsReadyImage").gameObject;
 			
-			playerName.color = colors [(colorBaseIndex + i) % 5];
-			playerTeam.text = string.Empty;
+			//playerName.color = colors [(colorBaseIndex + i) % 5];
+            playerName.color = playerColors[i-1];
+            playerTeam.text = string.Empty;
 			points.text = string.Empty;
 			playerReadyImage.SetActive(false);
 			
 			readyPlayers[i-1] = false;
+
+            // Set Ingame Player Colors
+            if (i >= 2)
+            {
+                rogueElements[i - 2].GetComponent<Rogue>().SetRogueColors(playerName.color);
+            }
 		}
 	}
 
@@ -212,9 +224,21 @@ public class GameManager : MonoBehaviour
 			AudioManager.StartMenuMusic();
 			AudioManager.PlayGameOverSound();
 			DisablePhysics ();
+
+            if (!startedEndOfRoundTransition)
+            {
+                startedEndOfRoundTransition = true;
+                StartCoroutine(ReturnToLobby(timeToReturnToLobby));
+            }
 		}
 	}
-	
+
+    private IEnumerator ReturnToLobby(float t)
+    {
+        yield return new WaitForSeconds(t);
+        Application.LoadLevel(1);
+    }
+
 	public void Assimilate(Rogue rogue)
 	{
 		rogueElements.Remove(rogue.gameObject);
