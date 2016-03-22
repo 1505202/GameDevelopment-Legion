@@ -25,6 +25,14 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private Vector3 higherLimits = Vector3.zero;
     [SerializeField] private Vector3 lowerLimits = Vector3.zero;
 
+    [SerializeField] [Range(0, 1)] private float minLengthPercentile = 0;
+    [SerializeField] [Range(0, 1)] private float maxLengthPercentile = 0;
+
+    [SerializeField] private float glitchInterval = 0.2f;
+
+
+
+
 	[Header("Assimilated Skills")]
 	[SerializeField] private float tetherMaxDistance = 0;
 
@@ -60,7 +68,7 @@ public class Rogue : AActor, IAssimilatable
 
 	// Rogue Skills
 	private int skillIndex = 0;
-    private int rogueSkillsUnlocked = 0;
+    private int rogueSkillsUnlocked = 3;
     private ASkill[] rogueSkills = new ASkill[3];
 
 	// Cached Components
@@ -139,7 +147,7 @@ public class Rogue : AActor, IAssimilatable
         clone.Initialize(myTransform, cloneObject, inputController, base.movementSpeed, cloneDuration, cloneCooldown);
 
         RogueGlitch glitch = gameObject.AddComponent<RogueGlitch>();
-        glitch.Initialize(Camera.main.transform, Camera.main.transform.position, lowerLimits, higherLimits, glitchDuration, glitchCooldown);
+        glitch.Initialize(Camera.main.gameObject, lowerLimits, higherLimits, glitchDuration, glitchInterval, glitchCooldown, minLengthPercentile, maxLengthPercentile);
 
         rogueSkills[0] = dash;
         rogueSkills[1] = clone;
