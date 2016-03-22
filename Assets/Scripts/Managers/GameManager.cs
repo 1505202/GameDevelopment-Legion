@@ -51,7 +51,8 @@ public class GameManager : MonoBehaviour
 		isPaused = false;
 		pausePanel.SetActive (false);
 		isStarting = true;
-		
+        Time.timeScale = 0;
+
         if (instance == null)
         {
             instance = this;
