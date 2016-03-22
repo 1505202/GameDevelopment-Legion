@@ -130,10 +130,7 @@ public class Rogue : AActor, IAssimilatable
 
 		inputController = ControllerManager.Instance.NewController();
 
-        cloneObject = Instantiate(cloneObject, Vector3.zero, Quaternion.identity) as GameObject;
-
-        cloneObject.SetActive(false);
-
+        
         // Temporary Change Until New Skills Are Added
 		RogueBlink dash = gameObject.AddComponent<RogueBlink>();
 		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance, blinkParticlePrefab);
@@ -148,6 +145,7 @@ public class Rogue : AActor, IAssimilatable
         rogueSkills[1] = clone;
         rogueSkills[2] = glitch;
 
+        cloneObject.GetComponent<Animator>().SetBool("Start", true);
         animator.SetBool("Start", true);
 
 	}
@@ -631,7 +629,9 @@ public class Rogue : AActor, IAssimilatable
         {
             subMeshes[i].material.color = color;
         }
+        cloneObject = Instantiate(cloneObject, Vector3.zero, Quaternion.identity) as GameObject;
 
+        cloneObject.GetComponent<RogueCloneMeshReferences>().UpdateCloneColors(color);
         lightSource.color = color;
     }
 }

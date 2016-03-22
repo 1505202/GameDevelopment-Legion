@@ -15,6 +15,8 @@ public class RogueClone : ASkill
 
     private bool isCloneActive = false;
 
+    private bool isDirty = false;
+
     public void Initialize(Transform rogueTransform, GameObject targetObj, AController inputController, float movementSpeed, float duration, float cooldown)
 	{
         this.duration = duration;
@@ -42,8 +44,6 @@ public class RogueClone : ASkill
     {
         if (isCloneActive)
         {
-            //targetRigidbody.velocity = inputController.AimDirection() * movementSpeed;
-
             /// Rogue Behaviour
             /// Translation and Rotation Handling
             targetRigidbody.velocity = inputController.AimDirection() * movementSpeed;
@@ -69,9 +69,13 @@ public class RogueClone : ASkill
     {
         isCloneActive = true;
         targetObject.GetComponent<Transform>().position = rogueTransform.position;
-        targetObject.SetActive(true);
+        targetObject.GetComponent<Rigidbody>().isKinematic = false;
+        targetObject.GetComponent<CapsuleCollider>().enabled = true;
         yield return new WaitForSeconds(duration);
         isCloneActive = false;
-        targetObject.SetActive(false);
+        targetObject.GetComponent<Transform>().position = new Vector3(100000, 100000, 100000);
+        targetObject.GetComponent<Rigidbody>().isKinematic = true;
+        targetObject.GetComponent<CapsuleCollider>().enabled = false;
+
     }
 }
