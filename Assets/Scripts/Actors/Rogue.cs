@@ -640,6 +640,10 @@ public class Rogue : AActor, IAssimilatable
         cloneObject = Instantiate(cloneObject, Vector3.zero, Quaternion.identity) as GameObject;
 
         cloneObject.GetComponent<RogueCloneMeshReferences>().UpdateCloneColors(color);
+
+        cloneObject.GetComponent<Rigidbody>().isKinematic = true;
+        cloneObject.GetComponent<Transform>().position = new Vector3(10000, 10000, 10000);
+
         lightSource.color = color;
     }
 }
