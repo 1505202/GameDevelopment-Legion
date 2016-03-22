@@ -122,6 +122,7 @@ public class Rogue : AActor, IAssimilatable
         myTransform = GetComponent<Transform>();
         inputController = ControllerManager.Instance.NewController();
         score = 0;
+	    Team = rogueTeamName;
 
         // Temporary Change Until New Skills Are Added
         RogueBlink dash = gameObject.AddComponent<RogueBlink>();

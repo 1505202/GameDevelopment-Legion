@@ -11,6 +11,9 @@ public class AActor : MonoBehaviour
 
     public int PlayerNumber { get; set; }
     protected int score = 0;
+    public string Team { get; protected set; }
+    protected static string legionTeamName = "Legion";
+    protected static string rogueTeamName = "Rogue";
 
     /// <summary>
     /// Updates Camera LayerID (To Work With Hiding Spots)

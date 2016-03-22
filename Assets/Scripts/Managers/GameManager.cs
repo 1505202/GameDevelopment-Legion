@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
     private bool startedEndOfRoundTransition = false;
 
     private static string[] previousRoundScores = { "--", "--", "--", "--", "--" };
+    private static string[] previousRoundTeams = { "", "", "", "", "" };
 
     public static GameManager Instance { get { return instance; } }
     public float SecondsRemaining { get; private set; }
@@ -184,7 +185,7 @@ public class GameManager : MonoBehaviour
 			
 			//playerName.color = colors [(colorBaseIndex + i) % 5];
             playerName.color = playerColors[i-1];
-            playerTeam.text = string.Empty;
+            playerTeam.text = previousRoundTeams[i-1];
 			playerReadyImage.SetActive(false);
             points.text = previousRoundScores[i - 1];
 			readyPlayers[i-1] = false;
@@ -227,27 +228,22 @@ public class GameManager : MonoBehaviour
 
             if (!startedEndOfRoundTransition)
             {
-                // log scores
-                Debug.Log("Legion Score: " + legion.GetComponent<Legion>().GetScore());
-                foreach (var r in legionElements)
-                {
-                    Debug.Log(r.GetComponent<Rogue>().GetScore());
-                }
-                foreach (var r in rogueElements)
-                {
-                    Debug.Log(r.GetComponent<Rogue>().GetScore());
-                }
-
                 // put scores in structures for display
                 for (int i = 0; i < legionElements.Count; i++)
                 {
-                    SetScore(legionElements[i].GetComponent<Rogue>());
+                    var rogue = legionElements[i].GetComponent<Rogue>();
+                    SetScore(rogue);
+                    previousRoundTeams[rogue.PlayerNumber-1] = rogue.Team;
                 }
                 for (int i = 0; i < rogueElements.Count; i++)
                 {
-                    SetScore(rogueElements[i].GetComponent<Rogue>());
+                    var rogue = rogueElements[i].GetComponent<Rogue>();
+                    SetScore(rogue);
+                    previousRoundTeams[rogue.PlayerNumber - 1] = rogue.Team;
                 }
-                SetScore(legion.GetComponent<Legion>());
+                var legionComponent = legion.GetComponent<Legion>();
+                SetScore(legionComponent);
+                previousRoundTeams[legionComponent.PlayerNumber-1] = legionComponent.Team;
 
                 startedEndOfRoundTransition = true;
                 StartCoroutine(ReturnToLobby(timeToReturnToLobby));
@@ -259,6 +255,7 @@ public class GameManager : MonoBehaviour
     {
         int index = actor.PlayerNumber - 1;
         previousRoundScores[index] = actor.GetScore().ToString();
+
     }
 
     private IEnumerator ReturnToLobby(float t)

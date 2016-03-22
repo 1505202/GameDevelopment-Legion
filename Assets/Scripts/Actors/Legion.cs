@@ -18,6 +18,7 @@ public class Legion : AActor
 		myRigidbody = GetComponent<Rigidbody>();
 		myTransform = GetComponent<Transform>();
 	    PlayerNumber = 1;
+	    Team = legionTeamName;
 
 		// Add Legion Camera
 		inputController = ControllerManager.Instance.NewController();
