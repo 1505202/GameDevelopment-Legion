@@ -200,22 +200,50 @@ public class Rogue : AActor, IAssimilatable
 		HandleMoveInput();
 
 		// Skill handling
-		if (rogueSkillsUnlocked > 0)
-		{
-			if (inputController.SwitchingPower() && canSwitchSkills)
-			{
-				SwitchSkill();
-				StartCoroutine(SwitchPowerCD(0.5f));
-			}
-			
-			if (inputController.FiringPower() && rogueSkills[skillIndex].IsReady)
-			{
-                if (rogueSkills[skillIndex].UseSkill())
-                {
-                    lightSource.intensity = 0;
-                }
-			}
-		}
+        for (int i = 0; i < rogueSkills.Length; i++)
+        {
+            if (i > rogueSkillsUnlocked)
+            {
+                break;
+            }
+
+            if (inputController.GetButton((ControllerInputKey)i) && rogueSkills[i].IsReady)
+            {
+                rogueSkills[i].UseSkill(); // Use In An If Statemenst If It Worked Well
+                continue;
+            }
+
+            if (inputController.GetButton((ControllerInputKey)i) && rogueSkills[i].IsReady)
+            {
+                rogueSkills[i].UseSkill(); // Use In An If Statemenst If It Worked Well
+                continue;
+            }
+
+            if (inputController.GetButton((ControllerInputKey)i) && rogueSkills[i].IsReady)
+            {
+                rogueSkills[i].UseSkill(); // Use In An If Statemenst If It Worked Well
+                continue;
+            }
+
+        }
+
+        // NOTE: Do NOT Delete, As The Designer May Change His Mind
+        //if (rogueSkillsUnlocked > 0)
+        //{
+        //    if (inputController.SwitchingPower() && canSwitchSkills)
+        //    {
+        //        SwitchSkill();
+        //        StartCoroutine(SwitchPowerCD(0.5f));
+        //    }
+
+        //    if (inputController.FiringPower() && rogueSkills[skillIndex].IsReady)
+        //    {
+        //        if (rogueSkills[skillIndex].UseSkill())
+        //        {
+        //            lightSource.intensity = 0;
+        //        }
+        //    }
+        //}
 	}
 	private void TetherBehaviour()
 	{
