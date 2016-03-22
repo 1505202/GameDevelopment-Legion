@@ -1,7 +1,9 @@
 using UnityEngine;
-
-using System.Collections.Generic;
 using UnityEngine.UI;
+
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,17 +15,34 @@ public class GameManager : MonoBehaviour
 	[SerializeField] private Text timerText = null;
 	[SerializeField] private int timeRemainingWarningThreshold = 10;
 	[SerializeField] private GameObject pausePanel = null;
-	private bool isGameOver;
+	[SerializeField] private GameObject LobbyPanel = null;
+    [SerializeField] private float timeToReturnToLobby = 3;
+    [SerializeField] private Color[] playerColors;
 
+    private static GameManager instance;
+	private static bool isResetting = false;
+	private bool isGameOver;
 	private bool isEndGameWarningPlaying;
 	private int assimilatedRogueCount = 0;
-    private static GameManager instance;
 	private bool isPaused = false;
+	private bool isStarting = true;
+	private bool[] readyPlayers = new bool[5];
+
+    private bool startedEndOfRoundTransition = false;
 
     public static GameManager Instance { get { return instance; } }
     public float SecondsRemaining { get; private set; }
     public bool IsGameOver { get { return isGameOver; } set { isGameOver = value; } }
 
+	enum States 
+	{
+		InLobby,
+		InGame,
+		PauseChanging,
+		Paused,
+		GameOver,
+		ExitingApplication,
+	};
 
     private void Start()
     {
@@ -31,13 +50,21 @@ public class GameManager : MonoBehaviour
 		isEndGameWarningPlaying = false;
 		isPaused = false;
 		pausePanel.SetActive (false);
-
+		isStarting = true;
+		
         if (instance == null)
         {
             instance = this;
             GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
             SecondsRemaining = maxSeconds;
 			AudioManager.StartLevelMusic();
+			EnteringLobby();
+
+			if(isResetting)
+			{
+				isResetting = false;
+				StartGame();
+			}
         }
         else
         {
@@ -45,44 +72,139 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     private void Update()
     {
-		if (Input.GetKeyDown (KeyCode.Escape)) 
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Application.LoadLevel(0);
+        }
+
+		States currentState = GetCurrentState();
+
+		switch (currentState) 
 		{
-			Debug.Log ("Getting out of here!");
-			Application.Quit ();
+		case States.ExitingApplication:
+			ExitGame();
+			break;
+		case States.GameOver:
+			return;
+		case States.InLobby:
+			InLobby();
+			break;
+		case States.PauseChanging:
+			OnPauseChanging();
+			break;
+		case States.Paused:
+			if (Input.GetKeyDown (KeyCode.R)) 
+			{
+				ResetGame();
+			}
+			break;
+		default:
+			ClockTick();    
+			timerText.text = ConvertTimeToString(SecondsRemaining+1);//SecondsRemaining.ToString("F0"); // display No decimal place NOTE: TURN THIS INTO A REGEX
+			CheckForVictory ();
+			gameOverText.enabled = IsGameOver;
+			break;
 		}
-		
-		ClockTick();    
-        gameOverText.enabled = IsGameOver;
+    }
+
+	private States GetCurrentState()
+	{
+		if (Input.GetKeyDown (KeyCode.Escape)) 
+			return States.ExitingApplication;
 
 		if (IsGameOver)
+			return States.GameOver;
+
+		if (Input.GetKeyDown (KeyCode.Space))
+			return States.PauseChanging;
+
+		if (isPaused)
+			return States.Paused;
+
+		if (isStarting)
+			return States.InLobby;
+
+		return States.InGame;
+	}
+
+	private void OnPauseChanging()
+	{
+		if(isPaused)
 		{
-			return;
+			UnPause();
+		}
+		else
+		{
+			Pause();
+		}
+	}
+
+	private void EnteringLobby()
+	{
+		FillInPlayerTable ();
+	}
+
+	private void InLobby ()
+	{
+		if (Input.GetKeyDown (KeyCode.S)) 
+		{
+			StartGame();
 		}
 
-		if(Input.GetKeyDown(KeyCode.Space))
+		for(int i=1; i<=5; i++)
 		{
-			if(isPaused)
+			if(Input.GetButtonDown("JReadyButton" + i))
 			{
-				UnPause();
+				readyPlayers[i-1] = true;
+				GameObject infoPanel = LobbyPanel.transform.FindChild ("PlayerInfo" + i).gameObject;
+				infoPanel.transform.FindChild ("IsReadyImage").gameObject.SetActive(true);
 			}
-			else
+
+			if(readyPlayers.All( x => x ))	// check that all readyPlayers are true
 			{
-				Pause();
+				StartGame();
 			}
 		}
 
-		if (isPaused && Input.GetKeyDown (KeyCode.R)) 
-		{
-			ResetGame();
+	}
+
+	private void FillInPlayerTable()
+	{
+        // Left This In Case Mike Wants To Copy It;
+		//Color32[] colors = new Color32[5] {Color.green, Color.blue, Color.red, Color.yellow, Color.magenta };
+		//int colorBaseIndex = Random.Range (0, 4);
+		
+		for (int i=1; i<=5; i++) {
+			GameObject infoPanel = LobbyPanel.transform.FindChild ("PlayerInfo" + i).gameObject;
+			Text playerName = infoPanel.transform.FindChild ("PlayerName").GetComponent<Text> ();
+			Text playerTeam = infoPanel.transform.FindChild ("PlayerTeam").GetComponent<Text> ();
+			Text points = infoPanel.transform.FindChild ("Points").GetComponent<Text> ();
+			GameObject playerReadyImage = infoPanel.transform.FindChild ("IsReadyImage").gameObject;
+			
+			//playerName.color = colors [(colorBaseIndex + i) % 5];
+            playerName.color = playerColors[i-1];
+            playerTeam.text = string.Empty;
+			points.text = string.Empty;
+			playerReadyImage.SetActive(false);
+			
+			readyPlayers[i-1] = false;
+
+            // Set Ingame Player Colors
+            if (i >= 2)
+            {
+                rogueElements[i - 2].GetComponent<Rogue>().SetRogueColors(playerName.color);
+            }
 		}
+	}
 
-		timerText.text = SecondsRemaining.ToString("F1"); // display one decimal place
-
-		CheckForVictory ();
-    }
+	private void StartGame()
+	{
+		isStarting = false;
+		LobbyPanel.SetActive (false);
+		Time.timeScale = 1;
+	}
 
 	public void CheckForVictory()
 	{
@@ -103,9 +225,21 @@ public class GameManager : MonoBehaviour
 			AudioManager.StartMenuMusic();
 			AudioManager.PlayGameOverSound();
 			DisablePhysics ();
+
+            if (!startedEndOfRoundTransition)
+            {
+                startedEndOfRoundTransition = true;
+                StartCoroutine(ReturnToLobby(timeToReturnToLobby));
+            }
 		}
 	}
-	
+
+    private IEnumerator ReturnToLobby(float t)
+    {
+        yield return new WaitForSeconds(t);
+        Application.LoadLevel(1);
+    }
+
 	public void Assimilate(Rogue rogue)
 	{
 		rogueElements.Remove(rogue.gameObject);
@@ -189,7 +323,38 @@ public class GameManager : MonoBehaviour
 
 	private void ResetGame()
 	{
+		isResetting = true;
 		Application.LoadLevel(Application.loadedLevel);
-		UnPause ();
 	}
+
+	public void ExitGame()
+	{
+		Debug.Log ("Getting out of here!");
+		Application.Quit ();
+	}
+
+    public float NormalizedTime()
+    {
+        return SecondsRemaining / maxSeconds;
+    }
+
+    public Color LegionColor
+    {
+        get { return playerColors[0]; }
+    }
+
+    private string ConvertTimeToString(float time)
+    {
+        int minutes = (int)(time / 60);
+        int seconds = (int)time % 60;
+
+        if (time < 10)
+        {
+            return "0:0" + (int)time;
+        }// I was going to use a terinary Operator Here But To Keep It Clean I Added Ifs (Mike Is This Better?)
+        else if( seconds < 10 )
+        {
+            return minutes + ":0" + seconds;
+        } else return minutes + ":" + seconds;
+    }
 }

@@ -5,13 +5,16 @@ public class RogueBlink : ASkill
 {
 	private Transform targetTransform;
 	private float blinkMultiplier;
+    private GameObject particlePrefab;
 
-	public void Initialize(Transform targetTransform, float cooldown, float blinkMultiplier)
+	public void Initialize(Transform targetTransform, float cooldown, float blinkMultiplier, GameObject particles)
 	{
 		this.targetTransform = targetTransform;
 
 		this.cooldown = cooldown;
 		this.blinkMultiplier = blinkMultiplier;
+
+        this.particlePrefab = particles;
 	}
 
 	public override bool UseSkill()
@@ -39,8 +42,9 @@ public class RogueBlink : ASkill
             // Hits Floor
             if (hit.collider.gameObject.CompareTag("Floor"))
             {
+                CreateParticleSystemAt(targetTransform.position);
                 targetTransform.position += targetTransform.forward * blinkMultiplier;
-                return true;
+                CreateParticleSystemAt(targetTransform.position);
             }
             else
             {
@@ -50,10 +54,18 @@ public class RogueBlink : ASkill
                 if (Physics.Raycast(ray, out hit, 12))
                 {
                     targetTransform.position = hit.point - (transform.forward / 4);
-                    return true;
                 }
             }
+            
+            return true;
         }
         return false;
 	}
+
+    private void CreateParticleSystemAt(Vector3 position)
+    {
+        GameObject tempParticles = Instantiate(particlePrefab, position, Quaternion.identity ) as GameObject;
+
+        //tempParticles.GetComponent<ParticleSystem>().Emit(1);
+    }
 }

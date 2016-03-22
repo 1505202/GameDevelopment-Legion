@@ -20,13 +20,16 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private float cloneCooldown = 1;
 
     [Header("Rogue Glitch")]
-    [SerializeField] private float glitchDuration;
-    [SerializeField] private float glitchCooldown;
+    [SerializeField] private float glitchDuration = 0;
+    [SerializeField] private float glitchCooldown = 0;
     [SerializeField] private Vector3 higherLimits = Vector3.zero;
     [SerializeField] private Vector3 lowerLimits = Vector3.zero;
 
 	[Header("Assimilated Skills")]
 	[SerializeField] private float tetherMaxDistance = 0;
+
+    [Header("Rogue Sub Mesh MeshRenderer")]
+    [SerializeField] private MeshRenderer[] subMeshes;
 
     // TODO: Ensure these are used or removed
 
@@ -57,7 +60,7 @@ public class Rogue : AActor, IAssimilatable
 
 	// Rogue Skills
 	private int skillIndex = 0;
-    private int rogueSkillsUnlocked = 3;
+    private int rogueSkillsUnlocked = 0;
     private ASkill[] rogueSkills = new ASkill[3];
 
 	// Cached Components
@@ -74,10 +77,7 @@ public class Rogue : AActor, IAssimilatable
 	private bool canSwitchSkills = true;
 	private bool hasCollidedWithLegion = false;
 
-    public GameObject myMeshHolder;
-    public GameObject myLegionMeshholder;
-
-    private Light lightSource;
+    [SerializeField] private Light lightSource;
 
 	// cannonball 
 	private bool isPropelled = false;
@@ -86,9 +86,27 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private float stunDuration = 0; 
     bool canMove = true;
 
-    
+
+    [Header("Particle Prefabs")]
+    [SerializeField] private GameObject blinkParticlePrefab;
+    [SerializeField] private GameObject cannonParticlePrefab;
+
 	public GameObject trailBlazerPrefab;
     public Vector3 trailBlazerDropOffset;
+
+    /// <summary>
+    /// To Force The Animator To Transition To A Shape On Caught, use The Following
+    /// Parameter Name : SwitchToModel
+    /// Tiangle = 1
+    /// Circle  = 2
+    /// Cross   = 3
+    /// Square  = 4
+    /// 
+    /// Note: 0 Reserved So That The Animations Swap Before Being Caught
+    /// </summary>
+    private Animator animator;
+    
+
 
     /// <summary>
     /// /////////////////////////////////////
@@ -105,18 +123,17 @@ public class Rogue : AActor, IAssimilatable
 
 	private void Start()
 	{
+        animator = GetComponent<Animator>();
+
 		myRigidBody = GetComponent<Rigidbody>();
         myTransform = GetComponent<Transform>();
 
 		inputController = ControllerManager.Instance.NewController();
 
-        cloneObject = Instantiate(cloneObject, Vector3.zero, Quaternion.identity) as GameObject;
-
-        cloneObject.SetActive(false);
-
+        
         // Temporary Change Until New Skills Are Added
 		RogueBlink dash = gameObject.AddComponent<RogueBlink>();
-		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance);
+		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance, blinkParticlePrefab);
 
         RogueClone clone = gameObject.AddComponent<RogueClone>();
         clone.Initialize(myTransform, cloneObject, inputController, base.movementSpeed, cloneDuration, cloneCooldown);
@@ -128,7 +145,8 @@ public class Rogue : AActor, IAssimilatable
         rogueSkills[1] = clone;
         rogueSkills[2] = glitch;
 
-        lightSource = GetComponentInChildren<Light>();
+        cloneObject.GetComponent<Animator>().SetBool("Start", true);
+        animator.SetBool("Start", true);
 
 	}
 	private void Update()
@@ -219,7 +237,7 @@ public class Rogue : AActor, IAssimilatable
 		if (!isPropelled && inputController.FiringPower ()) 
 		{
 			isPropelled = true;
-			propelledDirection = inputController.MoveDirection();
+			propelledDirection = inputController.MoveDirection().normalized;
 			AudioManager.PlayCannonballFireSound();
 		}
 
@@ -255,15 +273,20 @@ public class Rogue : AActor, IAssimilatable
 
 	private void OnCollisionEnter(Collision obj)
 	{
+        if (gameObject.CompareTag("CannonBall"))
+        {
+            Instantiate(cannonParticlePrefab, transform.position, Quaternion.Euler(90, 0, 0));
+        }
+
         if (obj.gameObject.CompareTag("Legion") && hasCollidedWithLegion)
             return;
 
-		if(obj.gameObject.CompareTag("Legion") && !hasCollidedWithLegion)
+		if(obj.gameObject.CompareTag("Legion") && assimilatedBehaviour == (int)BehaviourType.Rogue)
 		{
 			hasCollidedWithLegion = true;
 			Assimilate();
 		}
-
+        
 		if (assimilatedBehaviour == (int)BehaviourType.Cannonball) 
 		{
             myRigidBody.velocity = Vector3.zero;
@@ -279,9 +302,6 @@ public class Rogue : AActor, IAssimilatable
     // Controls Consistant Wall Collisions For CannonBall
     private void OnCollisionStay(Collision obj)
     {
-        if (obj.gameObject.CompareTag("Legion") && hasCollidedWithLegion)
-            return;
-
         if (obj.gameObject.CompareTag("Floor"))
         {
             return;
@@ -348,33 +368,37 @@ public class Rogue : AActor, IAssimilatable
             joint.linearLimit = limit;
 
             movementSpeed *= 3.5f;
-
-            myMeshHolder.SetActive(false);
-            myLegionMeshholder.SetActive(true);
+            animator.SetInteger("SwitchToModel", 3); // Transition Model To Cross
 
             gameObject.tag = "Untagged";
             gameObject.layer = LayerMask.NameToLayer("Default");
         }
 		else if (assimilatedBehaviour == (int)BehaviourType.Cannonball)
         {
-            myMeshHolder.SetActive(false);
-            myLegionMeshholder.SetActive(true);
+            animator.SetInteger("SwitchToModel", 2); // Transition Model To Circle
 
-            gameObject.tag = "Untagged";
+            gameObject.tag = "CannonBall";
             gameObject.layer = LayerMask.NameToLayer("Default");
 
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
         }
-		else if (assimilatedBehaviour == (int)BehaviourType.TrailBlazer)
+        else if (assimilatedBehaviour == (int)BehaviourType.TrailBlazer)
         {
-            myMeshHolder.SetActive(false);
-            myLegionMeshholder.SetActive(true);
+            animator.SetInteger("SwitchToModel", 4); // Transition Model To Square
 
             gameObject.tag = "Untagged";
             gameObject.layer = LayerMask.NameToLayer("Default");
 
             movementSpeed *= 2;
         }
+        else
+        {
+            animator.SetInteger("SwitchToModel", 1); // Transition Model To Square
+        }
+
+
+        SetRogueColors( GameManager.Instance.LegionColor );
+
 
         for (int i = 0; i < rogueSkills.Length; i++)
         {
@@ -598,4 +622,16 @@ public class Rogue : AActor, IAssimilatable
 	}
 
 	#endregion 
+
+    public void SetRogueColors(Color color)
+    {
+        for (int i = 0; i < subMeshes.Length; i++)
+        {
+            subMeshes[i].material.color = color;
+        }
+        cloneObject = Instantiate(cloneObject, Vector3.zero, Quaternion.identity) as GameObject;
+
+        cloneObject.GetComponent<RogueCloneMeshReferences>().UpdateCloneColors(color);
+        lightSource.color = color;
+    }
 }
