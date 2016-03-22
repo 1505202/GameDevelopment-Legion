@@ -237,7 +237,7 @@ public class Rogue : AActor, IAssimilatable
 		if (!isPropelled && inputController.FiringPower ()) 
 		{
 			isPropelled = true;
-			propelledDirection = inputController.MoveDirection();
+			propelledDirection = inputController.MoveDirection().normalized;
 			AudioManager.PlayCannonballFireSound();
 		}
 
@@ -281,12 +281,12 @@ public class Rogue : AActor, IAssimilatable
         if (obj.gameObject.CompareTag("Legion") && hasCollidedWithLegion)
             return;
 
-		if(obj.gameObject.CompareTag("Legion") && !hasCollidedWithLegion)
+		if(obj.gameObject.CompareTag("Legion") && assimilatedBehaviour == (int)BehaviourType.Rogue)
 		{
 			hasCollidedWithLegion = true;
 			Assimilate();
 		}
-
+        
 		if (assimilatedBehaviour == (int)BehaviourType.Cannonball) 
 		{
             myRigidBody.velocity = Vector3.zero;
