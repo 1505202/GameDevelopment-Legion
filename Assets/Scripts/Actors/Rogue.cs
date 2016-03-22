@@ -29,16 +29,12 @@ public class Rogue : AActor, IAssimilatable
 	[SerializeField] private float tetherMaxDistance = 0;
 
     [Header("Rogue Sub Mesh MeshRenderer")]
-    [SerializeField] private MeshRenderer[] subMeshes;
+    [SerializeField] private MeshRenderer[] subMeshes = null;
 
-    // TODO: Ensure these are used or removed
+    [SerializeField] private LayerMask layerMask;
+    [SerializeField] private Light lightSource = null;
 
-    // [Header("Assimilated Meshes")]
-    // [SerializeField] private Mesh tetherMesh = null;
-    // [SerializeField] private Mesh cannonMesh = null;
-    // [SerializeField] private Mesh trailBlazerMesh = null;
-	
-	private int assimilatedBehaviour = 0;
+    private int assimilatedBehaviour = 0;
 	private Vector3 lineStartPoint = Vector3.zero;
 	private Vector3 lineEndPoint = Vector3.zero;
 
@@ -48,7 +44,7 @@ public class Rogue : AActor, IAssimilatable
 		AssimilatedState    // Plays As Legion
 	}
 
-	private enum BehaviourType
+    private enum BehaviourType
 	{
 		Rogue = 0,
 		Tether,
@@ -77,8 +73,6 @@ public class Rogue : AActor, IAssimilatable
 	private bool canSwitchSkills = true;
 	private bool hasCollidedWithLegion = false;
 
-    [SerializeField] private Light lightSource;
-
 	// cannonball 
 	private bool isPropelled = false;
 	private Vector3 propelledDirection = Vector3.zero;
@@ -88,8 +82,8 @@ public class Rogue : AActor, IAssimilatable
 
 
     [Header("Particle Prefabs")]
-    [SerializeField] private GameObject blinkParticlePrefab;
-    [SerializeField] private GameObject cannonParticlePrefab;
+    [SerializeField] private GameObject blinkParticlePrefab = null;
+    [SerializeField] private GameObject cannonParticlePrefab = null;
 
 	public GameObject trailBlazerPrefab;
     public Vector3 trailBlazerDropOffset;
@@ -105,14 +99,6 @@ public class Rogue : AActor, IAssimilatable
     /// Note: 0 Reserved So That The Animations Swap Before Being Caught
     /// </summary>
     private Animator animator;
-    
-
-
-    /// <summary>
-    /// /////////////////////////////////////
-    /// </summary>
-    [SerializeField] private LayerMask layerMask;
-
     private ConfigurableJoint joint;
 
     private List<Vector3> contactPoints = new List<Vector3>();
@@ -124,15 +110,13 @@ public class Rogue : AActor, IAssimilatable
 	private void Start()
 	{
         animator = GetComponent<Animator>();
-
-		myRigidBody = GetComponent<Rigidbody>();
+        myRigidBody = GetComponent<Rigidbody>();
         myTransform = GetComponent<Transform>();
+        inputController = ControllerManager.Instance.NewController();
+        score = 0;
 
-		inputController = ControllerManager.Instance.NewController();
-
-        
         // Temporary Change Until New Skills Are Added
-		RogueBlink dash = gameObject.AddComponent<RogueBlink>();
+        RogueBlink dash = gameObject.AddComponent<RogueBlink>();
 		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance, blinkParticlePrefab);
 
         RogueClone clone = gameObject.AddComponent<RogueClone>();
@@ -147,7 +131,6 @@ public class Rogue : AActor, IAssimilatable
 
         cloneObject.GetComponent<Animator>().SetBool("Start", true);
         animator.SetBool("Start", true);
-
 	}
 	private void Update()
 	{

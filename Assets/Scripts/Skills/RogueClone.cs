@@ -15,8 +15,6 @@ public class RogueClone : ASkill
 
     private bool isCloneActive = false;
 
-    private bool isDirty = false;
-
     public void Initialize(Transform rogueTransform, GameObject targetObj, AController inputController, float movementSpeed, float duration, float cooldown)
 	{
         this.duration = duration;

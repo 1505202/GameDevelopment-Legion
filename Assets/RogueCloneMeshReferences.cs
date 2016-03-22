@@ -3,7 +3,7 @@ using System.Collections;
 
 public class RogueCloneMeshReferences : MonoBehaviour 
 {
-    [SerializeField] private MeshRenderer[] subMeshes;
+    [SerializeField] private MeshRenderer[] subMeshes = null;
 
     public void UpdateCloneColors(Color color)
     {

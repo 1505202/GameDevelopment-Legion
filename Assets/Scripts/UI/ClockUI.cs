@@ -1,13 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+
+using UnityEngine;
 using UnityEngine.UI;
 
 
 public class ClockUI : MonoBehaviour 
 {
-    [SerializeField] private RectTransform leftMask;
-    [SerializeField] private RectTransform rightMask;
+    [SerializeField] private RectTransform leftMask = null;
+    [SerializeField] private RectTransform rightMask = null;
 
-    [SerializeField] private Gradient gradient;
+    [SerializeField] private Gradient gradient = null;
 
     private Image leftUnderlayImage;
     private Image rightUnderlayImage;

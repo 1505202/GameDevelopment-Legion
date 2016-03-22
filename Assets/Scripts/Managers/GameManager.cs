@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
 	[SerializeField] private GameObject pausePanel = null;
 	[SerializeField] private GameObject LobbyPanel = null;
     [SerializeField] private float timeToReturnToLobby = 3;
-    [SerializeField] private Color[] playerColors;
+    [SerializeField] private Color[] playerColors = null;
 
     private static GameManager instance;
 	private static bool isResetting = false;
@@ -29,6 +29,8 @@ public class GameManager : MonoBehaviour
 	private bool[] readyPlayers = new bool[5];
 
     private bool startedEndOfRoundTransition = false;
+
+    private static string[] previousRoundScores = { "--", "--", "--", "--", "--" };
 
     public static GameManager Instance { get { return instance; } }
     public float SecondsRemaining { get; private set; }
@@ -42,7 +44,7 @@ public class GameManager : MonoBehaviour
 		Paused,
 		GameOver,
 		ExitingApplication,
-	};
+	}
 
     private void Start()
     {
@@ -177,7 +179,8 @@ public class GameManager : MonoBehaviour
 		//Color32[] colors = new Color32[5] {Color.green, Color.blue, Color.red, Color.yellow, Color.magenta };
 		//int colorBaseIndex = Random.Range (0, 4);
 		
-		for (int i=1; i<=5; i++) {
+		for (int i=1; i<=5; i++)
+        {
 			GameObject infoPanel = LobbyPanel.transform.FindChild ("PlayerInfo" + i).gameObject;
 			Text playerName = infoPanel.transform.FindChild ("PlayerName").GetComponent<Text> ();
 			Text playerTeam = infoPanel.transform.FindChild ("PlayerTeam").GetComponent<Text> ();
@@ -187,17 +190,17 @@ public class GameManager : MonoBehaviour
 			//playerName.color = colors [(colorBaseIndex + i) % 5];
             playerName.color = playerColors[i-1];
             playerTeam.text = string.Empty;
-			points.text = string.Empty;
 			playerReadyImage.SetActive(false);
-			
+            points.text = previousRoundScores[i - 1];
 			readyPlayers[i-1] = false;
 
             // Set Ingame Player Colors
             if (i >= 2)
             {
                 rogueElements[i - 2].GetComponent<Rogue>().SetRogueColors(playerName.color);
-            }
-		}
+                rogueElements[i - 2].GetComponent<Rogue>().PlayerNumber = i;
+           }
+        }
 	}
 
 	private void StartGame()
@@ -229,11 +232,39 @@ public class GameManager : MonoBehaviour
 
             if (!startedEndOfRoundTransition)
             {
+                // log scores
+                Debug.Log("Legion Score: " + legion.GetComponent<Legion>().GetScore());
+                foreach (var r in legionElements)
+                {
+                    Debug.Log(r.GetComponent<Rogue>().GetScore());
+                }
+                foreach (var r in rogueElements)
+                {
+                    Debug.Log(r.GetComponent<Rogue>().GetScore());
+                }
+
+                // put scores in structures for display
+                for (int i = 0; i < legionElements.Count; i++)
+                {
+                    SetScore(legionElements[i].GetComponent<Rogue>());
+                }
+                for (int i = 0; i < rogueElements.Count; i++)
+                {
+                    SetScore(rogueElements[i].GetComponent<Rogue>());
+                }
+                SetScore(legion.GetComponent<Legion>());
+
                 startedEndOfRoundTransition = true;
                 StartCoroutine(ReturnToLobby(timeToReturnToLobby));
             }
-		}
+   		}
 	}
+
+    private void SetScore(AActor actor)
+    {
+        int index = actor.PlayerNumber - 1;
+        previousRoundScores[index] = actor.GetScore().ToString();
+    }
 
     private IEnumerator ReturnToLobby(float t)
     {
@@ -243,15 +274,28 @@ public class GameManager : MonoBehaviour
 
 	public void Assimilate(Rogue rogue)
 	{
-		rogueElements.Remove(rogue.gameObject);
+        rogue.ModifyScore(-1);
+	    foreach (GameObject r in legionElements)
+	    {
+	        r.GetComponent<Rogue>().ModifyScore(1);
+	    }
+	    legion.GetComponent<Legion>().ModifyScore(1);
+
+	    rogueElements.Remove(rogue.gameObject);
 		legionElements.Add(rogue.gameObject);
 		
-		for (int i = 0; i < rogueElements.Count; i++)
+		foreach (GameObject r in rogueElements)
 		{
-            rogueElements[i].GetComponent<Rogue>().UpdateRogueSkillCount();
+		    Rogue indexedRogue = r.GetComponent<Rogue>();
+		    indexedRogue.UpdateRogueSkillCount();
+		    indexedRogue.ModifyScore(1);
 		}
 	}
 
+    /// <summary>
+    ///  SIDE EFFECT: also increments the assimilatedRogueCount
+    /// </summary>
+    /// <returns>the index of the power for the recently assimilated rogue</returns>
     public int GetBehaviourIndex()
     {
         return ++assimilatedRogueCount;
@@ -273,6 +317,11 @@ public class GameManager : MonoBehaviour
 
     private void RogueVictory()
     {
+        for (int i = 0; i < rogueElements.Count; i++)
+        {
+            Rogue indexedRogue = rogueElements[i].GetComponent<Rogue>();
+            indexedRogue.ModifyScore(1);
+        }
         Debug.Log("Rogues Win!!!");
         gameOverText.text = "Rogue Victory!";
     }
@@ -349,13 +398,6 @@ public class GameManager : MonoBehaviour
         int minutes = (int)(time / 60);
         int seconds = (int)time % 60;
 
-        if (time < 10)
-        {
-            return "0:0" + (int)time;
-        }// I was going to use a terinary Operator Here But To Keep It Clean I Added Ifs (Mike Is This Better?)
-        else if( seconds < 10 )
-        {
-            return minutes + ":0" + seconds;
-        } else return minutes + ":" + seconds;
+        return minutes + ":" + seconds.ToString("00");
     }
 }

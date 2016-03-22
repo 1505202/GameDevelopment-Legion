@@ -5,13 +5,10 @@ using System;
 public class JumpOver : MonoBehaviour 
 {
 	[SerializeField] private Transform[] bezierControlPoints = null;
-	[SerializeField] private float duration;
 
 	private float startTime;
-
 	private float dir;
 	private bool isTransporting = false;
-
 	private Transform legionTransform;
 
 	private void Update()

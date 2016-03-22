@@ -17,6 +17,7 @@ public class Legion : AActor
         // Component Caching
 		myRigidbody = GetComponent<Rigidbody>();
 		myTransform = GetComponent<Transform>();
+	    PlayerNumber = 1;
 
 		// Add Legion Camera
 		inputController = ControllerManager.Instance.NewController();
