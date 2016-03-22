@@ -28,6 +28,9 @@ public class Rogue : AActor, IAssimilatable
 	[Header("Assimilated Skills")]
 	[SerializeField] private float tetherMaxDistance = 0;
 
+    [Header("Lighting")]
+    [SerializeField] private float maxIntensity = 5;
+
     [Header("Rogue Sub Mesh MeshRenderer")]
     [SerializeField] private MeshRenderer[] subMeshes;
 
@@ -145,14 +148,16 @@ public class Rogue : AActor, IAssimilatable
         rogueSkills[1] = clone;
         rogueSkills[2] = glitch;
 
-        cloneObject.GetComponent<Animator>().SetBool("Start", true);
-        animator.SetBool("Start", true);
+
 
 	}
 	private void Update()
 	{
 	    if (GameManager.Instance.IsGameOver)
 	        return;
+
+        cloneObject.GetComponent<Animator>().SetBool("Start", true);
+        animator.SetBool("Start", true);
 
 		if(line != null)
 		{
@@ -443,7 +448,7 @@ public class Rogue : AActor, IAssimilatable
 
     private void HandleGlobalCooldownLight()
     {
-        lightSource.intensity = Mathf.Lerp(lightSource.intensity, 1, Time.deltaTime / blinkCooldown);
+        lightSource.intensity = Mathf.Lerp(lightSource.intensity, maxIntensity, Time.deltaTime / blinkCooldown);
     }
 
     #region Tether and wrapping
