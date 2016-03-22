@@ -75,11 +75,6 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            Application.LoadLevel(0);
-        }
-
 		States currentState = GetCurrentState();
 
 		switch (currentState) 
