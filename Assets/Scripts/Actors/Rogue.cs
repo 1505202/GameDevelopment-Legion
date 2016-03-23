@@ -97,11 +97,13 @@ public class Rogue : AActor, IAssimilatable
     bool canMove = true;
 
     [Header("Cannon Reticle")]
-    [SerializeField] private GameObject cannonReticle;
+    [SerializeField] private GameObject cannonReticle = null;
 
     [Header("Particle Prefabs")]
     [SerializeField] private GameObject blinkParticlePrefab = null;
     [SerializeField] private GameObject cannonParticlePrefab = null;
+    [SerializeField] private GameObject stunParticlePrefab = null;
+    [SerializeField] private GameObject assimilateParticlePrefab = null;
 
 	public GameObject trailBlazerPrefab;
     public Vector3 trailBlazerDropOffset;
@@ -314,10 +316,10 @@ public class Rogue : AActor, IAssimilatable
 	{
         if (gameObject.CompareTag("CannonBall"))
         {
-            Instantiate(cannonParticlePrefab, transform.position, Quaternion.Euler(90, 0, 0));
+            ((GameObject)Instantiate(cannonParticlePrefab, transform.position, Quaternion.Euler(90, 0, 0))).GetComponent<Transform>().parent = myTransform;
         }
 
-        if (obj.gameObject.CompareTag("Legion") && hasCollidedWithLegion)
+        if (obj.gameObject.CompareTag("Legion") && obj.gameObject.CompareTag("Tether") && obj.gameObject.CompareTag("TrailBlazer") && hasCollidedWithLegion)
             return;
 
 		if(obj.gameObject.CompareTag("Legion") && assimilatedBehaviour == (int)BehaviourType.Rogue)
@@ -334,6 +336,7 @@ public class Rogue : AActor, IAssimilatable
 			{
                 StartCoroutine(StunRogue(obj.gameObject.GetComponent<Rogue>()));
                 myTransform.position = target.position - target.forward;
+
             }
 			isPropelled = false;
 		}
@@ -384,6 +387,8 @@ public class Rogue : AActor, IAssimilatable
         // HACK: Debug Code To Force Assimilation, Delete After Testing Phase
         //assimilatedBehaviour = (int)BehaviourType.Cannonball;
 
+        ((GameObject)Instantiate(assimilateParticlePrefab, transform.position, Quaternion.Euler(90, 0, 0))).GetComponent<Transform>().parent = myTransform;
+
 		if (assimilatedBehaviour == (int)BehaviourType.Tether)
         {
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
@@ -416,10 +421,6 @@ public class Rogue : AActor, IAssimilatable
         {
             animator.SetInteger("SwitchToModel", 2); // Transition Model To Circle
 
-            /*
-             * if cannonReticle is !active
-             * then cannonreticle.setActive(true)
-             * */
             cannonReticle.SetActive(true);
 
             gameObject.tag = "CannonBall";
@@ -468,6 +469,7 @@ public class Rogue : AActor, IAssimilatable
 	private IEnumerator StunRogue(Rogue rogue)
 	{
         rogue.canMove = false;
+        Instantiate(stunParticlePrefab, rogue.transform.position, Quaternion.Euler(90, 0, 0));
 		AudioManager.PlayCannonballStunSound ();
         yield return new WaitForSeconds(stunDuration);
         rogue.canMove = true;
