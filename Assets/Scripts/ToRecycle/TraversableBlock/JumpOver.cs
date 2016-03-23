@@ -1,34 +1,51 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class JumpOver : MonoBehaviour 
 {
 	[SerializeField] private Transform[] bezierControlPoints = null;
 
-	private float startTime;
-	private float dir;
-	private bool isTransporting = false;
-	private Transform legionTransform;
+    List<TransformingPlayer> transforms = new List<TransformingPlayer>();
+
+    class TransformingPlayer
+    {
+        public AActor controller;
+        public Transform playerTransform = null;
+        public float startTime = 0;
+        public int dir = 0;
+
+        public TransformingPlayer(AActor controller, Transform playerTransform, float startTime, int dir)
+        {
+            this.controller = controller;
+            this.playerTransform = playerTransform;
+            this.startTime = startTime;
+            this.dir = dir;
+        }
+    }
 
 	private void Update()
-	{
-		if( isTransporting )
-		{
-			float timeAt = Mathf.Clamp01(Time.time - startTime);
+    {
+        int i = 0;
+        while (i < transforms.Count) 
+        {
+            TransformingPlayer target = transforms[i];
 
-			if(dir == 1)
-				legionTransform.position = GetBezierPoint( bezierControlPoints[0].position, bezierControlPoints[3].position, bezierControlPoints[1].position, bezierControlPoints[2].position, timeAt );
-			else if( dir == -1)
-				legionTransform.position = GetBezierPoint( bezierControlPoints[3].position, bezierControlPoints[0].position, bezierControlPoints[2].position, bezierControlPoints[1].position, timeAt );
+            float timeAt = Mathf.Clamp01(Time.time - target.startTime);
 
-			if( timeAt == 1 )
-			{
-				isTransporting = false;
-				legionTransform.GetComponent<AActor>().enabled = true;
-			}
-		}
-	}
+            if (target.dir == 1)
+                target.playerTransform.position = GetBezierPoint(bezierControlPoints[0].position, bezierControlPoints[3].position, bezierControlPoints[1].position, bezierControlPoints[2].position, timeAt);
+            else if (target.dir == -1)
+                target.playerTransform.position = GetBezierPoint(bezierControlPoints[3].position, bezierControlPoints[0].position, bezierControlPoints[2].position, bezierControlPoints[1].position, timeAt);
+
+            if (timeAt == 1)
+            {
+                target.controller.enabled = true;
+                transforms.RemoveAt(i);
+            }
+            else i++;
+        }
+    }
 
 	private Vector3 GetBezierPoint( Vector3 start, Vector3 end, Vector3 startTangent, Vector3 endTangent, float time )
 	{
@@ -37,15 +54,16 @@ public class JumpOver : MonoBehaviour
 
 	public void TriggerBezierTransition(Transform inLegionTransform, int inDir)
 	{
-		if(!isTransporting)
-		{			
-			legionTransform = inLegionTransform;
-			legionTransform.GetComponent<AActor>().enabled = false;
-			
-			isTransporting = true;
-			startTime = Time.time;
-			
-			dir = inDir;
-		}
-	}
+        for (int i = 0; i < transforms.Count; i++)
+        {
+            if(transforms[i].playerTransform == inLegionTransform)
+                return;
+        }
+
+        TransformingPlayer player = new TransformingPlayer(inLegionTransform.GetComponent<AActor>(), inLegionTransform, Time.time, inDir);
+
+        transforms.Add(player);
+
+        player.controller.enabled = false;
+    }
 }
