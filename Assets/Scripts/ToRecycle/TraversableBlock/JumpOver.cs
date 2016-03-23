@@ -40,7 +40,8 @@ public class JumpOver : MonoBehaviour
 
             if (timeAt == 1)
             {
-                target.controller.enabled = true;
+                if (target.controller != null) // Clone Has No Actor
+                    target.controller.enabled = true;
                 transforms.RemoveAt(i);
             }
             else i++;
@@ -64,6 +65,7 @@ public class JumpOver : MonoBehaviour
 
         transforms.Add(player);
 
-        player.controller.enabled = false;
+        if(player.controller != null)
+            player.controller.enabled = false;
     }
 }

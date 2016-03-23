@@ -32,7 +32,7 @@ public class Rogue : AActor, IAssimilatable
 
     [Header("Global Cooldown")]
     [SerializeField] private float globalCooldown = 5f;
-
+    private float startTime = 0;
 
 
 	[Header("Assimilated Skills")]
@@ -50,6 +50,9 @@ public class Rogue : AActor, IAssimilatable
     private int assimilatedBehaviour = 0;
 	private Vector3 lineStartPoint = Vector3.zero;
 	private Vector3 lineEndPoint = Vector3.zero;
+
+    [SerializeField]
+    private AnimationCurve lightCurve;
 
 	public enum ERogueState 
 	{ 
@@ -477,7 +480,7 @@ public class Rogue : AActor, IAssimilatable
 
     private void HandleGlobalCooldownLight()
     {
-        lightSource.intensity = Mathf.Lerp(lightSource.intensity, maxIntensity, Time.deltaTime / globalCooldown);
+        //lightSource.intensity =  lightCurve.Evaluate(Mathf.Clamp01((Time.time - startTime)));   
     }
 
     #region Tether and wrapping
