@@ -264,6 +264,14 @@ public class Rogue : AActor, IAssimilatable
 	}
     private void CannonballBehaviour()
     {
+        if (myRigidBody.velocity == Vector3.zero)
+            isPropelled = false;
+
+        if (Controller.MoveDirection() != Vector3.zero)
+        {
+            cannonReticle.transform.forward = -Controller.MoveDirection();
+            cannonReticle.transform.position = transform.position + Controller.MoveDirection();
+        }
 		// If FIRE button is pressed, propel forward.
 		if (!isPropelled && inputController.FiringPower ()) 
 		{
