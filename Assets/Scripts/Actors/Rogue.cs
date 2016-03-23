@@ -89,6 +89,8 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private float stunDuration = 0; 
     bool canMove = true;
 
+    [Header("Cannon Reticle")]
+    [SerializeField] private GameObject cannonReticle;
 
     [Header("Particle Prefabs")]
     [SerializeField] private GameObject blinkParticlePrefab;
@@ -381,6 +383,12 @@ public class Rogue : AActor, IAssimilatable
 		else if (assimilatedBehaviour == (int)BehaviourType.Cannonball)
         {
             animator.SetInteger("SwitchToModel", 2); // Transition Model To Circle
+
+            /*
+             * if cannonReticle is !active
+             * then cannonreticle.setActive(true)
+             * */
+            cannonReticle.SetActive(true);
 
             gameObject.tag = "CannonBall";
             gameObject.layer = LayerMask.NameToLayer("Default");
