@@ -36,6 +36,9 @@ public class Rogue : AActor, IAssimilatable
 	[Header("Assimilated Skills")]
 	[SerializeField] private float tetherMaxDistance = 0;
 
+    [Header("Lighting")]
+    [SerializeField] private float maxIntensity = 5;
+
     [Header("Rogue Sub Mesh MeshRenderer")]
     [SerializeField] private MeshRenderer[] subMeshes = null;
 
@@ -88,6 +91,8 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private float stunDuration = 0; 
     bool canMove = true;
 
+    [Header("Cannon Reticle")]
+    [SerializeField] private GameObject cannonReticle;
 
     [Header("Particle Prefabs")]
     [SerializeField] private GameObject blinkParticlePrefab = null;
@@ -138,13 +143,14 @@ public class Rogue : AActor, IAssimilatable
         rogueSkills[1] = clone;
         rogueSkills[2] = glitch;
 
-        cloneObject.GetComponent<Animator>().SetBool("Start", true);
-        animator.SetBool("Start", true);
 	}
 	private void Update()
 	{
 	    if (GameManager.Instance.IsGameOver)
 	        return;
+
+        cloneObject.GetComponent<Animator>().SetBool("Start", true);
+        animator.SetBool("Start", true);
 
 		if(line != null)
 		{
@@ -397,6 +403,12 @@ public class Rogue : AActor, IAssimilatable
         {
             animator.SetInteger("SwitchToModel", 2); // Transition Model To Circle
 
+            /*
+             * if cannonReticle is !active
+             * then cannonreticle.setActive(true)
+             * */
+            cannonReticle.SetActive(true);
+
             gameObject.tag = "CannonBall";
             gameObject.layer = LayerMask.NameToLayer("Default");
 
@@ -463,7 +475,7 @@ public class Rogue : AActor, IAssimilatable
 
     private void HandleGlobalCooldownLight()
     {
-        lightSource.intensity = Mathf.Lerp(lightSource.intensity, 1, Time.deltaTime / blinkCooldown);
+        lightSource.intensity = Mathf.Lerp(lightSource.intensity, maxIntensity, Time.deltaTime / blinkCooldown);
     }
 
     #region Tether and wrapping
