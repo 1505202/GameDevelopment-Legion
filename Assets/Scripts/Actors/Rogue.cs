@@ -153,7 +153,7 @@ public class Rogue : AActor, IAssimilatable
 	}
 	private void Update()
 	{
-	    if (GameManager.Instance.IsGameOver)
+	    if (GameManager.Instance.IsGameOver || GameManager.Instance.IsInLobby())
 	        return;
 
         cloneObject.GetComponent<Animator>().SetBool("Start", true);
@@ -199,7 +199,7 @@ public class Rogue : AActor, IAssimilatable
 		// Skill handling
         for (int i = 0; i < rogueSkills.Length; i++)
         {
-            if (i > rogueSkillsUnlocked)
+            if (i >= rogueSkillsUnlocked)
             {
                 break;
             }

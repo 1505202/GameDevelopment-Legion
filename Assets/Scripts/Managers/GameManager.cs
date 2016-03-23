@@ -15,7 +15,8 @@ public class GameManager : MonoBehaviour
 	[SerializeField] private Text timerText = null;
 	[SerializeField] private int timeRemainingWarningThreshold = 10;
 	[SerializeField] private GameObject pausePanel = null;
-	[SerializeField] private GameObject LobbyPanel = null;
+    [SerializeField] private GameObject LobbyPanel = null;
+    [SerializeField] private GameObject HelpPanel = null;
     [SerializeField] private float timeToReturnToLobby = 3;
     [SerializeField] private Color[] playerColors = null;
 
@@ -36,6 +37,10 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get { return instance; } }
     public float SecondsRemaining { get; private set; }
     public bool IsGameOver { get { return isGameOver; } set { isGameOver = value; } }
+    public bool IsInLobby() 
+    {
+        return isStarting;
+    }
 
 	enum States 
 	{
@@ -54,7 +59,7 @@ public class GameManager : MonoBehaviour
 		isPaused = false;
 		pausePanel.SetActive (false);
 		isStarting = true;
-        Time.timeScale = 0;
+        Time.timeScale = 0.0001f;
 
         if (instance == null)
         {
@@ -160,6 +165,11 @@ public class GameManager : MonoBehaviour
 				GameObject infoPanel = LobbyPanel.transform.FindChild ("PlayerInfo" + i).gameObject;
 				infoPanel.transform.FindChild ("IsReadyImage").gameObject.SetActive(true);
 			}
+
+            if (Input.GetButtonDown("JButtonSquare" + i))
+            {
+                HelpPanel.SetActive(!HelpPanel.activeInHierarchy);
+            }
 
 			if(readyPlayers.All( x => x ))	// check that all readyPlayers are true
 			{
@@ -325,14 +335,14 @@ public class GameManager : MonoBehaviour
 
     private void DisablePhysics()
     {
-        legion.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        legion.GetComponent<Rigidbody>().isKinematic = true;
         for (int i = 0; i < rogueElements.Count; i++ )
         {
-            rogueElements[i].GetComponent<Rigidbody>().velocity = Vector3.zero;
+            rogueElements[i].GetComponent<Rigidbody>().isKinematic = true;
         }
         for (int i = 0; i < legionElements.Count; i++)
         {
-            legionElements[i].GetComponent<Rigidbody>().velocity = Vector3.zero;
+            legionElements[i].GetComponent<Rigidbody>().isKinematic = true;
         }
     }
 

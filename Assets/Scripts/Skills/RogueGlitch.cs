@@ -31,9 +31,7 @@ public class RogueGlitch : ASkill
     // Control Variable
     private bool isGlitching = false;
 
-
-
-
+    private Vector3 initialPosition;
 
     public void Initialize(GameObject mainCameraObject, Vector3 minPosition, Vector3 maxPosition, float duration, float interval, float cooldown, float minLengthPercentile, float maxLengthPercentile)
 	{
@@ -58,6 +56,8 @@ public class RogueGlitch : ASkill
 
         texture = new Texture2D(Screen.width, Screen.height);
         finalFrameTexture = new Texture2D(Screen.width, Screen.height);
+
+        initialPosition = mainCameraTransform.position;
 	}
 
 	public override bool UseSkill()
@@ -69,122 +69,132 @@ public class RogueGlitch : ASkill
 	
 	public IEnumerator SkillLogic(float time)
 	{
-        InitializeTexture(new Color(0, 0, 0, 0), texture);
-        InitializeTexture(new Color(0, 0, 0, 0), finalFrameTexture);
-        StartCoroutine(GlitchSimulator(Time.time + duration, glitchInterval));
+        //InitializeTexture(new Color(0, 0, 0, 0), texture);
+        //InitializeTexture(new Color(0, 0, 0, 0), finalFrameTexture);
+        //StartCoroutine(GlitchSimulator(Time.time + duration, glitchInterval));
 
         isGlitching = true;
         yield return new WaitForSeconds(duration);
         isGlitching = false;
+        mainCameraTransform.position = initialPosition;
     }
 
-    private void InitializeTexture(Color color, Texture2D texture)
-    {
-        for (int i = 0; i < texture.width; i++)
-        {
-            for (int j = 0; j < texture.height; j++)
-            {
-                texture.SetPixel(i, j, color);
-            }
-        }
-    }
-    private IEnumerator GlitchSimulator(float finishTime, float intervalTime)
-    {
-        isGlitching = true;
-        while (Time.time < finishTime)
-        {
-            framePosition = mainCameraTransform.position;
-
-            // Generate World And Glitched RenderViews
-            mainCamera.targetTexture = worldViewTexture;
-            mainCamera.Render();
-            mainCamera.targetTexture = null;
-
-            mainCameraTransform.position = new Vector3(Random.Range(lowerLimit.x, upperLimit.x), Random.Range(lowerLimit.z, upperLimit.z), Random.Range(lowerLimit.z, upperLimit.z));
-
-            mainCamera.targetTexture = glitchGetTexture;
-            mainCamera.Render();
-            mainCamera.targetTexture = null;
-
-            // Glitch Onto Texture
-            int x = -Screen.width / 2 + Random.Range(0, Screen.width);
-            int y = -Screen.height / 2 + Random.Range(0, Screen.height);
-
-            int lengthX = Random.Range((int)(Screen.width * minLengthPercentile), (int)(Screen.width * maxLengthPercentile));
-            int lengthY = Random.Range((int)(Screen.height * minLengthPercentile), (int)(Screen.height * maxLengthPercentile));
-
-            Texture2D renderedTexture = new Texture2D(Screen.width, Screen.height);
-            RenderTexture.active = glitchGetTexture;
-            renderedTexture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
-            renderedTexture.Apply();
-
-            CopyPixelsToTexture(renderedTexture, texture, x, y, lengthX, lengthY);
-
-            // Glitch To Main Camera Render Texture
-            renderedTexture = new Texture2D(Screen.width, Screen.height);
-            RenderTexture.active = worldViewTexture;
-            renderedTexture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
-            renderedTexture.Apply();
-
-            finalFrameTexture = OverwriteGlitchTexture(texture, renderedTexture);
-            finalFrameTexture.Apply();
-
-            mainCameraTransform.position = framePosition;
-
-            yield return new WaitForSeconds(intervalTime);
-        }
-        isGlitching = false;
-    }
-
-    void OnGUI()
+    private void Update()
     {
         if (isGlitching)
         {
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), finalFrameTexture);
+            //System.Random r = new Random();
+            mainCameraTransform.position = Vector3.Lerp(mainCameraTransform.position, new Vector3(Random.Range(lowerLimit.x, upperLimit.x), Random.Range(lowerLimit.y, upperLimit.y), Random.Range(lowerLimit.z, upperLimit.z)), Time.deltaTime * 3);
         }
     }
 
-    private Texture2D CopyPixelsToTexture(Texture2D copyFrom, Texture2D copyTo, int startPixelX, int startPixelY, int blockLengthX, int blockLengthY)
-    {
-        for (int x = startPixelX; x < (startPixelX + blockLengthX); x++)
-        {
-            if (x > copyTo.width || x > copyFrom.width)
-            {
-                break;
-            }
+    //private void InitializeTexture(Color color, Texture2D texture)
+    //{
+    //    for (int i = 0; i < texture.width; i++)
+    //    {
+    //        for (int j = 0; j < texture.height; j++)
+    //        {
+    //            texture.SetPixel(i, j, color);
+    //        }
+    //    }
+    //}
+    //private IEnumerator GlitchSimulator(float finishTime, float intervalTime)
+    //{
+    //    isGlitching = true;
+    //    while (Time.time < finishTime)
+    //    {
+    //        framePosition = mainCameraTransform.position;
 
-            for (int y = startPixelY; y < (startPixelY + blockLengthY); y++)
-            {
-                if (y > copyTo.height || y > copyFrom.height)
-                {
-                    break;
-                }
+    //        // Generate World And Glitched RenderViews
+    //        mainCamera.targetTexture = worldViewTexture;
+    //        mainCamera.Render();
+    //        mainCamera.targetTexture = null;
 
-                copyTo.SetPixel(x, y, copyFrom.GetPixel(x, y));
-            }
-        }
+    //        mainCameraTransform.position = new Vector3(Random.Range(lowerLimit.x, upperLimit.x), Random.Range(lowerLimit.z, upperLimit.z), Random.Range(lowerLimit.z, upperLimit.z));
 
-        return copyTo;
-    }
-    private Texture2D OverwriteGlitchTexture(Texture2D copyFrom, Texture2D copyTo)
-    {
-        Texture2D returnValue = new Texture2D(Screen.width, Screen.height);
-        for (int x = 0; x < copyFrom.width; x++)
-        {
-            for (int y = 0; y < copyFrom.height; y++)
-            {
-                if (copyFrom.GetPixel(x, y).a == 0)
-                {
-                    returnValue.SetPixel(x, y, copyTo.GetPixel(x, y));
-                }
-                else
-                {
-                    Color color = copyFrom.GetPixel(x, y);
-                    color.a = 1;
-                    returnValue.SetPixel(x, y, color);
-                }
-            }
-        }
-        return returnValue;
-    }
+    //        mainCamera.targetTexture = glitchGetTexture;
+    //        mainCamera.Render();
+    //        mainCamera.targetTexture = null;
+
+    //        // Glitch Onto Texture
+    //        int x = -Screen.width / 2 + Random.Range(0, Screen.width);
+    //        int y = -Screen.height / 2 + Random.Range(0, Screen.height);
+
+    //        int lengthX = Random.Range((int)(Screen.width * minLengthPercentile), (int)(Screen.width * maxLengthPercentile));
+    //        int lengthY = Random.Range((int)(Screen.height * minLengthPercentile), (int)(Screen.height * maxLengthPercentile));
+
+    //        Texture2D renderedTexture = new Texture2D(Screen.width, Screen.height);
+    //        RenderTexture.active = glitchGetTexture;
+    //        renderedTexture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+    //        renderedTexture.Apply();
+
+    //        CopyPixelsToTexture(renderedTexture, texture, x, y, lengthX, lengthY);
+
+    //        // Glitch To Main Camera Render Texture
+    //        renderedTexture = new Texture2D(Screen.width, Screen.height);
+    //        RenderTexture.active = worldViewTexture;
+    //        renderedTexture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+    //        renderedTexture.Apply();
+
+    //        finalFrameTexture = OverwriteGlitchTexture(texture, renderedTexture);
+    //        finalFrameTexture.Apply();
+
+    //        mainCameraTransform.position = framePosition;
+
+    //        yield return new WaitForSeconds(intervalTime);
+    //    }
+    //    isGlitching = false;
+    //}
+
+    //void OnGUI()
+    //{
+    //    if (isGlitching)
+    //    {
+    //        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), finalFrameTexture);
+    //    }
+    //}
+
+    //private Texture2D CopyPixelsToTexture(Texture2D copyFrom, Texture2D copyTo, int startPixelX, int startPixelY, int blockLengthX, int blockLengthY)
+    //{
+    //    for (int x = startPixelX; x < (startPixelX + blockLengthX); x++)
+    //    {
+    //        if (x > copyTo.width || x > copyFrom.width)
+    //        {
+    //            break;
+    //        }
+
+    //        for (int y = startPixelY; y < (startPixelY + blockLengthY); y++)
+    //        {
+    //            if (y > copyTo.height || y > copyFrom.height)
+    //            {
+    //                break;
+    //            }
+
+    //            copyTo.SetPixel(x, y, copyFrom.GetPixel(x, y));
+    //        }
+    //    }
+
+    //    return copyTo;
+    //}
+    //private Texture2D OverwriteGlitchTexture(Texture2D copyFrom, Texture2D copyTo)
+    //{
+    //    Texture2D returnValue = new Texture2D(Screen.width, Screen.height);
+    //    for (int x = 0; x < copyFrom.width; x++)
+    //    {
+    //        for (int y = 0; y < copyFrom.height; y++)
+    //        {
+    //            if (copyFrom.GetPixel(x, y).a == 0)
+    //            {
+    //                returnValue.SetPixel(x, y, copyTo.GetPixel(x, y));
+    //            }
+    //            else
+    //            {
+    //                Color color = copyFrom.GetPixel(x, y);
+    //                color.a = 1;
+    //                returnValue.SetPixel(x, y, color);
+    //            }
+    //        }
+    //    }
+    //    return returnValue;
+    //}
 }
