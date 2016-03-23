@@ -12,16 +12,16 @@ public class Rogue : AActor, IAssimilatable
     [Space(10)]
 	[Header("Rogue Blink")]
     [SerializeField] private float blinkDistance = 1;
-    [SerializeField] private float blinkCooldown = 1;
+    //[SerializeField] private float blinkCooldown = 1;
 
     [Header("Rogue Blink")]
     [SerializeField] private GameObject cloneObject = null;
     [SerializeField] private float cloneDuration = 1;
-    [SerializeField] private float cloneCooldown = 1;
+    //[SerializeField] private float cloneCooldown = 1;
 
     [Header("Rogue Glitch")]
     [SerializeField] private float glitchDuration = 0;
-    [SerializeField] private float glitchCooldown = 0;
+    //[SerializeField] private float glitchCooldown = 0;
     [SerializeField] private Vector3 higherLimits = Vector3.zero;
     [SerializeField] private Vector3 lowerLimits = Vector3.zero;
 
@@ -30,6 +30,8 @@ public class Rogue : AActor, IAssimilatable
 
     [SerializeField] private float glitchInterval = 0.2f;
 
+    [Header("Global Cooldown")]
+    [SerializeField] private float globalCooldown = 5f;
 
 
 
@@ -131,13 +133,13 @@ public class Rogue : AActor, IAssimilatable
 
         // Temporary Change Until New Skills Are Added
         RogueBlink dash = gameObject.AddComponent<RogueBlink>();
-		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance, blinkParticlePrefab);
+		dash.Initialize(GetComponent<Transform>(), globalCooldown, blinkDistance, blinkParticlePrefab);
 
         RogueClone clone = gameObject.AddComponent<RogueClone>();
-        clone.Initialize(myTransform, cloneObject, inputController, base.movementSpeed, cloneDuration, cloneCooldown);
+        clone.Initialize(myTransform, cloneObject, inputController, base.movementSpeed, cloneDuration, globalCooldown);
 
         RogueGlitch glitch = gameObject.AddComponent<RogueGlitch>();
-        glitch.Initialize(Camera.main.gameObject, lowerLimits, higherLimits, glitchDuration, glitchInterval, glitchCooldown, minLengthPercentile, maxLengthPercentile);
+        glitch.Initialize(Camera.main.gameObject, lowerLimits, higherLimits, glitchDuration, glitchInterval, globalCooldown, minLengthPercentile, maxLengthPercentile);
 
         rogueSkills[0] = dash;
         rogueSkills[1] = clone;
@@ -396,7 +398,7 @@ public class Rogue : AActor, IAssimilatable
             movementSpeed *= 3.5f;
             animator.SetInteger("SwitchToModel", 3); // Transition Model To Cross
 
-            gameObject.tag = "Untagged";
+            gameObject.tag = "Tether";
             gameObject.layer = LayerMask.NameToLayer("Default");
         }
 		else if (assimilatedBehaviour == (int)BehaviourType.Cannonball)
@@ -418,7 +420,7 @@ public class Rogue : AActor, IAssimilatable
         {
             animator.SetInteger("SwitchToModel", 4); // Transition Model To Square
 
-            gameObject.tag = "Untagged";
+            gameObject.tag = "TrailBlazer";
             gameObject.layer = LayerMask.NameToLayer("Default");
 
             movementSpeed *= 2;
@@ -475,7 +477,7 @@ public class Rogue : AActor, IAssimilatable
 
     private void HandleGlobalCooldownLight()
     {
-        lightSource.intensity = Mathf.Lerp(lightSource.intensity, maxIntensity, Time.deltaTime / blinkCooldown);
+        lightSource.intensity = Mathf.Lerp(lightSource.intensity, maxIntensity, Time.deltaTime / globalCooldown);
     }
 
     #region Tether and wrapping
