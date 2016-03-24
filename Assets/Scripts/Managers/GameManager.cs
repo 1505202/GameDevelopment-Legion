@@ -79,6 +79,8 @@ public class GameManager : MonoBehaviour
         {
             Destroy(this);
         }
+
+        timerText.text = ConvertTimeToString(maxSeconds);
     }
 
     private void Update()
@@ -106,7 +108,7 @@ public class GameManager : MonoBehaviour
 			break;
 		default:
 			ClockTick();    
-			timerText.text = ConvertTimeToString(SecondsRemaining+1);//SecondsRemaining.ToString("F0"); // display No decimal place NOTE: TURN THIS INTO A REGEX
+			timerText.text = ConvertTimeToString(SecondsRemaining+1);
 			CheckForVictory ();
 			gameOverText.enabled = IsGameOver;
 			break;
@@ -173,12 +175,12 @@ public class GameManager : MonoBehaviour
 
 			if(readyPlayers.All( x => x ))	// check that all readyPlayers are true
 			{
-				StartGame();
-			}
+                StartGame();
+            }
 		}
 
 	}
-
+        
 	private void FillInPlayerTable()
 	{
         // Left This In Case Mike Wants To Copy It;

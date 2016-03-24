@@ -32,7 +32,7 @@ public class Rogue : AActor, IAssimilatable
 
     [Header("Global Cooldown")]
     [SerializeField] private float globalCooldown = 5f;
-    private float startTime = 0;
+    private float targetTime = 0;
 
 
 	[Header("Assimilated Skills")]
@@ -54,6 +54,8 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField]
     private AnimationCurve lightCurve;
 
+
+    private Light cloneLightSource = null;
 	public enum ERogueState 
 	{ 
 		RogueState,			// Acts As A Rogue 
@@ -108,6 +110,8 @@ public class Rogue : AActor, IAssimilatable
 	public GameObject trailBlazerPrefab;
     public Vector3 trailBlazerDropOffset;
 
+    bool handleLight = false;
+
     /// <summary>
     /// To Force The Animator To Transition To A Shape On Caught, use The Following
     /// Parameter Name : SwitchToModel
@@ -150,6 +154,8 @@ public class Rogue : AActor, IAssimilatable
         rogueSkills[1] = clone;
         rogueSkills[2] = glitch;
 
+        lightSource.intensity = maxIntensity;
+
 	}
 	private void Update()
 	{
@@ -166,7 +172,8 @@ public class Rogue : AActor, IAssimilatable
 		}
 
 
-        HandleGlobalCooldownLight();
+        if (handleLight)
+            HandleGlobalCooldownLight();
 
 		switch((BehaviourType)assimilatedBehaviour)
 		{
@@ -196,6 +203,8 @@ public class Rogue : AActor, IAssimilatable
 
 		HandleMoveInput();
 
+
+
 		// Skill handling
         for (int i = 0; i < rogueSkills.Length; i++)
         {
@@ -206,41 +215,28 @@ public class Rogue : AActor, IAssimilatable
 
             if (inputController.GetButton((ControllerInputKey)i) && rogueSkills[i].IsReady)
             {
-                rogueSkills[i].UseSkill(); // Use In An If Statemenst If It Worked Well
-                continue;
+                if (rogueSkills[i].UseSkill())
+                {
+                    TriggerLight();
+                }
             }
 
             if (inputController.GetButton((ControllerInputKey)i) && rogueSkills[i].IsReady)
             {
-                rogueSkills[i].UseSkill(); // Use In An If Statemenst If It Worked Well
-                continue;
+                if (rogueSkills[i].UseSkill())
+                {
+                    TriggerLight();
+                }
             }
 
             if (inputController.GetButton((ControllerInputKey)i) && rogueSkills[i].IsReady)
             {
-                rogueSkills[i].UseSkill(); // Use In An If Statemenst If It Worked Well
-                continue;
+                if (rogueSkills[i].UseSkill())
+                {
+                    TriggerLight();
+                }
             }
-
         }
-
-        // NOTE: Do NOT Delete, As The Designer May Change His Mind
-        //if (rogueSkillsUnlocked > 0)
-        //{
-        //    if (inputController.SwitchingPower() && canSwitchSkills)
-        //    {
-        //        SwitchSkill();
-        //        StartCoroutine(SwitchPowerCD(0.5f));
-        //    }
-
-        //    if (inputController.FiringPower() && rogueSkills[skillIndex].IsReady)
-        //    {
-        //        if (rogueSkills[skillIndex].UseSkill())
-        //        {
-        //            lightSource.intensity = 0;
-        //        }
-        //    }
-        //}
 	}
 	private void TetherBehaviour()
 	{
@@ -311,6 +307,7 @@ public class Rogue : AActor, IAssimilatable
             myRigidBody.velocity = Vector3.zero;
         }
     }
+
 
 	private void OnCollisionEnter(Collision obj)
 	{
@@ -391,6 +388,8 @@ public class Rogue : AActor, IAssimilatable
 
         ((GameObject)Instantiate(assimilateParticlePrefab, transform.position, Quaternion.Euler(90, 0, 0))).GetComponent<Transform>().parent = myTransform;
 
+        Destroy(cloneObject);
+
 		if (assimilatedBehaviour == (int)BehaviourType.Tether)
         {
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
@@ -415,6 +414,8 @@ public class Rogue : AActor, IAssimilatable
 
             movementSpeed *= 3.5f;
             animator.SetInteger("SwitchToModel", 3); // Transition Model To Cross
+
+            myRigidBody.constraints = RigidbodyConstraints.None;
 
             gameObject.tag = "Tether";
             gameObject.layer = LayerMask.NameToLayer("Default");
@@ -454,20 +455,6 @@ public class Rogue : AActor, IAssimilatable
         }
     }
 
-	private void SwitchSkill()
-	{
-		if(++skillIndex >= rogueSkillsUnlocked)
-		{
-			skillIndex = 0;
-		}
-	}
-	private IEnumerator SwitchPowerCD(float time) // Use Lambda Expresion/Action
-	{
-        canSwitchSkills = false;
-        yield return new WaitForSeconds(time);
-        canSwitchSkills = true;
-	}
-
 	private IEnumerator StunRogue(Rogue rogue)
 	{
         rogue.canMove = false;
@@ -486,13 +473,26 @@ public class Rogue : AActor, IAssimilatable
         if (inputController.MoveDirection() != Vector3.zero)
         {
             myTransform.rotation = Quaternion.LookRotation(inputController.MoveDirection());
-            //myTransform.rotation = Quaternion.Slerp(myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
         }
     }
 
+    private void TriggerLight()
+    {
+        handleLight = true;
+        lightSource.intensity = 0;
+
+        targetTime = Time.time;
+    }
     private void HandleGlobalCooldownLight()
     {
-        //lightSource.intensity =  lightCurve.Evaluate(Mathf.Clamp01((Time.time - startTime)));   
+        float normalizedTime = Mathf.Clamp01((Time.time - targetTime) / globalCooldown);
+        float intensity = lightCurve.Evaluate(   normalizedTime     ) * maxIntensity;
+        lightSource.intensity = intensity;
+        cloneLightSource.intensity = intensity;
+        if (normalizedTime == 1)
+        {
+            handleLight = false;
+        }
     }
 
     #region Tether and wrapping
@@ -684,6 +684,8 @@ public class Rogue : AActor, IAssimilatable
 
         cloneObject.GetComponent<Rigidbody>().isKinematic = true;
         cloneObject.GetComponent<Transform>().position = new Vector3(10000, 10000, 10000);
+
+        cloneLightSource = cloneObject.transform.GetChild(0).GetComponent<Light>();
 
         lightSource.color = color;
     }
