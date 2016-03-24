@@ -54,6 +54,8 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField]
     private AnimationCurve lightCurve;
 
+
+    private Light cloneLightSource = null;
 	public enum ERogueState 
 	{ 
 		RogueState,			// Acts As A Rogue 
@@ -479,7 +481,9 @@ public class Rogue : AActor, IAssimilatable
     private void HandleGlobalCooldownLight()
     {
         float normalizedTime = Mathf.Clamp01((Time.time - targetTime) / globalCooldown);
-        lightSource.intensity =  lightCurve.Evaluate(   normalizedTime     ) * maxIntensity;
+        float intensity = lightCurve.Evaluate(   normalizedTime     ) * maxIntensity;
+        lightSource.intensity = intensity;
+        cloneLightSource.intensity = intensity;
         if (normalizedTime == 1)
         {
             handleLight = false;
@@ -675,6 +679,8 @@ public class Rogue : AActor, IAssimilatable
 
         cloneObject.GetComponent<Rigidbody>().isKinematic = true;
         cloneObject.GetComponent<Transform>().position = new Vector3(10000, 10000, 10000);
+
+        cloneLightSource = cloneObject.transform.GetChild(0).GetComponent<Light>();
 
         lightSource.color = color;
     }
