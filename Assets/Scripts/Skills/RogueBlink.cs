@@ -44,7 +44,8 @@ public class RogueBlink : ASkill
             {
                 CreateParticleSystemAt(targetTransform.position);
                 targetTransform.position += targetTransform.forward * blinkMultiplier;
-                CreateParticleSystemAt(targetTransform.position);
+                CreateParticleSystemAt(targetTransform.position).parent = targetTransform;
+
             }
             else
             {
@@ -62,10 +63,10 @@ public class RogueBlink : ASkill
         return false;
 	}
 
-    private void CreateParticleSystemAt(Vector3 position)
+    
+    private Transform CreateParticleSystemAt(Vector3 position)
     {
         GameObject tempParticles = Instantiate(particlePrefab, position, Quaternion.identity ) as GameObject;
-
-        //tempParticles.GetComponent<ParticleSystem>().Emit(1);
+        return tempParticles.GetComponent<Transform>();
     }
 }

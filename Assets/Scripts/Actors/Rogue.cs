@@ -72,7 +72,7 @@ public class Rogue : AActor, IAssimilatable
 
 	// Rogue Skills
 	private int skillIndex = 0;
-    private int rogueSkillsUnlocked = 3;
+    private int rogueSkillsUnlocked = 0;
     private ASkill[] rogueSkills = new ASkill[3];
 
 	// Cached Components
