@@ -33,9 +33,12 @@ public class RogueClone : ASkill
 
 	public override bool UseSkill()
 	{
-        StartCoroutine(SkillLogic(duration));
-        StartCoroutine(SkillCooldown());
-        return true;
+        if (isReady)
+        {
+            StartCoroutine(SkillLogic(duration));
+            StartCoroutine(SkillCooldown());
+            return true;
+        } return false;
 	}
 
     public void Update()
