@@ -338,6 +338,8 @@ public class Rogue : AActor, IAssimilatable
                 myTransform.position = target.position - target.forward;
 
             }
+
+            AudioManager.PlayCannonballIntoWallSound();
 			isPropelled = false;
 		}
 	}

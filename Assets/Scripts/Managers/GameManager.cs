@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
             instance = this;
             GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
             SecondsRemaining = maxSeconds;
-			AudioManager.StartLevelMusic();
+			AudioManager.StartMenuMusic();
 			EnteringLobby();
 
 			if(isResetting)
@@ -214,6 +214,7 @@ public class GameManager : MonoBehaviour
 		isStarting = false;
 		LobbyPanel.SetActive (false);
 		Time.timeScale = 1;
+        AudioManager.StartLevelMusic();
 	}
 
 	public void CheckForVictory()
@@ -232,8 +233,8 @@ public class GameManager : MonoBehaviour
 		if (IsGameOver) 
 		{
 			StopEndGameWarning();
-			AudioManager.StartMenuMusic();
-			AudioManager.PlayGameOverSound();
+            AudioManager.PlayGameOverSound();
+            AudioManager.StartMenuMusic();
 			DisablePhysics ();
 
             if (!startedEndOfRoundTransition)
@@ -363,17 +364,18 @@ public class GameManager : MonoBehaviour
 		isPaused = true;
 		Time.timeScale = 0;
 		pausePanel.SetActive (true);
-	}
+        AudioManager.PauseLevelWithAudio();
+    }
 
-	private void UnPause()
+    private void UnPause()
 	{
 		isPaused = false;
 		Time.timeScale = 1;
 		pausePanel.SetActive (false);
-		
-	}
+        AudioManager.UnPauseLevelWithAudio();
+    }
 
-	private void ResetGame()
+    private void ResetGame()
 	{
 		isResetting = true;
 		Application.LoadLevel(Application.loadedLevel);
