@@ -386,6 +386,8 @@ public class Rogue : AActor, IAssimilatable
 
         ((GameObject)Instantiate(assimilateParticlePrefab, transform.position, Quaternion.Euler(90, 0, 0))).GetComponent<Transform>().parent = myTransform;
 
+        Destroy(cloneObject);
+
 		if (assimilatedBehaviour == (int)BehaviourType.Tether)
         {
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
@@ -410,6 +412,8 @@ public class Rogue : AActor, IAssimilatable
 
             movementSpeed *= 3.5f;
             animator.SetInteger("SwitchToModel", 3); // Transition Model To Cross
+
+            myRigidBody.constraints = RigidbodyConstraints.None;
 
             gameObject.tag = "Tether";
             gameObject.layer = LayerMask.NameToLayer("Default");
@@ -467,7 +471,6 @@ public class Rogue : AActor, IAssimilatable
         if (inputController.MoveDirection() != Vector3.zero)
         {
             myTransform.rotation = Quaternion.LookRotation(inputController.MoveDirection());
-            //myTransform.rotation = Quaternion.Slerp(myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
         }
     }
 
