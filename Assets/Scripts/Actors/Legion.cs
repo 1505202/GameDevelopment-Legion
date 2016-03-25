@@ -17,13 +17,15 @@ public class Legion : AActor
         // Component Caching
 		myRigidbody = GetComponent<Rigidbody>();
 		myTransform = GetComponent<Transform>();
+	    PlayerNumber = 1;
+	    Team = legionTeamName;
 
 		// Add Legion Camera
 		inputController = ControllerManager.Instance.NewController();
 	}
 	private void Update()
     {
-        if (GameManager.Instance.IsGameOver)    
+        if (GameManager.Instance.IsGameOver)
             return;
 
         myRigidbody.velocity = (inputController.MoveDirection() * movementSpeed) + new Vector3(0, myRigidbody.velocity.y, 0);

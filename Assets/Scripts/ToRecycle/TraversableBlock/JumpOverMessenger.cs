@@ -8,9 +8,9 @@ public class JumpOverMessenger : MonoBehaviour
 
 	private void OnTriggerEnter(Collider collidedObject)
 	{
-		if( collidedObject.CompareTag("Legion") )
-		{
+        if( !collidedObject.CompareTag("Tether")  )
+        {
 			target.TriggerBezierTransition( collidedObject.GetComponent<Transform>(), dir );
-		}
+        }
 	}
 }

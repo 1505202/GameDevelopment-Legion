@@ -15,9 +15,10 @@ public class GameManager : MonoBehaviour
 	[SerializeField] private Text timerText = null;
 	[SerializeField] private int timeRemainingWarningThreshold = 10;
 	[SerializeField] private GameObject pausePanel = null;
-	[SerializeField] private GameObject LobbyPanel = null;
+    [SerializeField] private GameObject LobbyPanel = null;
+    [SerializeField] private GameObject HelpPanel = null;
     [SerializeField] private float timeToReturnToLobby = 3;
-    [SerializeField] private Color[] playerColors;
+    [SerializeField] private Color[] playerColors = null;
 
     private static GameManager instance;
 	private static bool isResetting = false;
@@ -30,9 +31,16 @@ public class GameManager : MonoBehaviour
 
     private bool startedEndOfRoundTransition = false;
 
+    private static string[] previousRoundScores = { "--", "--", "--", "--", "--" };
+    private static string[] previousRoundTeams = { "", "", "", "", "" };
+
     public static GameManager Instance { get { return instance; } }
     public float SecondsRemaining { get; private set; }
     public bool IsGameOver { get { return isGameOver; } set { isGameOver = value; } }
+    public bool IsInLobby() 
+    {
+        return isStarting;
+    }
 
 	enum States 
 	{
@@ -42,7 +50,7 @@ public class GameManager : MonoBehaviour
 		Paused,
 		GameOver,
 		ExitingApplication,
-	};
+	}
 
     private void Start()
     {
@@ -51,13 +59,14 @@ public class GameManager : MonoBehaviour
 		isPaused = false;
 		pausePanel.SetActive (false);
 		isStarting = true;
-		
+        Time.timeScale = 0.0001f;
+
         if (instance == null)
         {
             instance = this;
             GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
             SecondsRemaining = maxSeconds;
-			AudioManager.StartLevelMusic();
+			AudioManager.StartMenuMusic();
 			EnteringLobby();
 
 			if(isResetting)
@@ -70,15 +79,12 @@ public class GameManager : MonoBehaviour
         {
             Destroy(this);
         }
+
+        timerText.text = ConvertTimeToString(maxSeconds);
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            Application.LoadLevel(0);
-        }
-
 		States currentState = GetCurrentState();
 
 		switch (currentState) 
@@ -102,7 +108,7 @@ public class GameManager : MonoBehaviour
 			break;
 		default:
 			ClockTick();    
-			timerText.text = ConvertTimeToString(SecondsRemaining+1);//SecondsRemaining.ToString("F0"); // display No decimal place NOTE: TURN THIS INTO A REGEX
+			timerText.text = ConvertTimeToString(SecondsRemaining+1);
 			CheckForVictory ();
 			gameOverText.enabled = IsGameOver;
 			break;
@@ -162,21 +168,27 @@ public class GameManager : MonoBehaviour
 				infoPanel.transform.FindChild ("IsReadyImage").gameObject.SetActive(true);
 			}
 
+            if (Input.GetButtonDown("JButtonSquare" + i))
+            {
+                HelpPanel.SetActive(!HelpPanel.activeInHierarchy);
+            }
+
 			if(readyPlayers.All( x => x ))	// check that all readyPlayers are true
 			{
-				StartGame();
-			}
+                StartGame();
+            }
 		}
 
 	}
-
+        
 	private void FillInPlayerTable()
 	{
         // Left This In Case Mike Wants To Copy It;
 		//Color32[] colors = new Color32[5] {Color.green, Color.blue, Color.red, Color.yellow, Color.magenta };
 		//int colorBaseIndex = Random.Range (0, 4);
 		
-		for (int i=1; i<=5; i++) {
+		for (int i=1; i<=5; i++)
+        {
 			GameObject infoPanel = LobbyPanel.transform.FindChild ("PlayerInfo" + i).gameObject;
 			Text playerName = infoPanel.transform.FindChild ("PlayerName").GetComponent<Text> ();
 			Text playerTeam = infoPanel.transform.FindChild ("PlayerTeam").GetComponent<Text> ();
@@ -185,25 +197,27 @@ public class GameManager : MonoBehaviour
 			
 			//playerName.color = colors [(colorBaseIndex + i) % 5];
             playerName.color = playerColors[i-1];
-            playerTeam.text = string.Empty;
-			points.text = string.Empty;
+            playerTeam.text = previousRoundTeams[i-1];
 			playerReadyImage.SetActive(false);
-			
+            points.text = previousRoundScores[i - 1];
 			readyPlayers[i-1] = false;
 
             // Set Ingame Player Colors
             if (i >= 2)
             {
                 rogueElements[i - 2].GetComponent<Rogue>().SetRogueColors(playerName.color);
-            }
-		}
+                rogueElements[i - 2].GetComponent<Rogue>().PlayerNumber = i;
+           }
+        }
 	}
 
 	private void StartGame()
 	{
 		isStarting = false;
 		LobbyPanel.SetActive (false);
+        HelpPanel.SetActive(false);
 		Time.timeScale = 1;
+        AudioManager.StartLevelMusic();
 	}
 
 	public void CheckForVictory()
@@ -222,17 +236,41 @@ public class GameManager : MonoBehaviour
 		if (IsGameOver) 
 		{
 			StopEndGameWarning();
-			AudioManager.StartMenuMusic();
-			AudioManager.PlayGameOverSound();
+            AudioManager.PlayGameOverSound();
+            AudioManager.StartMenuMusic();
 			DisablePhysics ();
 
             if (!startedEndOfRoundTransition)
             {
+                // put scores in structures for display
+                for (int i = 0; i < legionElements.Count; i++)
+                {
+                    var rogue = legionElements[i].GetComponent<Rogue>();
+                    SetScore(rogue);
+                    previousRoundTeams[rogue.PlayerNumber-1] = rogue.Team;
+                }
+                for (int i = 0; i < rogueElements.Count; i++)
+                {
+                    var rogue = rogueElements[i].GetComponent<Rogue>();
+                    SetScore(rogue);
+                    previousRoundTeams[rogue.PlayerNumber - 1] = rogue.Team;
+                }
+                var legionComponent = legion.GetComponent<Legion>();
+                SetScore(legionComponent);
+                previousRoundTeams[legionComponent.PlayerNumber-1] = legionComponent.Team;
+
                 startedEndOfRoundTransition = true;
                 StartCoroutine(ReturnToLobby(timeToReturnToLobby));
             }
-		}
+   		}
 	}
+
+    private void SetScore(AActor actor)
+    {
+        int index = actor.PlayerNumber - 1;
+        previousRoundScores[index] = actor.GetScore().ToString();
+
+    }
 
     private IEnumerator ReturnToLobby(float t)
     {
@@ -242,15 +280,28 @@ public class GameManager : MonoBehaviour
 
 	public void Assimilate(Rogue rogue)
 	{
-		rogueElements.Remove(rogue.gameObject);
+        rogue.ModifyScore(-1);
+	    foreach (GameObject r in legionElements)
+	    {
+	        r.GetComponent<Rogue>().ModifyScore(1);
+	    }
+	    legion.GetComponent<Legion>().ModifyScore(1);
+
+	    rogueElements.Remove(rogue.gameObject);
 		legionElements.Add(rogue.gameObject);
 		
-		for (int i = 0; i < rogueElements.Count; i++)
+		foreach (GameObject r in rogueElements)
 		{
-            rogueElements[i].GetComponent<Rogue>().UpdateRogueSkillCount();
+		    Rogue indexedRogue = r.GetComponent<Rogue>();
+		    indexedRogue.UpdateRogueSkillCount();
+		    indexedRogue.ModifyScore(1);
 		}
 	}
 
+    /// <summary>
+    ///  SIDE EFFECT: also increments the assimilatedRogueCount
+    /// </summary>
+    /// <returns>the index of the power for the recently assimilated rogue</returns>
     public int GetBehaviourIndex()
     {
         return ++assimilatedRogueCount;
@@ -272,6 +323,11 @@ public class GameManager : MonoBehaviour
 
     private void RogueVictory()
     {
+        for (int i = 0; i < rogueElements.Count; i++)
+        {
+            Rogue indexedRogue = rogueElements[i].GetComponent<Rogue>();
+            indexedRogue.ModifyScore(1);
+        }
         Debug.Log("Rogues Win!!!");
         gameOverText.text = "Rogue Victory!";
     }
@@ -283,14 +339,14 @@ public class GameManager : MonoBehaviour
 
     private void DisablePhysics()
     {
-        legion.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        legion.GetComponent<Rigidbody>().isKinematic = true;
         for (int i = 0; i < rogueElements.Count; i++ )
         {
-            rogueElements[i].GetComponent<Rigidbody>().velocity = Vector3.zero;
+            rogueElements[i].GetComponent<Rigidbody>().isKinematic = true;
         }
         for (int i = 0; i < legionElements.Count; i++)
         {
-            legionElements[i].GetComponent<Rigidbody>().velocity = Vector3.zero;
+            legionElements[i].GetComponent<Rigidbody>().isKinematic = true;
         }
     }
 
@@ -311,17 +367,18 @@ public class GameManager : MonoBehaviour
 		isPaused = true;
 		Time.timeScale = 0;
 		pausePanel.SetActive (true);
-	}
+        AudioManager.PauseLevelWithAudio();
+    }
 
-	private void UnPause()
+    private void UnPause()
 	{
 		isPaused = false;
 		Time.timeScale = 1;
 		pausePanel.SetActive (false);
-		
-	}
+        AudioManager.UnPauseLevelWithAudio();
+    }
 
-	private void ResetGame()
+    private void ResetGame()
 	{
 		isResetting = true;
 		Application.LoadLevel(Application.loadedLevel);
@@ -348,13 +405,6 @@ public class GameManager : MonoBehaviour
         int minutes = (int)(time / 60);
         int seconds = (int)time % 60;
 
-        if (time < 10)
-        {
-            return "0:0" + (int)time;
-        }// I was going to use a terinary Operator Here But To Keep It Clean I Added Ifs (Mike Is This Better?)
-        else if( seconds < 10 )
-        {
-            return minutes + ":0" + seconds;
-        } else return minutes + ":" + seconds;
+        return minutes + ":" + seconds.ToString("00");
     }
 }

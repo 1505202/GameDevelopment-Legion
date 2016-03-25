@@ -7,6 +7,8 @@ public interface IControllerInput
     Vector3 MoveDirection();
     Vector3 AimDirection();
 
-	bool SwitchingPower();
-	bool FiringPower();
+    bool SwitchingPower();
+    bool FiringPower();
+
+    bool GetButton(ControllerInputKey key);
 }

@@ -12,43 +12,57 @@ public class Rogue : AActor, IAssimilatable
     [Space(10)]
 	[Header("Rogue Blink")]
     [SerializeField] private float blinkDistance = 1;
-    [SerializeField] private float blinkCooldown = 1;
+    //[SerializeField] private float blinkCooldown = 1;
 
     [Header("Rogue Blink")]
     [SerializeField] private GameObject cloneObject = null;
     [SerializeField] private float cloneDuration = 1;
-    [SerializeField] private float cloneCooldown = 1;
+    //[SerializeField] private float cloneCooldown = 1;
 
     [Header("Rogue Glitch")]
     [SerializeField] private float glitchDuration = 0;
-    [SerializeField] private float glitchCooldown = 0;
+    //[SerializeField] private float glitchCooldown = 0;
     [SerializeField] private Vector3 higherLimits = Vector3.zero;
     [SerializeField] private Vector3 lowerLimits = Vector3.zero;
+
+    [SerializeField] [Range(0, 1)] private float minLengthPercentile = 0;
+    [SerializeField] [Range(0, 1)] private float maxLengthPercentile = 0;
+
+    [SerializeField] private float glitchInterval = 0.2f;
+
+    [Header("Global Cooldown")]
+    [SerializeField] private float globalCooldown = 5f;
+    private float targetTime = 0;
+
 
 	[Header("Assimilated Skills")]
 	[SerializeField] private float tetherMaxDistance = 0;
 
+    [Header("Lighting")]
+    [SerializeField] private float maxIntensity = 5;
+
     [Header("Rogue Sub Mesh MeshRenderer")]
-    [SerializeField] private MeshRenderer[] subMeshes;
+    [SerializeField] private MeshRenderer[] subMeshes = null;
 
-    // TODO: Ensure these are used or removed
+    [SerializeField] private LayerMask layerMask;
+    [SerializeField] private Light lightSource = null;
 
-    // [Header("Assimilated Meshes")]
-    // [SerializeField] private Mesh tetherMesh = null;
-    // [SerializeField] private Mesh cannonMesh = null;
-    // [SerializeField] private Mesh trailBlazerMesh = null;
-	
-	private int assimilatedBehaviour = 0;
+    private int assimilatedBehaviour = 0;
 	private Vector3 lineStartPoint = Vector3.zero;
 	private Vector3 lineEndPoint = Vector3.zero;
 
+    [SerializeField]
+    private AnimationCurve lightCurve;
+
+
+    private Light cloneLightSource = null;
 	public enum ERogueState 
 	{ 
 		RogueState,			// Acts As A Rogue 
 		AssimilatedState    // Plays As Legion
 	}
 
-	private enum BehaviourType
+    private enum BehaviourType
 	{
 		Rogue = 0,
 		Tether,
@@ -77,8 +91,6 @@ public class Rogue : AActor, IAssimilatable
 	private bool canSwitchSkills = true;
 	private bool hasCollidedWithLegion = false;
 
-    [SerializeField] private Light lightSource;
-
 	// cannonball 
 	private bool isPropelled = false;
 	private Vector3 propelledDirection = Vector3.zero;
@@ -86,13 +98,19 @@ public class Rogue : AActor, IAssimilatable
     [SerializeField] private float stunDuration = 0; 
     bool canMove = true;
 
+    [Header("Cannon Reticle")]
+    [SerializeField] private GameObject cannonReticle = null;
 
     [Header("Particle Prefabs")]
-    [SerializeField] private GameObject blinkParticlePrefab;
-    [SerializeField] private GameObject cannonParticlePrefab;
+    [SerializeField] private GameObject blinkParticlePrefab = null;
+    [SerializeField] private GameObject cannonParticlePrefab = null;
+    [SerializeField] private GameObject stunParticlePrefab = null;
+    [SerializeField] private GameObject assimilateParticlePrefab = null;
 
 	public GameObject trailBlazerPrefab;
     public Vector3 trailBlazerDropOffset;
+
+    bool handleLight = false;
 
     /// <summary>
     /// To Force The Animator To Transition To A Shape On Caught, use The Following
@@ -105,14 +123,6 @@ public class Rogue : AActor, IAssimilatable
     /// Note: 0 Reserved So That The Animations Swap Before Being Caught
     /// </summary>
     private Animator animator;
-    
-
-
-    /// <summary>
-    /// /////////////////////////////////////
-    /// </summary>
-    [SerializeField] private LayerMask layerMask;
-
     private ConfigurableJoint joint;
 
     private List<Vector3> contactPoints = new List<Vector3>();
@@ -124,37 +134,36 @@ public class Rogue : AActor, IAssimilatable
 	private void Start()
 	{
         animator = GetComponent<Animator>();
-
-		myRigidBody = GetComponent<Rigidbody>();
+        myRigidBody = GetComponent<Rigidbody>();
         myTransform = GetComponent<Transform>();
-
-		inputController = ControllerManager.Instance.NewController();
-
-        cloneObject = Instantiate(cloneObject, Vector3.zero, Quaternion.identity) as GameObject;
-
-        cloneObject.SetActive(false);
+        inputController = ControllerManager.Instance.NewController();
+        score = 0;
+	    Team = rogueTeamName;
 
         // Temporary Change Until New Skills Are Added
-		RogueBlink dash = gameObject.AddComponent<RogueBlink>();
-		dash.Initialize(GetComponent<Transform>(), blinkCooldown, blinkDistance, blinkParticlePrefab);
+        RogueBlink dash = gameObject.AddComponent<RogueBlink>();
+		dash.Initialize(GetComponent<Transform>(), globalCooldown, blinkDistance, blinkParticlePrefab);
 
         RogueClone clone = gameObject.AddComponent<RogueClone>();
-        clone.Initialize(myTransform, cloneObject, inputController, base.movementSpeed, cloneDuration, cloneCooldown);
+        clone.Initialize(myTransform, cloneObject, inputController, base.movementSpeed, cloneDuration, globalCooldown);
 
         RogueGlitch glitch = gameObject.AddComponent<RogueGlitch>();
-        glitch.Initialize(Camera.main.transform, Camera.main.transform.position, lowerLimits, higherLimits, glitchDuration, glitchCooldown);
+        glitch.Initialize(Camera.main.gameObject, lowerLimits, higherLimits, glitchDuration, glitchInterval, globalCooldown, minLengthPercentile, maxLengthPercentile);
 
         rogueSkills[0] = dash;
         rogueSkills[1] = clone;
         rogueSkills[2] = glitch;
 
-        animator.SetBool("Start", true);
+        lightSource.intensity = maxIntensity;
 
 	}
 	private void Update()
 	{
-	    if (GameManager.Instance.IsGameOver)
+	    if (GameManager.Instance.IsGameOver || GameManager.Instance.IsInLobby())
 	        return;
+
+        cloneObject.GetComponent<Animator>().SetBool("Start", true);
+        animator.SetBool("Start", true);
 
 		if(line != null)
 		{
@@ -163,7 +172,8 @@ public class Rogue : AActor, IAssimilatable
 		}
 
 
-        HandleGlobalCooldownLight();
+        if (handleLight)
+            HandleGlobalCooldownLight();
 
 		switch((BehaviourType)assimilatedBehaviour)
 		{
@@ -193,23 +203,40 @@ public class Rogue : AActor, IAssimilatable
 
 		HandleMoveInput();
 
+
+
 		// Skill handling
-		if (rogueSkillsUnlocked > 0)
-		{
-			if (inputController.SwitchingPower() && canSwitchSkills)
-			{
-				SwitchSkill();
-				StartCoroutine(SwitchPowerCD(0.5f));
-			}
-			
-			if (inputController.FiringPower() && rogueSkills[skillIndex].IsReady)
-			{
-                if (rogueSkills[skillIndex].UseSkill())
+        for (int i = 0; i < rogueSkills.Length; i++)
+        {
+            if (i >= rogueSkillsUnlocked)
+            {
+                break;
+            }
+
+            if (inputController.GetButton((ControllerInputKey)i) && rogueSkills[i].IsReady)
+            {
+                if (rogueSkills[i].UseSkill())
                 {
-                    lightSource.intensity = 0;
+                    TriggerLight();
                 }
-			}
-		}
+            }
+
+            if (inputController.GetButton((ControllerInputKey)i) && rogueSkills[i].IsReady)
+            {
+                if (rogueSkills[i].UseSkill())
+                {
+                    TriggerLight();
+                }
+            }
+
+            if (inputController.GetButton((ControllerInputKey)i) && rogueSkills[i].IsReady)
+            {
+                if (rogueSkills[i].UseSkill())
+                {
+                    TriggerLight();
+                }
+            }
+        }
 	}
 	private void TetherBehaviour()
 	{
@@ -235,11 +262,19 @@ public class Rogue : AActor, IAssimilatable
 	}
     private void CannonballBehaviour()
     {
+        if (myRigidBody.velocity == Vector3.zero)
+            isPropelled = false;
+
+        if (Controller.MoveDirection() != Vector3.zero)
+        {
+            cannonReticle.transform.forward = -Controller.MoveDirection();
+            cannonReticle.transform.position = transform.position + Controller.MoveDirection();
+        }
 		// If FIRE button is pressed, propel forward.
 		if (!isPropelled && inputController.FiringPower ()) 
 		{
 			isPropelled = true;
-			propelledDirection = inputController.MoveDirection();
+			propelledDirection = inputController.MoveDirection().normalized;
 			AudioManager.PlayCannonballFireSound();
 		}
 
@@ -273,22 +308,23 @@ public class Rogue : AActor, IAssimilatable
         }
     }
 
+
 	private void OnCollisionEnter(Collision obj)
 	{
         if (gameObject.CompareTag("CannonBall"))
         {
-            Instantiate(cannonParticlePrefab, transform.position, Quaternion.Euler(90, 0, 0));
+            ((GameObject)Instantiate(cannonParticlePrefab, transform.position, Quaternion.Euler(90, 0, 0))).GetComponent<Transform>().parent = myTransform;
         }
 
-        if (obj.gameObject.CompareTag("Legion") && hasCollidedWithLegion)
+        if (obj.gameObject.CompareTag("Legion") && obj.gameObject.CompareTag("Tether") && obj.gameObject.CompareTag("TrailBlazer") && hasCollidedWithLegion)
             return;
 
-		if(obj.gameObject.CompareTag("Legion") && !hasCollidedWithLegion)
+		if(obj.gameObject.CompareTag("Legion") && assimilatedBehaviour == (int)BehaviourType.Rogue)
 		{
 			hasCollidedWithLegion = true;
 			Assimilate();
 		}
-
+        
 		if (assimilatedBehaviour == (int)BehaviourType.Cannonball) 
 		{
             myRigidBody.velocity = Vector3.zero;
@@ -297,7 +333,10 @@ public class Rogue : AActor, IAssimilatable
 			{
                 StartCoroutine(StunRogue(obj.gameObject.GetComponent<Rogue>()));
                 myTransform.position = target.position - target.forward;
+
             }
+
+            AudioManager.PlayCannonballIntoWallSound();
 			isPropelled = false;
 		}
 	}
@@ -347,6 +386,10 @@ public class Rogue : AActor, IAssimilatable
         // HACK: Debug Code To Force Assimilation, Delete After Testing Phase
         //assimilatedBehaviour = (int)BehaviourType.Cannonball;
 
+        ((GameObject)Instantiate(assimilateParticlePrefab, transform.position, Quaternion.Euler(90, 0, 0))).GetComponent<Transform>().parent = myTransform;
+
+        Destroy(cloneObject);
+
 		if (assimilatedBehaviour == (int)BehaviourType.Tether)
         {
             target = GameObject.FindGameObjectWithTag("Legion").GetComponent<Transform>();
@@ -372,12 +415,17 @@ public class Rogue : AActor, IAssimilatable
             movementSpeed *= 3.5f;
             animator.SetInteger("SwitchToModel", 3); // Transition Model To Cross
 
-            gameObject.tag = "Untagged";
+            myRigidBody.constraints = RigidbodyConstraints.None;
+            myRigidBody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+            gameObject.tag = "Tether";
             gameObject.layer = LayerMask.NameToLayer("Default");
         }
 		else if (assimilatedBehaviour == (int)BehaviourType.Cannonball)
         {
             animator.SetInteger("SwitchToModel", 2); // Transition Model To Circle
+
+            cannonReticle.SetActive(true);
 
             gameObject.tag = "CannonBall";
             gameObject.layer = LayerMask.NameToLayer("Default");
@@ -388,7 +436,7 @@ public class Rogue : AActor, IAssimilatable
         {
             animator.SetInteger("SwitchToModel", 4); // Transition Model To Square
 
-            gameObject.tag = "Untagged";
+            gameObject.tag = "TrailBlazer";
             gameObject.layer = LayerMask.NameToLayer("Default");
 
             movementSpeed *= 2;
@@ -408,23 +456,10 @@ public class Rogue : AActor, IAssimilatable
         }
     }
 
-	private void SwitchSkill()
-	{
-		if(++skillIndex >= rogueSkillsUnlocked)
-		{
-			skillIndex = 0;
-		}
-	}
-	private IEnumerator SwitchPowerCD(float time) // Use Lambda Expresion/Action
-	{
-        canSwitchSkills = false;
-        yield return new WaitForSeconds(time);
-        canSwitchSkills = true;
-	}
-
 	private IEnumerator StunRogue(Rogue rogue)
 	{
         rogue.canMove = false;
+        Instantiate(stunParticlePrefab, rogue.transform.position, Quaternion.Euler(90, 0, 0));
 		AudioManager.PlayCannonballStunSound ();
         yield return new WaitForSeconds(stunDuration);
         rogue.canMove = true;
@@ -439,13 +474,26 @@ public class Rogue : AActor, IAssimilatable
         if (inputController.MoveDirection() != Vector3.zero)
         {
             myTransform.rotation = Quaternion.LookRotation(inputController.MoveDirection());
-            //myTransform.rotation = Quaternion.Slerp(myTransform.rotation, lookRotation, Time.deltaTime * rotateSpeed);
         }
     }
 
+    private void TriggerLight()
+    {
+        handleLight = true;
+        lightSource.intensity = 0;
+
+        targetTime = Time.time;
+    }
     private void HandleGlobalCooldownLight()
     {
-        lightSource.intensity = Mathf.Lerp(lightSource.intensity, 1, Time.deltaTime / blinkCooldown);
+        float normalizedTime = Mathf.Clamp01((Time.time - targetTime) / globalCooldown);
+        float intensity = lightCurve.Evaluate(   normalizedTime     ) * maxIntensity;
+        lightSource.intensity = intensity;
+        cloneLightSource.intensity = intensity;
+        if (normalizedTime == 1)
+        {
+            handleLight = false;
+        }
     }
 
     #region Tether and wrapping
@@ -631,6 +679,14 @@ public class Rogue : AActor, IAssimilatable
         {
             subMeshes[i].material.color = color;
         }
+        cloneObject = Instantiate(cloneObject, Vector3.zero, Quaternion.identity) as GameObject;
+
+        cloneObject.GetComponent<RogueCloneMeshReferences>().UpdateCloneColors(color);
+
+        cloneObject.GetComponent<Rigidbody>().isKinematic = true;
+        cloneObject.GetComponent<Transform>().position = new Vector3(10000, 10000, 10000);
+
+        cloneLightSource = cloneObject.transform.GetChild(0).GetComponent<Light>();
 
         lightSource.color = color;
     }

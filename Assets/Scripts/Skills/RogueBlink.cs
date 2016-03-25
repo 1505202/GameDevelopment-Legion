@@ -23,14 +23,13 @@ public class RogueBlink : ASkill
         {
             if (SkillLogic())
             {
-				//Play sound effect
-				AudioManager.PlayBlinkSound();
+                //Play sound effect
+                AudioManager.PlayBlinkSound();
 
                 StartCoroutine(SkillCooldown());
                 return true;
             }
-        }
-        return false;
+        } return false;
 	}
 	
 	private bool SkillLogic()
@@ -56,7 +55,6 @@ public class RogueBlink : ASkill
                     targetTransform.position = hit.point - (transform.forward / 4);
                 }
             }
-            
             return true;
         }
         return false;
