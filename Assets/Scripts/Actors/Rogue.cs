@@ -74,7 +74,7 @@ public class Rogue : AActor, IAssimilatable
 
 	// Rogue Skills
 	private int skillIndex = 0;
-    private int rogueSkillsUnlocked = 3;
+    private int rogueSkillsUnlocked = 0;
     private ASkill[] rogueSkills = new ASkill[3];
 
 	// Cached Components
@@ -416,6 +416,7 @@ public class Rogue : AActor, IAssimilatable
             animator.SetInteger("SwitchToModel", 3); // Transition Model To Cross
 
             myRigidBody.constraints = RigidbodyConstraints.None;
+            myRigidBody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
             gameObject.tag = "Tether";
             gameObject.layer = LayerMask.NameToLayer("Default");

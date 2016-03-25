@@ -215,6 +215,7 @@ public class GameManager : MonoBehaviour
 	{
 		isStarting = false;
 		LobbyPanel.SetActive (false);
+        HelpPanel.SetActive(false);
 		Time.timeScale = 1;
         AudioManager.StartLevelMusic();
 	}
