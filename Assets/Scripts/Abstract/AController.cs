@@ -5,9 +5,9 @@ using UnityEngine;
 /// </summary>
 public enum ControllerInputKey
 {
-    Square = 0,
-    Cross = 1,
-    Circle = 2
+    Cross = 0,
+    Circle = 1,
+    Square = 2
 }
 
 

@@ -1,5 +1,5 @@
 using UnityEngine;
-using System;
+
 using System.Collections;
 using System.Collections.Generic;
 
@@ -141,8 +141,8 @@ public class Rogue : AActor, IAssimilatable
 	    Team = rogueTeamName;
 
         // Temporary Change Until New Skills Are Added
-        RogueBlink dash = gameObject.AddComponent<RogueBlink>();
-		dash.Initialize(GetComponent<Transform>(), globalCooldown, blinkDistance, blinkParticlePrefab);
+        RogueBlink blink = gameObject.AddComponent<RogueBlink>();
+		blink.Initialize(GetComponent<Transform>(), globalCooldown, blinkDistance, blinkParticlePrefab);
 
         RogueClone clone = gameObject.AddComponent<RogueClone>();
         clone.Initialize(myTransform, cloneObject, inputController, base.movementSpeed, cloneDuration, globalCooldown);
@@ -150,7 +150,7 @@ public class Rogue : AActor, IAssimilatable
         RogueGlitch glitch = gameObject.AddComponent<RogueGlitch>();
         glitch.Initialize(Camera.main.gameObject, lowerLimits, higherLimits, glitchDuration, glitchInterval, globalCooldown, minLengthPercentile, maxLengthPercentile);
 
-        rogueSkills[0] = dash;
+        rogueSkills[0] = blink;
         rogueSkills[1] = clone;
         rogueSkills[2] = glitch;
 
@@ -329,11 +329,14 @@ public class Rogue : AActor, IAssimilatable
 		{
             myRigidBody.velocity = Vector3.zero;
 
-			if(obj.gameObject.CompareTag("Rogue") && isPropelled == true)
+			if(obj.gameObject.CompareTag("Rogue") && isPropelled)
 			{
-                StartCoroutine(StunRogue(obj.gameObject.GetComponent<Rogue>()));
-                myTransform.position = target.position - target.forward;
-
+			    var stunnedRogue = obj.gameObject.GetComponent<Rogue>();
+			    if (stunnedRogue != null)
+			    {
+                    StartCoroutine(StunRogue(stunnedRogue));
+                }
+                myTransform.position = target.position - target.forward;    // we want to return to legion even if we hit the clone
             }
 
             AudioManager.PlayCannonballIntoWallSound();
@@ -352,10 +355,14 @@ public class Rogue : AActor, IAssimilatable
         {
             myRigidBody.velocity = Vector3.zero;
 
-            if (obj.gameObject.CompareTag("Rogue") && isPropelled == true)
+            if (obj.gameObject.CompareTag("Rogue") && isPropelled)
             {
-                StartCoroutine ( StunRogue(obj.gameObject.GetComponent<Rogue>()) ) ;
-                myTransform.position = target.position - target.forward;
+ 			    var stunnedRogue = obj.gameObject.GetComponent<Rogue>();
+			    if (stunnedRogue != null)
+			    {
+                    StartCoroutine(StunRogue(stunnedRogue));
+                }
+                myTransform.position = target.position - target.forward;    // we want to return to legion even if we hit the clone
             }
             isPropelled = false;
         }
@@ -446,9 +453,7 @@ public class Rogue : AActor, IAssimilatable
             animator.SetInteger("SwitchToModel", 1); // Transition Model To Square
         }
 
-
         SetRogueColors( GameManager.Instance.LegionColor );
-
 
         for (int i = 0; i < rogueSkills.Length; i++)
         {
@@ -458,11 +463,14 @@ public class Rogue : AActor, IAssimilatable
 
 	private IEnumerator StunRogue(Rogue rogue)
 	{
-        rogue.canMove = false;
-        Instantiate(stunParticlePrefab, rogue.transform.position, Quaternion.Euler(90, 0, 0));
-		AudioManager.PlayCannonballStunSound ();
-        yield return new WaitForSeconds(stunDuration);
-        rogue.canMove = true;
+	    if (rogue != null)  // we could end up here because we hit the clone
+	    {
+	        rogue.canMove = false;
+	        Instantiate(stunParticlePrefab, rogue.transform.position, Quaternion.Euler(90, 0, 0));
+	        AudioManager.PlayCannonballStunSound();
+	        yield return new WaitForSeconds(stunDuration);
+	        rogue.canMove = true;
+	    }
 	}
 
 	private void HandleMoveInput()
@@ -644,7 +652,11 @@ public class Rogue : AActor, IAssimilatable
         {
             if (Physics.Linecast(contactPoints[i], contactPoints[i + 1], out hit, (1 << LayerMask.NameToLayer("Rogue")) ))
             {
-                hit.collider.gameObject.GetComponent<Rogue>().Assimilate();
+                var capturedRogue = hit.collider.gameObject.GetComponent<Rogue>();
+                if (capturedRogue != null)
+                {
+                    capturedRogue.Assimilate();
+                }
             }
         }
     }
