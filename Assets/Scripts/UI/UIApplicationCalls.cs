@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
+
 //using UnityEngine.SceneManagement;
+#pragma warning disable 618
 
 
 // Temporary Left Without SceneManagment Due To Tony's Computer Not Having 5.3

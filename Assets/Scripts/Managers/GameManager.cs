@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+#pragma warning disable 618
 
 public class GameManager : MonoBehaviour
 {

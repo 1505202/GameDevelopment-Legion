@@ -32,7 +32,7 @@ public class Rogue : AActor, IAssimilatable
 
     [Header("Global Cooldown")]
     [SerializeField] private float globalCooldown = 5f;
-    private float targetTime = 0;
+    private float targetTime;
 
 
 	[Header("Assimilated Skills")]
@@ -43,20 +43,16 @@ public class Rogue : AActor, IAssimilatable
 
     [Header("Rogue Sub Mesh MeshRenderer")]
     [SerializeField] private MeshRenderer[] subMeshes = null;
-
     [SerializeField] private LayerMask layerMask;
     [SerializeField] private Light lightSource = null;
+    [SerializeField] private AnimationCurve lightCurve = null;
 
-    private int assimilatedBehaviour = 0;
+    private int assimilatedBehaviour;
 	private Vector3 lineStartPoint = Vector3.zero;
 	private Vector3 lineEndPoint = Vector3.zero;
+    private Light cloneLightSource;
 
-    [SerializeField]
-    private AnimationCurve lightCurve;
-
-
-    private Light cloneLightSource = null;
-	public enum ERogueState 
+    public enum ERogueState 
 	{ 
 		RogueState,			// Acts As A Rogue 
 		AssimilatedState    // Plays As Legion
@@ -73,26 +69,24 @@ public class Rogue : AActor, IAssimilatable
 	private ERogueState rogueState = ERogueState.RogueState;
 
 	// Rogue Skills
-	private int skillIndex = 0;
-    private int rogueSkillsUnlocked = 0;
+	private int rogueSkillsUnlocked;
     private ASkill[] rogueSkills = new ASkill[3];
 
 	// Cached Components
-	private Rigidbody myRigidBody = null;
-	private Transform myTransform = null;
+	private Rigidbody myRigidBody;
+	private Transform myTransform;
 
-	private Transform target = null;
-	private LineRenderer line = null;
+	private Transform target;
+	private LineRenderer line;
 	
 	// Players Input Controller
-    private AController inputController = null;
+    private AController inputController;
 
 	private float movementOffset = 1;
-	private bool canSwitchSkills = true;
-	private bool hasCollidedWithLegion = false;
+	private bool hasCollidedWithLegion;
 
 	// cannonball 
-	private bool isPropelled = false;
+	private bool isPropelled;
 	private Vector3 propelledDirection = Vector3.zero;
 	[SerializeField] private float propelledVelocity = 14;
     [SerializeField] private float stunDuration = 0; 
@@ -110,7 +104,7 @@ public class Rogue : AActor, IAssimilatable
 	public GameObject trailBlazerPrefab;
     public Vector3 trailBlazerDropOffset;
 
-    bool handleLight = false;
+    bool handleLight;
 
     /// <summary>
     /// To Force The Animator To Transition To A Shape On Caught, use The Following
@@ -130,8 +124,7 @@ public class Rogue : AActor, IAssimilatable
 
     private SoftJointLimit limit = new SoftJointLimit();
 
-
-	private void Start()
+    private void Start()
 	{
         animator = GetComponent<Animator>();
         myRigidBody = GetComponent<Rigidbody>();
@@ -203,8 +196,6 @@ public class Rogue : AActor, IAssimilatable
 
 		HandleMoveInput();
 
-
-
 		// Skill handling
         for (int i = 0; i < rogueSkills.Length; i++)
         {
@@ -255,10 +246,12 @@ public class Rogue : AActor, IAssimilatable
             return;
         }
 
-        if (Wrap())
-        {
-            return;
-        }
+	    Wrap();
+
+        //if (Wrap())
+        //{
+        //    return;
+        //}
 	}
     private void CannonballBehaviour()
     {
@@ -271,7 +264,7 @@ public class Rogue : AActor, IAssimilatable
             cannonReticle.transform.position = transform.position + Controller.MoveDirection();
         }
 		// If FIRE button is pressed, propel forward.
-		if (!isPropelled && inputController.FiringPower ()) 
+		if (!isPropelled && inputController.GetButton(ControllerInputKey.Circle)) 
 		{
 			isPropelled = true;
 			propelledDirection = inputController.MoveDirection().normalized;

@@ -3,8 +3,8 @@ using System.Collections;
 
 public class EmissionTranslation : MonoBehaviour 
 {
-    [SerializeField] private AnimationCurve colorCurve;
-    [SerializeField] private Gradient colorGradient;
+    [SerializeField] private AnimationCurve colorCurve = null;
+    [SerializeField] private Gradient colorGradient = null;
 
     [SerializeField] private float animationTime = 1;
 
