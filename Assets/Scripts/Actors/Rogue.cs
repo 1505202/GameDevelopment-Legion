@@ -247,12 +247,7 @@ public class Rogue : AActor, IAssimilatable
         }
 
 	    Wrap();
-
-        //if (Wrap())
-        //{
-        //    return;
-        //}
-	}
+    }
     private void CannonballBehaviour()
     {
         if (myRigidBody.velocity == Vector3.zero)
