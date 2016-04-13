@@ -20,9 +20,7 @@ public abstract class AController : IControllerInput, IUpdateController
     protected bool buttonCross = false;
     protected bool buttonCircle = false;
 
-
     protected bool isFiringPower = false;
-    protected bool isSwitchingPower = false;
 	
 	public Vector3 MoveDirection()
 	{
@@ -54,11 +52,6 @@ public abstract class AController : IControllerInput, IUpdateController
         return false;
     }
 
-
-    public bool SwitchingPower()
-    {
-        return isSwitchingPower;
-    }
     public bool FiringPower()
     {
         return isFiringPower;
