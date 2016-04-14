@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+#pragma warning disable 618
 
 public class GameManager : MonoBehaviour
 {
@@ -66,7 +67,7 @@ public class GameManager : MonoBehaviour
             instance = this;
             GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
             SecondsRemaining = maxSeconds;
-			AudioManager.StartLevelMusic();
+			AudioManager.StartMenuMusic();
 			EnteringLobby();
 
 			if(isResetting)
@@ -79,6 +80,8 @@ public class GameManager : MonoBehaviour
         {
             Destroy(this);
         }
+
+        timerText.text = ConvertTimeToString(maxSeconds);
     }
 
     private void Update()
@@ -106,7 +109,7 @@ public class GameManager : MonoBehaviour
 			break;
 		default:
 			ClockTick();    
-			timerText.text = ConvertTimeToString(SecondsRemaining+1);//SecondsRemaining.ToString("F0"); // display No decimal place NOTE: TURN THIS INTO A REGEX
+			timerText.text = ConvertTimeToString(SecondsRemaining+1);
 			CheckForVictory ();
 			gameOverText.enabled = IsGameOver;
 			break;
@@ -173,12 +176,12 @@ public class GameManager : MonoBehaviour
 
 			if(readyPlayers.All( x => x ))	// check that all readyPlayers are true
 			{
-				StartGame();
-			}
+                StartGame();
+            }
 		}
 
 	}
-
+        
 	private void FillInPlayerTable()
 	{
         // Left This In Case Mike Wants To Copy It;
@@ -213,7 +216,9 @@ public class GameManager : MonoBehaviour
 	{
 		isStarting = false;
 		LobbyPanel.SetActive (false);
+        HelpPanel.SetActive(false);
 		Time.timeScale = 1;
+        AudioManager.StartLevelMusic();
 	}
 
 	public void CheckForVictory()
@@ -232,8 +237,8 @@ public class GameManager : MonoBehaviour
 		if (IsGameOver) 
 		{
 			StopEndGameWarning();
-			AudioManager.StartMenuMusic();
-			AudioManager.PlayGameOverSound();
+            AudioManager.PlayGameOverSound();
+            AudioManager.StartMenuMusic();
 			DisablePhysics ();
 
             if (!startedEndOfRoundTransition)
@@ -363,17 +368,18 @@ public class GameManager : MonoBehaviour
 		isPaused = true;
 		Time.timeScale = 0;
 		pausePanel.SetActive (true);
-	}
+        AudioManager.PauseLevelWithAudio();
+    }
 
-	private void UnPause()
+    private void UnPause()
 	{
 		isPaused = false;
 		Time.timeScale = 1;
 		pausePanel.SetActive (false);
-		
-	}
+        AudioManager.UnPauseLevelWithAudio();
+    }
 
-	private void ResetGame()
+    private void ResetGame()
 	{
 		isResetting = true;
 		Application.LoadLevel(Application.loadedLevel);

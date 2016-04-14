@@ -33,6 +33,8 @@ public class RogueGlitch : ASkill
 
     private Vector3 initialPosition;
 
+    private Vector3 targetPosition;
+
     public void Initialize(GameObject mainCameraObject, Vector3 minPosition, Vector3 maxPosition, float duration, float interval, float cooldown, float minLengthPercentile, float maxLengthPercentile)
 	{
         this.mainCameraObject = mainCameraObject;
@@ -69,14 +71,21 @@ public class RogueGlitch : ASkill
 	
 	public IEnumerator SkillLogic(float time)
 	{
-        //InitializeTexture(new Color(0, 0, 0, 0), texture);
-        //InitializeTexture(new Color(0, 0, 0, 0), finalFrameTexture);
-        //StartCoroutine(GlitchSimulator(Time.time + duration, glitchInterval));
-
         isGlitching = true;
+        StartCoroutine(RandomizePosition(duration, 0.1f));
         yield return new WaitForSeconds(duration);
         isGlitching = false;
         mainCameraTransform.position = initialPosition;
+    }
+
+    private IEnumerator RandomizePosition(float duration, float interval)
+    {
+        while(duration > 0)
+        {
+            targetPosition = new Vector3(Random.Range(lowerLimit.x, upperLimit.x), Random.Range(lowerLimit.y, upperLimit.y), Random.Range(lowerLimit.z, upperLimit.z));
+            duration -= interval;
+            yield return new WaitForSeconds(interval);
+        }
     }
 
     private void Update()
@@ -84,7 +93,7 @@ public class RogueGlitch : ASkill
         if (isGlitching)
         {
             //System.Random r = new Random();
-            mainCameraTransform.position = Vector3.Lerp(mainCameraTransform.position, new Vector3(Random.Range(lowerLimit.x, upperLimit.x), Random.Range(lowerLimit.y, upperLimit.y), Random.Range(lowerLimit.z, upperLimit.z)), Time.deltaTime * 3);
+            mainCameraTransform.position = Vector3.Lerp(mainCameraTransform.position, targetPosition, Time.deltaTime * 50);
         }
     }
 
