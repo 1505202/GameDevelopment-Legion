@@ -83,7 +83,6 @@ public class Rogue : AActor, IAssimilatable
 	// Players Input Controller
     private AController inputController;
 
-	private float movementOffset = 1;
 	private bool hasCollidedWithLegion;
 
 	// cannonball 
@@ -466,7 +465,7 @@ public class Rogue : AActor, IAssimilatable
 	{
 		/// Rogue Behaviour
 		/// Translation and Rotation Handling
-        myRigidBody.velocity = (inputController.MoveDirection() * movementSpeed * movementOffset) + new Vector3(0, myRigidBody.velocity.y, 0);
+        myRigidBody.velocity = (inputController.MoveDirection() * movementSpeed) + new Vector3(0, myRigidBody.velocity.y, 0);
 
         if (inputController.MoveDirection() != Vector3.zero)
         {
@@ -664,12 +663,6 @@ public class Rogue : AActor, IAssimilatable
 	{
 		get { return inputController; }
 		set { inputController = value; }
-	}
-
-	public float MovementOffset
-	{
-		get { return movementOffset; }
-		set { movementOffset = value; }
 	}
 
 	#endregion 
