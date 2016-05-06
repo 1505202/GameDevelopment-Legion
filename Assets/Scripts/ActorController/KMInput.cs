@@ -6,15 +6,12 @@ public class KMInput : AController
 {
 	private string moveHorizontal;
 	private string moveVertical;
-	private string switchPower;
 	private string firePower;
 	
 	public KMInput()
     {
 		moveHorizontal 	= "KMMoveHorizontal";
 		moveVertical	= "KMMoveVertical";
-
-		switchPower 	= "KMSwitchPower";
 		firePower 		= "KMFirePower";
     }
 
@@ -26,7 +23,6 @@ public class KMInput : AController
 		aimDirection.x = ((Input.mousePosition.x / Screen.width) - 0.5f) * 2;
 		aimDirection.z = ((Input.mousePosition.y / Screen.height) - 0.5f) * 2;
 
-		isSwitchingPower = Input.GetButton(switchPower);
-		isFiringPower = Input.GetButton(firePower);
+        isFiringPower = Input.GetButton(firePower);
     }
 }

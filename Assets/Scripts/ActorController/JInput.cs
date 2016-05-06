@@ -13,7 +13,6 @@ public class JInput : AController
 	private string moveVertical;
 	private string aimHorizontal;
 	private string aimVertical;
-    private string switchPower;
     private string firePower;
     private string buttonCrossLabel;
     private string buttonSquareLabel;
@@ -33,7 +32,6 @@ public class JInput : AController
         buttonSquareLabel = "JButtonSquare" + controllerID;
         buttonCircleLabel = "JButtonCircle" + controllerID;
 
-        switchPower = "JSwitchPower" + controllerID;
         firePower = "JFirePower" + controllerID;
     }
 
@@ -51,7 +49,6 @@ public class JInput : AController
             this.buttonCross  = Input.GetButton(buttonCrossLabel);
             this.buttonCircle = Input.GetButton(buttonCircleLabel);
 
-            this.isSwitchingPower = Input.GetButton(switchPower);
             this.isFiringPower = Input.GetButton(firePower);
 		}
     }

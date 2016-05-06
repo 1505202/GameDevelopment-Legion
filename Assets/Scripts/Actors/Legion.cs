@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 /// <summary>
 /// Legion Actor
@@ -9,8 +8,8 @@ public class Legion : AActor
     [SerializeField] private AController inputController;
 
 	// ComponentCaching
-	private Rigidbody myRigidbody = null;
-	private Transform myTransform = null;
+	private Rigidbody myRigidbody;
+	private Transform myTransform;
 
 	private void Start()
 	{
