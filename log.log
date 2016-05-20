@@ -1,0 +1,195 @@
+(2016-05-06 09:15:28 +0100) Nelson Costa: Merge branch 'dev'
+(2016-04-17 15:09:01 +0100) longshorts: Added techno style music to game
+(2016-04-14 15:12:20 +0100) unknown: - Fixed issue with speed being too slow, Drag And Movement Offset
+(2016-04-14 14:56:20 +0100) unknown: Resolved Conflicts
+(2016-04-13 23:03:14 +0100) Michael MacKinnon: activate elements where accidentally unactivated
+(2016-04-13 22:57:15 +0100) Michael MacKinnon: edit help screen to fix text errors
+(2016-04-13 17:06:09 +0100) Michael MacKinnon: remove Switching Power
+(2016-04-13 15:20:21 +0100) Michael MacKinnon: minor cleanup
+(2016-04-13 10:52:28 +0100) Michael MacKinnon: fix trigger for cannonball; removed numerous warnings
+(2016-04-12 13:17:26 +0100) Michael MacKinnon: Fix Bugs: Screen stutter with Clone, wrong controller buttons used
+(2016-03-28 13:18:34 +0100) Nelson Costa: - Cleaned Root Folder Of Misplaced Assets
+(2016-03-28 13:10:28 +0100) Nelson Costa: - Removed Additional Useless Materials and Moved Materials To Their Respective Folders
+(2016-03-28 13:08:12 +0100) Nelson Costa: - Cleaned Out Material Folder
+(2016-03-28 12:57:23 +0100) Nelson Costa: - Removed Old Models And Other Unused/Misplaced Materials
+(2016-03-28 12:52:08 +0100) Nelson Costa: Deleted All Old Shaders And Materials
+(2016-03-25 18:00:05 +0000) Nelson Costa: Merge branch 'dev'
+(2016-03-25 17:52:49 +0000) Nelson Costa: Added Thumbs.db to exceptions in git ignore, and removed the old.7z build
+(2016-03-25 17:50:49 +0000) unknown: Final fixes before alpha.
+(2016-03-24 17:34:30 +0000) Michael MacKinnon: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-24 17:31:49 +0000) Michael MacKinnon: Remaining sound effect work
+(2016-03-24 17:07:23 +0000) Nelson Costa: - Removed constraints form tether rigidbody
+(2016-03-24 17:03:52 +0000) Nelson Costa: - Fixed Bridge - Fixed Clone Light - Fixed Scene Canvases
+(2016-03-24 16:45:07 +0000) Nelson Costa: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-24 16:44:41 +0000) Nelson Costa: - Added funcitonality to move with the cotrollers on the menu - Added light to follow an animation curve - Forced Timer Text To Show Time Set In Game Manager - Fixed Glitch To lerp To Randomzied position
+(2016-03-24 16:31:11 +0000) longshorts: Refit player names, removed default text from timer.
+(2016-03-24 16:11:41 +0000) longshorts: Imported new title with "Legion"
+(2016-03-24 15:19:32 +0000) unknown: Fixed some bugs, changed the blink effect
+(2016-03-24 14:25:47 +0000) Nelson Costa: Added functionality to move UI at entrance screen
+(2016-03-23 20:02:16 +0000) longshorts: Updated table image font and layout for lobby screen
+(2016-03-23 18:20:38 +0000) Nelson Costa: - Moved Mecanims and Animations To Their Respective Folders - Updates Legion And Rogues To Interact Properly With The Menus - Updated Main Scene
+(2016-03-23 16:38:34 +0000) Nelson Costa: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-23 16:38:22 +0000) Nelson Costa: Added Cannon Aim, Fixed Wall Collision Problems
+(2016-03-23 16:36:54 +0000) longshorts: Added HelpPanel prefab and various assets that are part of the help screen.
+(2016-03-23 16:18:21 +0000) unknown: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-23 16:17:36 +0000) unknown: Added particle effects to assimilation, rogue stun
+(2016-03-23 16:06:38 +0000) Nelson Costa: - Fixed Bridge to check for null (Clones)
+(2016-03-23 15:43:13 +0000) Nelson Costa: - Updated bridges to move multiple transformable actors
+(2016-03-23 15:02:29 +0000) Nelson Costa: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-23 15:02:04 +0000) Nelson Costa: Added first iteration of the bridge mechanic
+(2016-03-23 13:44:13 +0000) Nelson Costa: Merge branch 'BlairTest' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-23 13:22:08 +0000) unknown: Tidied Folders, Added CannonAim, New Art Assets
+(2016-03-23 12:04:45 +0000) Michael MacKinnon: change all text to use digital font
+(2016-03-22 23:34:48 +0000) Michael MacKinnon: display team name on lobby screen
+(2016-03-22 20:19:52 +0000) Michael MacKinnon: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-22 20:19:36 +0000) Michael MacKinnon: Points for end of game; fixed some warnings
+(2016-03-22 18:11:05 +0000) Nelson Costa: removed debug code to restart at any point in the gamemanager (was only meant to be temporary)
+(2016-03-22 18:05:16 +0000) Nelson Costa: updated input to used cross square and circle buttons, cannonball still uses triggers until further notice
+(2016-03-22 17:40:06 +0000) longshorts: WIP on dev: d0f5ff5 - Updated Tony's Scene To Look Like main Scene
+(2016-03-22 17:40:05 +0000) longshorts: index on dev: d0f5ff5 - Updated Tony's Scene To Look Like main Scene
+(2016-03-22 17:26:56 +0000) Nelson Costa: Fixed Main Scenes Rogues
+(2016-03-22 17:20:00 +0000) Nelson Costa: Added The Glitch To The Scene
+(2016-03-22 15:57:45 +0000) unknown: Merge branch 'dev' into BlairTest
+(2016-03-22 15:56:25 +0000) unknown: New Particle Effects
+(2016-03-22 13:13:25 +0000) unknown: Merge branch 'dev' into BlairTest
+(2016-03-22 13:12:55 +0000) Nelson Costa: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-22 13:12:38 +0000) Nelson Costa: updated main scene to reflect changes in nelson Scene
+(2016-03-22 13:09:36 +0000) Michael MacKinnon: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-22 13:09:26 +0000) Michael MacKinnon: ensure rogues cannot move while players are in lobby
+(2016-03-22 13:06:31 +0000) unknown: New Level and Block Design
+(2016-03-22 12:01:00 +0000) Nelson Costa: - Added A Fix To Test CannonBall Double Assimilation and normalized its magnitude
+(2016-03-22 11:34:26 +0000) Nelson Costa: Fixed Clone To Morph And Have Colors
+(2016-03-21 13:48:02 +0000) unknown: Updated Level Layout & Scrolling Bridge Texture
+(2016-03-18 18:21:15 +0000) Nelson Costa: - Updated Everyones Scenes To Reflect The Main Scene
+(2016-03-18 18:12:02 +0000) Nelson Costa: Finalied Build For 21/03/2016
+(2016-03-18 18:03:21 +0000) Nelson Costa: - Updated All Textures To lobby buttons and Entrance Scene - Fixed particle system to work. - Added support so that colors traverse into the game scene
+(2016-03-18 16:55:20 +0000) unknown: - Added Particle Systems
+(2016-03-18 15:34:36 +0000) Nelson Costa: - Updated Animations - Updated Rogue Prefab - Updated Rogue SubMesh Materials - Fixerd Entrance Screen To Suit New Layout - Fixed Lobby In Main Game To Attribute Colors To The Individual Players - Added Restart On Game End (Automatic After 3 Seconds Tweakable)
+(2016-03-17 17:13:14 +0000) unknown: - Updated Tony's Scene To Look Like main Scene
+(2016-03-17 17:07:17 +0000) unknown: - Added Materials For The Characters - Fixed Tony GIT
+(2016-03-17 16:40:33 +0000) unknown: - Added materials To For All Characters
+(2016-03-17 15:36:51 +0000) Nelson Costa: - Added Animation Transitions Between Each State of Mecanim For The Player - Added Models To Rogue Prefab To Be Able To Transition Between Them - Replaced Old Rogue Prefab With New One - Updated The Rogue Script, Removing Old Instant Model Swap With Animator.
+(2016-03-16 16:09:34 +0000) Nelson Costa: - Added Entrance Screen - Entrance Screen Syncs With Unity Entrance Screen - Added Animations So Artists/Designers Can Edit It later - Renamed Scenes To Have A Number Prefix To Show Order Of Building - Edited main scene applying a side mask to textures to show timer countdown - Move old JumpOver code into ToRecycle Folder - Added Textures to show timer countdown
+(2016-03-11 18:00:16 +0000) Nelson Costa: updating dev with master changes
+(2016-03-11 17:50:55 +0000) Nelson Costa: feature creeped more transparency into UI
+(2016-03-11 17:47:37 +0000) Nelson Costa: added temporary restart button
+(2016-03-11 17:40:28 +0000) Nelson Costa: added font, fixed main scene for mondays build
+(2016-03-11 17:07:05 +0000) unknown: New Models added to Walls and Floor
+(2016-03-11 15:50:27 +0000) longshorts: Merge branch 'dev' into TonyWall
+(2016-03-11 15:45:17 +0000) unknown: Added FX to fix Blink Bug on my Blair Scenes
+(2016-03-11 15:36:33 +0000) unknown: Updated test scenes with FX fix
+(2016-03-11 15:24:38 +0000) unknown: Merge branch 'TonyWall' into dev
+(2016-03-11 15:05:21 +0000) unknown: Added texture for floor, new wall models and new bridge model and texture.
+(2016-03-11 13:48:32 +0000) unknown: Test Scenes
+(2016-03-11 01:29:24 +0000) Michael MacKinnon: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-11 01:27:42 +0000) Michael MacKinnon: Add lobby screen
+(2016-03-10 14:53:24 +0000) Nelson Costa: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-10 14:52:46 +0000) Nelson Costa: - Fixed Rogue Ability Clone
+(2016-03-10 14:52:41 +0000) unknown: New Test Scenes
+(2016-03-09 16:43:18 +0000) Michael MacKinnon: merged files with scene conflict: kept local copy
+(2016-03-09 16:38:55 +0000) Michael MacKinnon: Add Pause Screen and Escape to exit
+(2016-03-09 15:51:37 +0000) Nelson Costa: - Added Rogue Skills - Clone Ability Is In - Glitch Ability Is in - Various Fixes To Input - Added Tags - Configured Physics layers. - Updated Rogue Prefab - Added Rogue Clone Prefab
+(2016-03-08 16:34:20 +0000) Michael MacKinnon: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-03-08 16:33:36 +0000) Michael MacKinnon: Revert "models update"
+(2016-03-08 16:16:16 +0000) Nelson Costa: Merge branch 'Repair' into dev
+(2016-03-08 16:15:40 +0000) Nelson Costa: Fixing Main Scene
+(2016-03-08 14:59:49 +0000) unknown: models update
+(2016-03-08 14:49:01 +0000) unknown: textures update
+(2016-03-08 14:29:33 +0000) unknown: fix to the prefab
+(2016-03-08 14:27:52 +0000) unknown: added box 7 prefab
+(2016-03-08 14:09:06 +0000) unknown: models & textures
+(2016-03-07 00:43:59 +0000) Michael MacKinnon: Fixed Audio bug; Cleared up warnings; Added audio to level
+(2016-03-06 23:56:07 +0000) Michael MacKinnon: Add audio manager and hook up new sounds
+(2016-03-04 17:37:07 +0000) unknown: Changed bridges to tony's new model and added placeholder texture
+(2016-03-04 16:36:26 +0000) longshorts: Final test on new models. Changed older scenes to be in older folder.
+(2016-03-04 16:10:13 +0000) longshorts: Merge branch 'dev' into NashModel
+(2016-03-04 16:03:47 +0000) longshorts: Changed legion and rogue models
+(2016-03-04 15:42:11 +0000) unknown: Light Bridge Test
+(2016-03-04 14:39:24 +0000) unknown: - Models
+(2016-03-03 19:05:12 +0000) longshorts: Applied sounds to prefabs
+(2016-03-03 19:03:19 +0000) longshorts: Added various sounds to game.
+(2016-03-03 15:50:00 +0000) Nelson Costa: fixed issues with new players. now extra players work well with the game manager and stops it terminating prematurely
+(2016-03-03 15:18:30 +0000) Nelson Costa: - Fixed CannonBall Added a Configurable Stun Duration Variable - Duplicated and switched scene to new NelsonScene. - Fixed collision with trail, so legion hits the trail
+(2016-03-02 17:44:25 +0000) Michael MacKinnon: Merge
+(2016-03-02 17:40:59 +0000) Michael MacKinnon: Added Cannonball ability
+(2016-03-02 17:12:33 +0000) Nelson Costa: - Added trailblazer behaviour
+(2016-03-02 16:09:20 +0000) Nelson Costa: Remade NelsonScene as a copy of BlairScene
+(2016-03-02 16:07:42 +0000) Nelson Costa: Added tether and fixed serveral bugs
+(2016-03-02 12:00:58 +0000) Nelson Costa: - Added Tether System
+(2016-02-26 17:23:18 +0000) longshorts: Updated main scene
+(2016-02-26 17:15:42 +0000) Nelson Costa: Fixes and preparation for final build 26-02-16
+(2016-02-26 14:02:22 +0000) unknown: Secret building
+(2016-02-26 13:56:28 +0000) unknown: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-02-25 18:40:53 +0000) Nelson: Updated Shader To Contain A Normal Map
+(2016-02-25 16:02:37 +0000) Nelson: Changed All Skills To Be Invisibility Until New Skills Get Added
+(2016-02-25 12:22:48 +0000) Nelson: Cleaned Up Game Manager
+(2016-02-25 12:10:57 +0000) Nelson: - Added Rogue Blink Checks and a Floor Tag
+(2016-02-25 11:44:18 +0000) Nelson: Removed rotation so that controls snap instead of lerp, removing that laggy turning complelty. Subjective to Change
+(2016-02-25 11:36:12 +0000) Nelson: Added Frictionless Characters
+(2016-02-25 10:59:16 +0000) Nelson: removed problems with merging
+(2016-02-25 10:52:57 +0000) Nelson: Testing Shader, Still needs normal map.
+(2016-02-25 10:45:47 +0000) Nelson: Testing Shader, Still needs normal map.
+(2016-02-24 17:55:00 +0000) unknown: Added new Level Layout
+(2016-02-24 17:22:29 +0000) unknown: Merge branch 'blairBridge' into dev
+(2016-02-24 17:20:27 +0000) unknown: Added some bridge thingys
+(2016-02-20 22:01:10 +0000) michael.mackinnon: Added End of Game. Changed timer to include tenths of a second to make it appear faster Will need to update later when UI is designed
+(2016-02-19 18:51:56 +0000) longshorts: Created a 16:9 level to reflect Tony's concept
+(2016-02-19 16:46:56 +0000) Nelson Costa: - Removed all assimilated behaviours for build - Fixed various controller inputs, so they get r2 l2 support
+(2016-02-19 14:21:32 +0000) michael.mackinnon: Add timer text UI (until replaced by visual image)
+(2016-02-19 12:21:36 +0000) Nelson Costa: - Added ClockTick() - Both Victory Conditions - Removed Usless Code In Rogue - Updated Legion Prefab to have only a tag on the parent object - Deleted misplaced prefab
+(2016-02-18 17:47:41 +0000) Nelson Costa: - Cleaned up Game Manager - Merged two lists in Game Manager - Cleaned up Assimilation in Rogue and Game Manager
+(2016-02-18 16:37:33 +0000) michael.mackinnon: Merge branch 'ToLocal' of https://github.com/nelsonlmdcosta/GameDevelopment-Legion into ToLocal
+(2016-02-18 16:36:36 +0000) michael.mackinnon: Add player objects; remove unneeded elements
+(2016-02-18 16:36:17 +0000) Nelson Costa: - Cleaned Camera Layermasks From legion - Updates Controls to Reuse Aiming for the Lazer
+(2016-02-18 15:12:24 +0000) michael.mackinnon: remove network components; fix keyboard input
+(2016-02-18 15:01:43 +0000) Nelson Costa: Fixed problem with debug keyboard, pushed during playmode.
+(2016-02-18 14:56:14 +0000) Nelson Costa: fixed debug keyboard controls
+(2016-02-18 14:45:47 +0000) Nelson Costa: fixed switch and fire controls
+(2016-02-18 14:40:53 +0000) Nelson Costa: - Removed Some Networking
+(2016-02-18 14:37:32 +0000) Nelson Costa: - Added Local Controllers For 5 Players - Commented Support For Twin Stick Aiming - Replaced Nelson Scene With The Updated Main Scene
+(2016-02-18 13:45:19 +0000) Nelson Costa: ToLocal Sync Commit For Mike To Get
+(2016-02-17 13:11:50 +0000) Nelson Costa: cleaned up regions of code in rogue to not use the camera
+(2016-02-17 12:53:57 +0000) Nelson Costa: removed old prefabs and cleaned up legion code to not expect a camera child object
+(2016-02-17 12:29:37 +0000) Nelson Costa: Cleanup main scene and removed cameras from the players, making only a central packman camera
+(2016-02-16 18:18:58 +0000) unknown: Materials that are somehow mysticly added by CJ
+(2016-02-16 18:15:17 +0000) unknown: adding random stuff
+(2016-02-16 18:03:02 +0000) unknown: Added rogue model
+(2016-02-16 17:48:33 +0000) unknown: New Legion Model
+(2016-02-16 17:43:17 +0000) unknown: New Rouge model
+(2016-02-16 17:13:11 +0000) unknown: temporary fix -Nelson
+(2016-02-16 17:02:23 +0000) unknown: material modify. Hidingspot model&texture updated.
+(2016-02-12 18:52:31 +0000) longshorts: Changed blair's level to be updated with Tony's cubes and lighting
+(2016-02-12 18:45:24 +0000) Nelson Costa: Added a shader for tony to play with
+(2016-02-12 17:12:24 +0000) unknown: hah
+(2016-02-12 17:10:33 +0000) unknown: Example Commit
+(2016-02-12 17:08:19 +0000) unknown: Added Other Colored Blocks
+(2016-02-12 16:35:01 +0000) unknown: addewd first scene cube
+(2016-02-12 15:20:22 +0000) Nelson Costa: Modified Rogue Element, preparing the networked behaviours
+(2016-02-10 11:20:28 +0000) Nelson Costa: fixed controller input, synced first beam power working over network
+(2016-02-05 16:57:57 +0000) Nelson Costa: added prettyness to main scene and added the new model to work with legion
+(2016-02-05 15:15:45 +0000) unknown: Added 2 Legion Models
+(2016-02-05 10:43:59 +0000) Michael MacKinnon: Add network movement
+(2016-02-04 22:06:39 +0000) Michael MacKinnon: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-02-04 22:05:58 +0000) Michael MacKinnon: add network test scene
+(2016-02-04 17:45:01 +0000) Nelson Costa: minor cleaning up on scripts
+(2016-02-04 15:47:17 +0000) Nelson Costa: added rogue skills and refactored input axes to contain a version where first player is able to use keyboard/joystick
+(2016-02-04 13:56:55 +0000) Nelson Costa: Added manager prefab
+(2016-02-04 13:47:28 +0000) Michael MacKinnon: UNET working with legion
+(2016-02-04 13:11:45 +0000) Nelson Costa: Fixed issue with camera
+(2016-02-03 16:44:43 +0000) Nelson Costa: fixed missing files
+(2016-02-03 16:43:51 +0000) Nelson Costa: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-02-03 16:42:18 +0000) Nelson Costa: fixed commit
+(2016-02-03 16:35:55 +0000) unknown: fixed commit
+(2016-02-03 16:34:37 +0000) unknown: refacted all code, only some recylcable classes are left, for later use, cleaned up project and added base scenes for each member
+(2016-02-03 16:01:07 +0000) unknown: Merge branch 'dev' of https://github.com/1505202/GameDevelopment-Legion into dev
+(2016-02-03 16:00:32 +0000) unknown: added concept level
+(2016-01-28 16:18:41 +0000) unknown: Adding generated files
+(2016-01-28 16:17:23 +0000) unknown: merged new architecture into project, still needs completing
+(2016-01-21 16:48:04 +0000) longshorts: Changed project to be suitable for 3D. Added models for characters and enchanced AI.
+(2016-01-20 17:06:26 +0000) unknown: added and fixed various cmponents, merged nash and nelssons work, and blair fixed up the scene to be bigger
+(2016-01-20 14:57:28 +0000) longshorts: Refactored cameras so they now add as children to each character. Added interface for accessing cameras.
+(2016-01-20 11:25:20 +0000) longshorts: Added WorldState for passing around network
+(2016-01-20 10:57:53 +0000) unknown: Hotfixed KeyboardMouse Controlls to have a center alligned aiming
+(2016-01-19 15:47:03 +0000) unknown: Merged both prototypes and commented code on certain points
+(2016-01-19 13:20:52 +0000) longshorts: Initial upload of Nash's prototype
+(2016-01-18 18:10:53 +0000) Nelson Luis Moreira da Costa: Initial commit
