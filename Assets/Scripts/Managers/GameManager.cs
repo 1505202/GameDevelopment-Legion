@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get { return instance; } }
     public float SecondsRemaining { get; private set; }
     public bool IsGameOver { get { return isGameOver; } set { isGameOver = value; } }
+    public bool audioEnabled = false;
     public bool IsInLobby() 
     {
         return isStarting;
@@ -67,7 +68,7 @@ public class GameManager : MonoBehaviour
             instance = this;
             GetComponent<Transform>().parent = GameObject.FindGameObjectWithTag("ManagerHolder").GetComponent<Transform>();
             SecondsRemaining = maxSeconds;
-			AudioManager.StartMenuMusic();
+			if(audioEnabled)AudioManager.StartMenuMusic();
 			EnteringLobby();
 
 			if(isResetting)
@@ -227,7 +228,7 @@ public class GameManager : MonoBehaviour
 		LobbyPanel.SetActive (false);
         HelpPanel.SetActive(false);
 		Time.timeScale = 1;
-        AudioManager.StartLevelMusic();
+        if (audioEnabled) AudioManager.StartLevelMusic();
 	}
 
 	public void CheckForVictory()
@@ -246,8 +247,8 @@ public class GameManager : MonoBehaviour
 		if (IsGameOver) 
 		{
 			StopEndGameWarning();
-            AudioManager.PlayGameOverSound();
-            AudioManager.StartMenuMusic();
+            if (audioEnabled) AudioManager.PlayGameOverSound();
+            if (audioEnabled) AudioManager.StartMenuMusic();
 			DisablePhysics ();
 
             if (!startedEndOfRoundTransition)
@@ -361,13 +362,13 @@ public class GameManager : MonoBehaviour
 
 	private void PlayEndGameWarning()
 	{
-		AudioManager.PlayGameAlmostOverSound();
+        if (audioEnabled) AudioManager.PlayGameAlmostOverSound();
 		isEndGameWarningPlaying = true;
 	}
 
 	private void StopEndGameWarning()
 	{
-		AudioManager.StopGameAlmostOverSound();
+        if (audioEnabled) AudioManager.StopGameAlmostOverSound();
 		isEndGameWarningPlaying = false;
 	}
 
@@ -376,7 +377,7 @@ public class GameManager : MonoBehaviour
 		isPaused = true;
 		Time.timeScale = 0;
 		pausePanel.SetActive (true);
-        AudioManager.PauseLevelWithAudio();
+        if (audioEnabled) AudioManager.PauseLevelWithAudio();
     }
 
     private void UnPause()
@@ -384,7 +385,7 @@ public class GameManager : MonoBehaviour
 		isPaused = false;
 		Time.timeScale = 1;
 		pausePanel.SetActive (false);
-        AudioManager.UnPauseLevelWithAudio();
+        if (audioEnabled) AudioManager.UnPauseLevelWithAudio();
     }
 
     private void ResetGame()

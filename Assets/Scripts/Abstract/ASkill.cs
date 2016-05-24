@@ -14,6 +14,7 @@ public abstract class ASkill : MonoBehaviour, ISkill
 	public bool IsReady
 	{
 		get{ return isReady; }
+        set { isReady = value; }
 	}
 
 	protected IEnumerator SkillCooldown()

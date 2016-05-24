@@ -8,6 +8,7 @@ public class Rogue : AActor, IAssimilatable
 
     //[Header("Example Skill")]
     //[SerializeField] private float skillVariable = null;
+    [SerializeField] private GameObject mBlinkParticleObject = null;
 
     [SerializeField] private float skillResource;
 
@@ -70,11 +71,22 @@ public class Rogue : AActor, IAssimilatable
 
         // INITIALIZE SKILLS
 
+        //rogueSkills = new RogueBlink[3];
+        for (int i = 0; i < rogueSkills.Length; i++)
+        {
+            RogueBlink tempRogueSkill = gameObject.AddComponent<RogueBlink>();
+            tempRogueSkill.Initialize(GetComponent<Transform>(), 5.0f, 1.0f, mBlinkParticleObject);
+
+
+            rogueSkills[i] = tempRogueSkill;
+        }
+
         lightSource.intensity = maxIntensity;
     }
 	
 	// Update is called once per frame
 	void Update () {
+
         if (GameManager.Instance.IsGameOver || GameManager.Instance.IsInLobby())
             return;
 
@@ -125,7 +137,7 @@ public class Rogue : AActor, IAssimilatable
             return;
         }
 
-        HandleMoveInput();
+       HandleMoveInput();
 
         // Skill handling
         for (int i = 0; i < rogueSkills.Length; i++)
@@ -161,7 +173,7 @@ public class Rogue : AActor, IAssimilatable
 
         SwitchActorBehaviour();
 
-        AudioManager.PlayAssimilationSound();
+        if (GameManager.Instance.audioEnabled) AudioManager.PlayAssimilationSound();
     }
 
     public void SwitchActorBehaviour()
@@ -178,6 +190,7 @@ public class Rogue : AActor, IAssimilatable
     {
         /// Rogue Behaviour
         /// Translation and Rotation Handling
+        /// TODO: THIS LINE CAUSES FIRST ROGUE TO BE STATIC, SECOND ROGUE TO HAVE NO FRICTION
         myRigidBody.velocity = (inputController.MoveDirection() * movementSpeed) + new Vector3(0, myRigidBody.velocity.y, 0);
 
         if (inputController.MoveDirection() != Vector3.zero)

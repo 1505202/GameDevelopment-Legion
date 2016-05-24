@@ -24,7 +24,7 @@ public class RogueBlink : ASkill
             if (SkillLogic())
             {
                 //Play sound effect
-                AudioManager.PlayBlinkSound();
+                if(GameManager.Instance.audioEnabled) AudioManager.PlayBlinkSound();
 
                 StartCoroutine(SkillCooldown());
                 return true;
