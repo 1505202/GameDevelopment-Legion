@@ -190,25 +190,34 @@ public class GameManager : MonoBehaviour
 		
 		for (int i=1; i<=5; i++)
         {
-			GameObject infoPanel = LobbyPanel.transform.FindChild ("PlayerInfo" + i).gameObject;
-			Text playerName = infoPanel.transform.FindChild ("PlayerName").GetComponent<Text> ();
-			Text playerTeam = infoPanel.transform.FindChild ("PlayerTeam").GetComponent<Text> ();
-			Text points = infoPanel.transform.FindChild ("Points").GetComponent<Text> ();
-			GameObject playerReadyImage = infoPanel.transform.FindChild ("IsReadyImage").gameObject;
-			
-			//playerName.color = colors [(colorBaseIndex + i) % 5];
-            playerName.color = playerColors[i-1];
-            playerTeam.text = previousRoundTeams[i-1];
-			playerReadyImage.SetActive(false);
-            points.text = previousRoundScores[i - 1];
-			readyPlayers[i-1] = false;
+            GameObject infoPanel = LobbyPanel.transform.FindChild("PlayerInfo" + i).gameObject;
+            Text playerName = infoPanel.transform.FindChild("PlayerName").GetComponent<Text>();
+            Text playerTeam = infoPanel.transform.FindChild("PlayerTeam").GetComponent<Text>();
+            Text points = infoPanel.transform.FindChild("Points").GetComponent<Text>();
+            GameObject playerReadyImage = infoPanel.transform.FindChild("IsReadyImage").gameObject;
 
-            // Set Ingame Player Colors
-            if (i >= 2)
+            //If there isnt a player to fill the row make it blank
+            if (1 + rogueElements.Count < i)
             {
-                rogueElements[i - 2].GetComponent<Rogue>().SetRogueColors(playerName.color);
-                rogueElements[i - 2].GetComponent<Rogue>().PlayerNumber = i;
-           }
+                playerName.text = "";
+                playerTeam.text = "";
+                playerReadyImage.SetActive(false);
+                points.text = "";
+                readyPlayers[i - 1] = false;
+            } else {    //Else set text for player and allocate colors
+                playerName.color = playerColors[i - 1];
+                playerTeam.text = previousRoundTeams[i - 1];
+                playerReadyImage.SetActive(false);
+                points.text = previousRoundScores[i - 1];
+                readyPlayers[i - 1] = false;
+
+                // Set Ingame Player Colors
+                if (i >= 2)
+                {
+                    rogueElements[i - 2].GetComponent<Rogue>().SetRogueColors(playerName.color);
+                    rogueElements[i - 2].GetComponent<Rogue>().PlayerNumber = i;
+                }
+            }
         }
 	}
 
@@ -276,7 +285,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator ReturnToLobby(float t)
     {
         yield return new WaitForSeconds(t);
-        Application.LoadLevel(1);
+        Application.LoadLevel(Application.loadedLevel);
     }
 
 	public void Assimilate(Rogue rogue)
@@ -284,9 +293,9 @@ public class GameManager : MonoBehaviour
         rogue.ModifyScore(-1);
 	    foreach (GameObject r in legionElements)
 	    {
-	        r.GetComponent<Rogue>().ModifyScore(1);
+	        //r.GetComponent<Rogue>().ModifyScore(1);
 	    }
-	    legion.GetComponent<Legion>().ModifyScore(1);
+	    //legion.GetComponent<Legion>().ModifyScore(1);
 
 	    rogueElements.Remove(rogue.gameObject);
 		legionElements.Add(rogue.gameObject);
@@ -294,7 +303,6 @@ public class GameManager : MonoBehaviour
 		foreach (GameObject r in rogueElements)
 		{
 		    Rogue indexedRogue = r.GetComponent<Rogue>();
-		    indexedRogue.UpdateRogueSkillCount();
 		    indexedRogue.ModifyScore(1);
 		}
 	}
